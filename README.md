@@ -1,50 +1,50 @@
 <div align="center">
-<h1>库名</h1>
+<h1>commonmark4cj</h1>
 </div>
 
 <p align="center">
 <img alt="" src="https://img.shields.io/badge/release-v0.0.1-brightgreen" style="display: inline-block;" />
 <img alt="" src="https://img.shields.io/badge/build-pass-brightgreen" style="display: inline-block;" />
-<img alt="" src="https://img.shields.io/badge/cjc-v0.30.4-brightgreen" style="display: inline-block;" />
-<img alt="" src="https://img.shields.io/badge/cjcov-50%25-red" style="display: inline-block;" />
+<img alt="" src="https://img.shields.io/badge/cjc-v0.47.2-brightgreen" style="display: inline-block;" />
+<img alt="" src="https://img.shields.io/badge/cjcov-0%25-red" style="display: inline-block;" />
 <img alt="" src="https://img.shields.io/badge/project-open-brightgreen" style="display: inline-block;" />
 </p>
 
 ## 介绍
 
-介绍库或者框架符合的标准，应用领域，解决什么问题。有哪些主要的特点，与同类库相比有哪些优点。
+用于根据CommonMark规范（以及一些扩展）解析和呈现Markdown文本。
 
 ### 特性
 
-- 🚀 特性1
+- 🚀 解析markdown文本
 
-- 🚀 特性2
+- 🛠️ Node树状结构
 
-- 💪 特性3
+- 💡 遍历/渲染Node树
 
-- 🛠️ 特性4
-
-- 🌍 特性5
-
-- 💡  特性6
 
 ### 路线
-
-<p align="center">
-<img src="./doc/assets/milestone.png" width="100%" >
-</p>
-路线图roadmap在 doc/framework-roadmap-logo.pptx 中有源文件。
+```mermaid
+gantt
+    title Milestone
+    dateFormat YYYY-MM-DD
+        Node : a1, 2024-01-29, 2024-02-08
+        Parser : 2024-02-17, 30d
+```
 
 
 ## 软件架构
 
-### 架构图
+### 架构
 
-<p align="center">
-<img src="./doc/assets/framework.png" width="60%" >
-</p>
-
-架构图文字说明，包括模块说明、架构层次等详细说明。
+```mermaid
+flowchart LR
+    md[/MarkdownText/] -->parser(Parser解析)
+    parser --> node>Node树]
+    node --> renderer(Renderer渲染)
+    renderer <--> visitor[[Visitor遍历]]
+    renderer --> res[/渲染结果/]
+```
 
 ### 源码目录
 
@@ -55,7 +55,7 @@
 │   ├── design.md          #整体设计文档
 │   └── feature_api.md     #API接口文档
 ├── src                    #源码目录
-│   └── Template.cj        #描述关键代码文件的功能
+│   └── commonmark         #描述关键代码文件的功能
 └── test                   #测试代码目录
     ├── HLT
     └── LLT
@@ -63,7 +63,7 @@
 
 ### 接口说明
 
-主要类和函数接口说明详见 [API](./doc/api.md)
+主要类和函数接口说明详见 [API](./doc/feature_api.md)
 
 
 ## 使用说明
@@ -73,8 +73,7 @@
 描述具体的编译过程：
 
 ```shell
-cpm update
-cpm build
+cjpm build
 ```
 
 ### 功能示例
@@ -120,7 +119,7 @@ xxx
 描述环境限制，版本限制，依赖版本等
 
 ## 开源协议
-xxx License
+FreeBSD
 
 ## 参与贡献
 
