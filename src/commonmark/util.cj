@@ -222,6 +222,7 @@ public class LinkScanner {
                     case b'>' => return i + 1
                     case _ => ()
                 }
+                i++
             }
             return -1
         } else {
@@ -270,6 +271,7 @@ public class LinkScanner {
                 // unescaped '(' in title within parens is invalid
                 return -1
             }
+            i++
         }
         return input.size
     }
@@ -412,17 +414,17 @@ public class Parsing {
      * Prepares the input line replacing {@code \0}
      */
     public static func prepareLine(line: String): String {
-        let runesArray: Array<Rune> = line.toRuneArray()
+
         // Avoid building a new string in the majority of cases (no \0)
         var sb: ?StringBuilder = None
-        let length: Int64 = runesArray.size
+        let length: Int64 = line.size
         for (i in 0..length) {
-            let c = runesArray[i]
+            let c = line[i]
             match (c) {
-                case '\0' =>
+                case b'\0' =>
                     if (sb.isNone()) {
                         sb = StringBuilder(length)
-                        sb().append(runesArray[..i])
+                        sb().append(line, 0, i)
                     }
                     sb().append('\u{FFFD}')
                 case _ => if (sb.isSome()) {
@@ -448,7 +450,7 @@ public class Parsing {
     }
 
     public static func skipBackwards(skip: AsciiByte, s: String, startIndex: Int64, lastIndex: Int64): Int64 {
-        for (i in startIndex..=lastIndex : -1) {
+        for (i in startIndex..lastIndex : -1) {
             if (s[i] != skip) {
                 return i
             }
@@ -467,7 +469,7 @@ public class Parsing {
     }
 
     public static func skipSpaceTabBackwards(s: String, startIndex: Int64, lastIndex: Int64): Int64 {
-        for (i in startIndex..=lastIndex : -1) {
+        for (i in startIndex..lastIndex : -1) {
             match (s[i]) {
                 case b' ' | b'\t' => continue
                 case _ => return i
