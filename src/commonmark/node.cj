@@ -326,7 +326,7 @@ public class StrongEmphasis <: Node & Delimited {
 
     public init() {}
 
-    public StrongEmphasis(delimiter: String) {
+    public init(delimiter: String) {
         this.delimiter = delimiter
     }
 
