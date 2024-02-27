@@ -3,9 +3,9 @@
  */
 package commonmark
 
-from std import collection.{ArrayList, HashMap, HashSet, Map, EquatableCollection, Set, LinkedList}
+from std import collection.{ArrayList, HashMap, HashSet, Map, EquatableCollection, Set, LinkedList, map, collectString}
 from std import convert.{Parsable}
-from std import fs.{File, OpenOption, Path, Directory}
+from std import format.{Formatter}
 from std import io.{StringReader, InputStream, IOException}
 from std import os.{getEnv}
 from std import reflect.{TypeInfo}
@@ -18,6 +18,51 @@ extend Option<T> {
     }
 }
 
-let NULL_CHAR: Char = '\u{0}'
+extend Option<T> where T <: Equatable<T> {
+    operator func ==(other: T): Bool {
+        match (this) {
+            case Some(v) => v == other
+            case _ => false
+        }
+    }
+    operator func !=(other: T): Bool {
+        match (this) {
+            case Some(v) => v != other
+            case _ => true
+        }
+    }
+}
+
+let NULL_CHAR: Rune = '\u{0}'
 let EMPTY_STRING: String = ""
 let EMPTY_MAP: Map<String, String> = HashMap()
+
+public type CharSequence = Array<Rune>
+extend Array<T> where T <: Rune {
+    func trim(): Array<T> {
+        var (a, b) = (0, this.size - 1)
+        while (a <= b) {
+            if (this[a].isWhiteSpace()) {
+                a++
+            } else {
+                break
+            }
+        }
+        while (b >= a) {
+            if (this[b].isWhiteSpace()) {
+                b--
+            } else {
+                break
+            }
+        }
+        this[a..=b]
+    }
+
+    func replace(old: T, new: T): Unit {
+        for (i in 0..this.size) {
+            if (this[i] == old) {
+                this[i] = new
+            }
+        }
+    }
+}

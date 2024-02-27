@@ -1,6 +1,6 @@
 package commonmark
 
-/* ascii类型的字符 范围：0-127*/
+/* Character range of ascii type：0-127*/
 public type AsciiByte = Byte
 
 public class Escaping {
@@ -61,7 +61,14 @@ public class Escaping {
     }
 
     public static func percentEncodeUrl(s: String): String {
-        return replaceAll(ESCAPE_IN_URI, s, UriReplacer())
+        let str = s |> map<Byte, ToString> {
+            b => if (b < 128) {
+                String(Char(UInt32(b)))
+            } else {
+                "%${b.format("X")}"
+            }
+        } |> collectString(delimiter: "")
+        return replaceAll(ESCAPE_IN_URI, str, UriReplacer())
     }
 
     public static func normalizeReference(input: String): String {
@@ -183,16 +190,16 @@ public class LinkScanner {
      * -1. The returned position can either be the closing {@code ]}, or the end of the line if the label continues on
      * the next line.
      */
-    public static func scanLinkLabelContent(input: String, start: Int64): Int64 {
+    public static func scanLinkLabelContent(input: CharSequence, start: Int64): Int64 {
         var i: Int64 = start
         while (i < input.size) {
             let c = input[i]
             match (c) {
-                case b'\\' => if (Parsing.isEscapable(input, i + 1)) {
+                case '\\' => if (Parsing.isEscapable(input, i + 1)) {
                     i++
                 }
-                case b']' => return i
-                case b'[' =>
+                case ']' => return i
+                case '[' =>
                     // spec: Unescaped square bracket characters are not allowed inside the opening and closing
                     // square brackets of link labels.
                     return -1
@@ -206,20 +213,20 @@ public class LinkScanner {
     /**
      * Attempt to scan a link destination, returning the position after the destination or -1.
      */
-    public static func scanLinkDestination(input: String, start: Int64): Int64 {
+    public static func scanLinkDestination(input: Array<Rune>, start: Int64): Int64 {
         if (start >= input.size) {
             return -1
         }
-        if (input[start] == b'<') {
+        if (input[start] == '<') {
             var i: Int64 = start + 1
             while (i < input.size) {
                 let c = input[i]
                 match (c) {
-                    case b'\\' => if (Parsing.isEscapable(input, i + 1)) {
+                    case '\\' => if (Parsing.isEscapable(input, i + 1)) {
                         i++
                     }
-                    case b'\n' | b'<' => return -1
-                    case b'>' => return i + 1
+                    case '\n' | '<' => return -1
+                    case '>' => return i + 1
                     case _ => ()
                 }
                 i++
@@ -230,16 +237,16 @@ public class LinkScanner {
         }
     }
 
-    public static func scanLinkTitle(input: String, start: Int64): Int64 {
+    public static func scanLinkTitle(input: CharSequence, start: Int64): Int64 {
         if (start >= input.size) {
             return -1
         }
 
-        var endDelimiter: AsciiByte
+        var endDelimiter: Rune
         match (input[start]) {
-            case b'"' => endDelimiter = b'"'
-            case b'\'' => endDelimiter = b'\''
-            case b'(' => endDelimiter = b')'
+            case '"' => endDelimiter = '"'
+            case '\'' => endDelimiter = '\''
+            case '(' => endDelimiter = ')'
             case _ => return -1
         }
 
@@ -259,15 +266,15 @@ public class LinkScanner {
     /*
      * simple bitmap
      */
-    public static func scanLinkTitleContent(input: String, start: Int64, endDelimiter: AsciiByte): Int64 {
+    public static func scanLinkTitleContent(input: CharSequence, start: Int64, endDelimiter: Rune): Int64 {
         var i: Int64 = start
         while (i < input.size) {
             let c = input[i]
-            if (c == b'\\' && Parsing.isEscapable(input, i + 1)) {
+            if (c == '\\' && Parsing.isEscapable(input, i + 1)) {
                 i++
             } else if (c == endDelimiter) {
                 return i
-            } else if (endDelimiter == b')' && c == b'(') {
+            } else if (endDelimiter == ')' && c == '(') {
                 // unescaped '(' in title within parens is invalid
                 return -1
             }
@@ -279,45 +286,43 @@ public class LinkScanner {
     // spec: a nonempty sequence of characters that does not start with <, does not include ASCII space or control
     // characters, and includes parentheses only if (a) they are backslash-escaped or (b) they are part of a balanced
     // pair of unescaped parentheses
-    private static func scanLinkDestinationWithBalancedParens(input: String, start: Int64): Int64 {
-        let byteArray: Array<Byte> = input.toArray()
+    private static func scanLinkDestinationWithBalancedParens(input: CharSequence, start: Int64): Int64 {
         var parens: Int64 = 0
         var i: Int64 = start
         while (i < input.size) {
             let c = input[i]
             match (c) {
-                case b'\0' | b' ' => if (i != start) {
+                case '\0' | ' ' => if (i != start) {
                     return i
                 } else {
                     return -1
                 }
-                case b'\\' => if (Parsing.isEscapable(input, i + 1)) {
+                case '\\' => if (Parsing.isEscapable(input, i + 1)) {
                     i++
                 }
-                case b'(' =>
+                case '(' =>
                     parens++
                     // Limit to 32 nested parens for pathological cases
                     if (parens > 32) {
                         return -1
                     }
-                case b')' => if (parens == 0) {
+                case ')' => if (parens == 0) {
                     return i
                 } else {
                     parens--
                 }
                 case _ =>
                     // or control character
-                    let (rune, byteSize) = Char.fromUtf8(byteArray, i)
-                    if (isISOControl(rune)) {
-                        if (i != start) {
-                            return i
-                        } else {
-                            return -1
-                        }
+                    if (isISOControl(c)) {
+                    if (i != start) {
+                        return i
                     } else {
-                        i += byteSize
-                        continue
+                        return -1
                     }
+                } else {
+                    i += 1
+                    continue
+                }
             }
             i++
         }
@@ -356,7 +361,7 @@ public class Parsing {
     /**
      * Byte is ascii
      */
-    public static func find(c: Byte, s: String, startIndex: Int64): Int64 {
+    public static func find(c: Rune, s: CharSequence, startIndex: Int64): Int64 {
         let length: Int64 = s.size
         for (i in startIndex..length) {
             if (s[i] == c) {
@@ -366,44 +371,53 @@ public class Parsing {
         return -1
     }
 
-    public static func findLineBreak(s: String, startIndex: Int64): Int64 {
+    public static func findLineBreak(s: CharSequence, startIndex: Int64): Int64 {
         let length: Int64 = s.size
         for (i in startIndex..length) {
             match (s[i]) {
-                case b'\n' | b'\r' => return i
+                case '\n' | '\r' => return i
                 case _ => ()
             }
         }
         return -1
     }
 
-    public static func isBlank(s: String): Bool {
+    public static func isBlank(s: CharSequence): Bool {
         return findNonSpace(s, 0) == -1
     }
 
-    public static func hasNonSpace(s: String): Bool {
+    public static func hasNonSpace(s: CharSequence): Bool {
         let length: Int64 = s.size
-        let skipped: Int64 = skip(b' ', s, 0, length)
+        let skipped: Int64 = skip(' ', s, 0, length)
         return skipped != length
     }
 
-    public static func isLetter(s: String, index: Int64): Bool {
-        return s.toRuneArray()[index].isLetter()
+    public static func isLetter(s: CharSequence, index: Int64): Bool {
+        return s[index].isLetter()
     }
 
-    public static func isSpaceOrTab(s: String, index: Int64): Bool {
+    public static func isSpaceOrTab(s: CharSequence, index: Int64): Bool {
         if (index < s.size) {
             match (s[index]) {
-                case b' ' | b'\t' => return true
+                case ' ' | '\t' => return true
                 case _ => ()
             }
         }
         return false
     }
 
-    public static func isEscapable(s: String, index: Int64): Bool {
+    // public static func isEscapable(s: String, index: Int64): Bool {
+    //     if (index < s.size) {
+    //         if (bytes.contains(s[index])) {
+    //             return true
+    //         }
+    //     }
+    //     return false
+    // }
+
+    public static func isEscapable(s: CharSequence, index: Int64): Bool {
         if (index < s.size) {
-            if (bytes.contains(s[index])) {
+            if (bytes.contains(UInt8(UInt32(s[index])) & 0xff)) {
                 return true
             }
         }
@@ -413,15 +427,14 @@ public class Parsing {
     /**
      * Prepares the input line replacing {@code \0}
      */
-    public static func prepareLine(line: String): String {
-
+    public static func prepareLine(line: CharSequence): CharSequence {
         // Avoid building a new string in the majority of cases (no \0)
         var sb: ?StringBuilder = None
         let length: Int64 = line.size
         for (i in 0..length) {
             let c = line[i]
             match (c) {
-                case b'\0' =>
+                case '\0' =>
                     if (sb.isNone()) {
                         sb = StringBuilder(length)
                         sb().append(line, 0, i)
@@ -434,13 +447,13 @@ public class Parsing {
         }
 
         if (sb.isSome()) {
-            return sb().toString()
+            return sb().toString().toRuneArray()
         } else {
             return line
         }
     }
 
-    public static func skip(skip: AsciiByte, s: String, startIndex: Int64, endIndex: Int64): Int64 {
+    public static func skip(skip: Rune, s: CharSequence, startIndex: Int64, endIndex: Int64): Int64 {
         for (i in startIndex..endIndex) {
             if (s[i] != skip) {
                 return i
@@ -449,7 +462,7 @@ public class Parsing {
         return endIndex
     }
 
-    public static func skipBackwards(skip: AsciiByte, s: String, startIndex: Int64, lastIndex: Int64): Int64 {
+    public static func skipBackwards(skip: Rune, s: CharSequence, startIndex: Int64, lastIndex: Int64): Int64 {
         for (i in startIndex..lastIndex : -1) {
             if (s[i] != skip) {
                 return i
@@ -458,31 +471,31 @@ public class Parsing {
         return lastIndex - 1
     }
 
-    public static func skipSpaceTab(s: String, startIndex: Int64, endIndex: Int64): Int64 {
+    public static func skipSpaceTab(s: CharSequence, startIndex: Int64, endIndex: Int64): Int64 {
         for (i in startIndex..endIndex) {
             match (s[i]) {
-                case b' ' | b'\t' => continue
+                case ' ' | '\t' => continue
                 case _ => return i
             }
         }
         return endIndex
     }
 
-    public static func skipSpaceTabBackwards(s: String, startIndex: Int64, lastIndex: Int64): Int64 {
+    public static func skipSpaceTabBackwards(s: CharSequence, startIndex: Int64, lastIndex: Int64): Int64 {
         for (i in startIndex..lastIndex : -1) {
             match (s[i]) {
-                case b' ' | b'\t' => continue
+                case ' ' | '\t' => continue
                 case _ => return i
             }
         }
         return lastIndex - 1
     }
 
-    private static func findNonSpace(s: String, startIndex: Int64): Int64 {
+    private static func findNonSpace(s: CharSequence, startIndex: Int64): Int64 {
         let length: Int64 = s.size
         for (i in startIndex..length) {
             match (s[i]) {
-                case b' ' | b'\t' | b'\n' | b'\u{0B}' | b'\f' | b'\r' => continue
+                case ' ' | '\t' | '\n' | '\u{0B}' | '\f' | '\r' => continue
                 case _ => return i
             }
         }

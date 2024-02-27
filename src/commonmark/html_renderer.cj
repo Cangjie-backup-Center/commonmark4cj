@@ -483,7 +483,9 @@ public class CoreHtmlNodeRenderer <: AbstractVisitor & NodeRenderer {
         let attrs: Map<String, String> = HashMap<String, String>()
         attrs.put("src", url)
         attrs.put("alt", altText)
-        attrs.put("title", image.getTitle())
+        if (let Some(v) <- image.getTitle()) {
+            attrs.put("title", v)
+        }
 
         html.tag("img", getAttrs(image, "img", attrs), true)
     }

@@ -120,7 +120,7 @@ public abstract class Node <: ToString & Equatable<Node> {
     }
 }
 
-public class Text <: Node {
+public class Text <: Node & Equatable<Text> {
     private var literal: String
 
     public init(literal: String) {
@@ -141,6 +141,14 @@ public class Text <: Node {
 
     protected func toStringAttributes(): String {
         return "literal=${literal}"
+    }
+
+    public operator func ==(other: Text): Bool {
+        refEq(this, other)
+    }
+
+    public operator func !=(other: Text): Bool {
+        !(refEq(this, other))
     }
 }
 
@@ -172,9 +180,9 @@ public abstract class CustomNode <: Node {
 
 public class Image <: Node {
     private var destination: String
-    private var title: String
+    private var title: ?String
 
-    public init(destination: String, title: String) {
+    public init(destination: String, title: ?String) {
         this.destination = destination
         this.title = title
     }
@@ -191,7 +199,7 @@ public class Image <: Node {
         this.destination = destination
     }
 
-    public func getTitle(): String {
+    public func getTitle(): ?String {
         return title
     }
 
@@ -326,7 +334,7 @@ public class StrongEmphasis <: Node & Delimited {
 
     public init() {}
 
-    public init(delimiter: String) {
+    public StrongEmphasis(delimiter: String) {
         this.delimiter = delimiter
     }
 
