@@ -14,6 +14,9 @@ func assertEquals<T>(msg: String, expected: T, actual: T): Unit where T <: Equat
 func assertEquals<T>(expected: T, actual: T): Unit where T <: Equatable<T> {
     @PowerAssert(expected == actual)
 }
+func assertNotEquals<T>(expected: T, actual: T): Unit where T <: Equatable<T> {
+    @PowerAssert(expected != actual)
+}
 func assertNull<T>(any: ?T): Unit {
     if (any.isSome()) {
         throw Exception("expected null, but was:Some()")
@@ -24,37 +27,47 @@ extend Option<T> {
         this.getOrThrow()
     }
 }
-public class TestResources {
-    public static func getSpec(): Path {
-        return Path("/spec.txt")
-    }
 
-    public static func getRegressions(): Array<Path> {
-        return [Path("/cmark-regression.txt"), Path("/commonmark.js-regression.txt")]
-    }
-
-    public static func readAsString(url: Path): String {
-        return String.fromUtf8(File.readFrom(url))
-    }
-}
-
-func printNode(node: ?Node): Unit {
-    if (let Some(v) <- node) {
-        var current = v
-        while (let Some(p) <- (current.getParent())) {
-            current = p
+public class Strings {
+    public static func repeat(s: String, count: Int64): String {
+        var sb: StringBuilder = StringBuilder(s.toRuneArray().size * count)
+        for (i in 0..count) {
+            sb.append(s)
         }
-        printNode(current, 0)
+        return sb.toString()
     }
 }
 
-func printNode(node: ?Node, dep: Int): Unit {
-    if (node.isNone()) {
-        return
+public class Example {
+    private var filename: String
+    private var section: String
+    private var info: String
+    private var exampleNumber: Int64
+    private var source: String
+    private var html: String
+
+    public init(filename: String, section: String, info: String, exampleNumber: Int64, source: String, html: String) {
+        this.filename = filename
+        this.section = section
+        this.info = info
+        this.exampleNumber = exampleNumber
+        this.source = source
+        this.html = html
     }
-    println("${" "*dep}${node}")
-    let child = node?.getFirstChild() ?? None
-    printNode(child, dep + 4)
-    let next = node?.getNext() ?? None
-    printNode(next, dep)
+
+    public func getInfo(): String {
+        return info
+    }
+
+    public func getSource(): String {
+        return source
+    }
+
+    public func getHtml(): String {
+        return html
+    }
+
+    public func toString(): String {
+        return "File \"" + filename + "\" section \"" + section + "\" example ${exampleNumber}"
+    }
 }
