@@ -251,7 +251,7 @@ public class LinkReferenceDefinition <: Node {
 
     public init() {}
 
-    public init(label: String, destination: String, title: String) {
+    public init(label: String, destination: String, title: ?String) {
         this.label = label
         this.destination = destination
         this.title = title
