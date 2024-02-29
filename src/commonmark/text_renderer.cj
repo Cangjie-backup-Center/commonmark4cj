@@ -295,7 +295,7 @@ public class CoreTextContentNodeRenderer <: AbstractVisitor & NodeRenderer {
     public override func visit(paragraph: Paragraph): Unit {
         visitChildren(paragraph)
         // Add "end of line" only if its "root paragraph.
-        if (paragraph.getParent().isNone() || paragraph.getParent() is Document) {
+        if (paragraph.getParent().isNone() || paragraph.getParent()() is Document) {
             writeEndOfLineIfNeeded(paragraph, None)
         }
     }
