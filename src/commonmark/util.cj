@@ -437,12 +437,10 @@ public class Parsing {
                 case '\0' =>
                     if (sb.isNone()) {
                         sb = StringBuilder(length)
-                        sb().append(line, 0, i)
+                        sb?.append(line[..i])
                     }
-                    sb().append('\u{FFFD}')
-                case _ => if (sb.isSome()) {
-                    sb().append(c)
-                }
+                    sb?.append('\u{FFFD}')
+                case _ => sb?.append(c)
             }
         }
 

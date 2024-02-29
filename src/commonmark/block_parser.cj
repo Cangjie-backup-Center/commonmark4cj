@@ -942,11 +942,10 @@ public class LinkReferenceDefinitionParser {
         }
 
         var d: String = Escaping.unescapeString(destination)
-        var t: String
-        if (title.size != 0) {
-            t = Escaping.unescapeString(title.toString())
+        let t: ?String = if (title.size == 0) {
+            None
         } else {
-            t = ""
+            Escaping.unescapeString(title.toString())
         }
         definitions.append(LinkReferenceDefinition(normalizedLabel, d, t))
 
