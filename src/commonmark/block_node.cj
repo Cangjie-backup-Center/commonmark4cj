@@ -84,7 +84,7 @@ public class FencedCodeBlock <: Block {
     private var fenceLength: Int64 = 0
     private var fenceIndent: Int64 = 0
 
-    private var info: ?String = None
+    private var info: String = EMPTY_STRING
     private var literal: String = EMPTY_STRING
 
     public func accept(visitor: Visitor): Unit {
@@ -115,7 +115,7 @@ public class FencedCodeBlock <: Block {
         this.fenceIndent = fenceIndent
     }
 
-    public func getInfo(): ?String {
+    public func getInfo(): String {
         return info
     }
 

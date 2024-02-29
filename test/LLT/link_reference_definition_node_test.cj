@@ -65,10 +65,10 @@ public class LinkReferenceDefinitionNodeTest {
 
         let def1: LinkReferenceDefinition = assertDef(nodes.get(1)(), "foo")
 
-        assertEquals("/url1", def1.getDestination()())
+        assertEquals("/url1", def1.getDestination())
 
         let def2: LinkReferenceDefinition = assertDef(nodes.get(2)(), "foo")
-        assertEquals("/url2", def2.getDestination()())
+        assertEquals("/url2", def2.getDestination())
     }
 
     @TestCase

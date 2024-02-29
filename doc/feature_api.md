@@ -277,9 +277,9 @@ public class LinkReferenceDefinition <: Node {
     public func setLabel(label: String): Unit
     /*
      * 获取目标地址
-     * 返回值 ?String - 目标地址
+     * 返回值 String - 目标地址
      */
-    public func getDestination(): ?String
+    public func getDestination(): String
 	/*
      * 设置目标地址
      * 参数 String - 目标地址
@@ -561,9 +561,9 @@ public class FencedCodeBlock <: Block {
     public func setFenceIndent(fenceIndent: Int64): Unit
 	/*
      * 获取语言标识符
-     * 返回值 ?String - 语言标识符
+     * 返回值 String - 语言标识符
      */
-    public func getInfo(): ?String
+    public func getInfo(): String
    	/*
      * 设置语言标识符
      * 参数 String - 语言标识符

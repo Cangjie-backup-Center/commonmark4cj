@@ -246,7 +246,7 @@ public class SoftLineBreak <: Node {
 
 public class LinkReferenceDefinition <: Node {
     private var label: ?String = None
-    private var destination: ?String = None
+    private var destination: String = EMPTY_STRING
     private var title: ?String = None
 
     public init() {}
@@ -265,7 +265,7 @@ public class LinkReferenceDefinition <: Node {
         this.label = label
     }
 
-    public func getDestination(): ?String {
+    public func getDestination(): String {
         return destination
     }
 

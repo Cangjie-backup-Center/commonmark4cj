@@ -411,7 +411,7 @@ public class CoreHtmlNodeRenderer <: AbstractVisitor & NodeRenderer {
     public override func visit(fencedCodeBlock: FencedCodeBlock): Unit {
         let literal: String = fencedCodeBlock.getLiteral()
         let attributes: Map<String, String> = HashMap<String, String>()
-        let info: String = fencedCodeBlock.getInfo() ?? ""
+        let info: String = fencedCodeBlock.getInfo()
         if (info.size > 0) {
             let language: String = if (let Some(space) <- info.indexOf(" ")) {
                 info[..space]
