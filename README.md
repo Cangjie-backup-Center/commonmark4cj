@@ -77,42 +77,79 @@ cjpm build
 ```
 
 ### 功能示例
-#### xxx 功能示例
 
-功能示例描述:
+#### Node
 
-示例代码如下：
-
-```cangjie
-import xxx.*
-main() {
- xxxx
-}
-```
-
-执行结果如下：
-
-```shell
-xxx
-```
-
-#### xxx 功能示例
-
-功能示例描述:
+markdown解析得到的节点树，不同类型节点为不同的Node子类
 
 示例代码如下：
 
 ```cangjie
-import xxx.*
-main() {
- xxxx
+from commonmark4cj import commonmark.*
+    @TestCase
+    func test_Node_appendChild():Unit {
+        var tb = Text("bb") // node子类
+        var ta = Text("aa")
+        ta.appendChild(tb)
+        var firstChild: ?Node = ta.getFirstChild()
+        var lastChild: ?Node = ta.getLastChild()
+        @Assert((firstChild.getOrThrow() as Text).getOrThrow().getLiteral(), "bb")
+        @Assert((lastChild.getOrThrow() as Text).getOrThrow().getLiteral(), "bb")
+        
+        var next: ?Node = firstChild.getOrThrow().getNext()
+        var prev: ?Node = lastChild.getOrThrow().getPrevious()
+        @Assert(next.isNone(),true)
+        @Assert(prev.isNone(),true)
+        var tc = Text("cc")
+        ta.appendChild(tc)
+        lastChild = ta.getLastChild()
+        firstChild = ta.getFirstChild()
+        @Assert((lastChild.getOrThrow() as Text).getOrThrow().getLiteral(), "cc")
+        @Assert((firstChild.getOrThrow() as Text).getOrThrow().getLiteral(), "bb")
+        
+        next = firstChild.getOrThrow().getNext()
+        prev = lastChild.getOrThrow().getPrevious()
+        @Assert(next.isNone(),false)
+        @Assert(prev.isNone(),false)
+        @Assert((next.getOrThrow() as Text).getOrThrow().getLiteral(), "cc")
+        @Assert((prev.getOrThrow() as Text).getOrThrow().getLiteral(), "bb")
+    }
+```
+
+#### Parse
+
+解析器 用于将markdown格式的文本解析成对应的Node对象
+
+示例代码如下：
+
+```cangjie
+from commonmark4cj import commonmark.*
+@TestCase
+public func delimiterProcessorWithInvalidDelimiterUse(): Unit {
+   let parser: Parser =      Parser.builder().customDelimiterProcessor(CustomDelimiterProcessor(':', 0)).
+        customDelimiterProcessor(CustomDelimiterProcessor(';', -1)).build()
+
+    assertEquals("<p>:test:</p>\n", RENDERER.render(parser.parse(":test:")))
+    assertEquals("<p>;test;</p>\n", RENDERER.render(parser.parse(";test;")))
 }
 ```
 
-执行结果如下：
+#### Render
 
-```shell
-xxx
+使用Visitor遍历Node节点树，在此过程中可自定义节点渲染
+
+示例代码如下：
+
+```cangjie
+from commonmark4cj import commonmark.*
+@TestCase
+public func delimiterProcessorWithInvalidDelimiterUse(): Unit {
+   let parser: Parser =      Parser.builder().customDelimiterProcessor(CustomDelimiterProcessor(':', 0)).
+        customDelimiterProcessor(CustomDelimiterProcessor(';', -1)).build()
+
+    assertEquals("<p>:test:</p>\n", RENDERER.render(parser.parse(":test:")))
+    assertEquals("<p>;test;</p>\n", RENDERER.render(parser.parse(";test;")))
+}
 ```
 
 ## 约束与限制
