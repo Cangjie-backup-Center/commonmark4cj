@@ -168,7 +168,6 @@ public abstract class CustomNode <: Node {
      */
     public override func accept(visitor: Visitor): Unit
 }
-
 /**
  * 图片节点
  */
@@ -422,13 +421,23 @@ public class Emphasis <: Node & Delimited {
 ##### 1.1.2 示例
 
 ```cangjie
+    @TestCase
+    func linkReferenceDefinitionTest(): Unit {
+        var text: LinkReferenceDefinition = LinkReferenceDefinition()
+        assertEquals(None, text.getLabel())
+        text = LinkReferenceDefinition("foo", "/url", "title")
+        assertEquals("foo", text.getLabel())
+        assertEquals("/url", text.getDestination())
+        assertEquals("title", text.getTitle())
 
-```
+        text.setLabel("bar")
+        text.setDestination("/path")
+        text.setTitle("titles")
 
-执行结果如下：
-
-```shell
-[ PASSED ] CASE: testFeatureApi01
+        assertEquals("bar", text.getLabel())
+        assertEquals("/path", text.getDestination())
+        assertEquals("titles", text.getTitle())
+    }
 ```
 
 #### 1.2 Block系列节点
@@ -685,6 +694,42 @@ public class OrderedList <: ListBlock {
 }
 ```
 
+##### 1.2.2 示例
+
+```cangjie
+    @TestCase
+    func documentTest(): Unit {
+        var document: Document = Document ()
+        var paragraph = Paragraph()
+        var blockQuote = BlockQuote()
+        var htmlBlock = HtmlBlock()
+        var thematicBreak = ThematicBreak()
+        var indentedCodeBlock = IndentedCodeBlock()
+        var text = Text("text")
+
+        document.appendChild(paragraph)
+        document.appendChild(blockQuote)
+        document.appendChild(htmlBlock)
+        document.appendChild(thematicBreak)
+        document.appendChild(indentedCodeBlock)
+        document.appendChild(text)
+        assertEquals("Document{}", blockQuote.getParent()().toString())
+        assertEquals(None, document.getParent())
+
+        htmlBlock.setLiteral("p1")
+        assertEquals("p1", htmlBlock.getLiteral())
+
+        assertEquals("HtmlBlock{}", thematicBreak.getPrevious()().toString())
+
+        htmlBlock.insertBefore(Text("foo"))
+        assertEquals("Text{literal=foo}", htmlBlock.getPrevious()().toString())
+
+        assertEquals(true, paragraph != htmlBlock)
+    }
+```
+
+#### 
+
 #### 1.3 Visitor系列节点
 
 ##### 1.2.1 主要接口
@@ -857,3 +902,26 @@ public abstract class AbstractVisitor <: Visitor {
 }
 ```
 
+##### 1.3.2 示例
+
+```cangjie
+    @TestCase
+    func test_Text_accept():Unit {
+        var text = Text("aa")
+        text.appendChild(Text("bb"))
+        text.accept(AbstractVisitorImpl())
+        @Assert(text.getLiteral(),"aa")
+        let firstChild = text.getFirstChild().getOrThrow()
+        @Assert((firstChild as Text).getOrThrow().getLiteral(),"bb")
+        let lastChild = text.getLastChild().getOrThrow()
+        @Assert((lastChild as Text).getOrThrow().getLiteral(),"cc")
+    }
+   
+    class AbstractVisitorImpl <: AbstractVisitor {
+        public func visit(text: Text): Unit {
+            text.appendChild(Text("cc"))
+        }
+    }
+```
+
+#### 
