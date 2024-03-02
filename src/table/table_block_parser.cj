@@ -1,6 +1,6 @@
 package table
 
-public class TableBlockParser <: AbstractBlockParser {
+class TableBlockParser <: AbstractBlockParser {
     private var block: TableBlock = TableBlock()
     private var bodyLines: ArrayList<CharSequence> = ArrayList<CharSequence>()
     private let columns: ArrayList<?Alignment>

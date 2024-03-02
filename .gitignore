@@ -30,3 +30,4 @@ cjpm.toml
 .vnext
 src/z_test.cj
 src/z_main.cj
+test_temp/run

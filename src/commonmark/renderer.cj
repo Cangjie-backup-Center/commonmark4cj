@@ -35,7 +35,7 @@ public interface NodeRenderer {
     func render(node: Node): Unit
 }
 
-public class NodeRendererMap {
+class NodeRendererMap {
     private let renderers: HashMap<TypeInfo, NodeRenderer> = HashMap<TypeInfo, NodeRenderer>()
 
     public func add(nodeRenderer: NodeRenderer): Unit {

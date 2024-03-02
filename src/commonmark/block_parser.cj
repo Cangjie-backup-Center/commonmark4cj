@@ -226,7 +226,7 @@ public class BlockContinueImpl <: BlockContinue {
     }
 }
 
-public class BlockQuoteParser <: AbstractBlockParser {
+class BlockQuoteParser <: AbstractBlockParser {
     private var block: BlockQuote = BlockQuote()
 
     public func isContainer(): Bool {
@@ -319,7 +319,7 @@ public class BlockStartImpl <: BlockStart {
     }
 }
 
-public class DocumentBlockParser <: AbstractBlockParser {
+class DocumentBlockParser <: AbstractBlockParser {
     private var document: Document = Document()
 
     public func isContainer(): Bool {
@@ -341,7 +341,7 @@ public class DocumentBlockParser <: AbstractBlockParser {
     public func addLine(_: CharSequence): Unit {}
 }
 
-public class FencedCodeBlockParser <: AbstractBlockParser {
+class FencedCodeBlockParser <: AbstractBlockParser {
     public var block: FencedCodeBlock = FencedCodeBlock()
 
     private var firstLine: ?CharSequence = None
@@ -456,7 +456,7 @@ public class FencedCodeBlockParserFactory <: BlockParserFactory {
     }
 }
 
-public class HeadingParser <: AbstractBlockParser {
+class HeadingParser <: AbstractBlockParser {
     private var block: Heading = Heading()
     private var content: String
 
@@ -559,7 +559,7 @@ public class HeadingParserFactory <: BlockParserFactory {
     }
 }
 
-public class HtmlBlockParser <: AbstractBlockParser {
+class HtmlBlockParser <: AbstractBlockParser {
     public static var BLOCK_PATTERNS: Array<Array<Regex>> = [
         [Regex(""), Regex("")], // not used (no type 0)
         [
@@ -667,7 +667,7 @@ public class HtmlBlockParserFactory <: BlockParserFactory {
     }
 }
 
-public class IndentedCodeBlockParser <: AbstractBlockParser {
+class IndentedCodeBlockParser <: AbstractBlockParser {
     private var block: IndentedCodeBlock = IndentedCodeBlock()
     private var lines: ArrayList<CharSequence> = ArrayList<CharSequence>()
 
@@ -957,7 +957,7 @@ public class LinkReferenceDefinitionParser {
     }
 }
 
-public class ListBlockParser <: AbstractBlockParser {
+class ListBlockParser <: AbstractBlockParser {
     private var block: ListBlock
 
     private var hadBlankLine: Bool = false
@@ -1174,7 +1174,7 @@ public class ListBlockParserFactory <: BlockParserFactory {
     }
 }
 
-public class ListData {
+class ListData {
     var listBlock: ListBlock
     var contentColumn: Int64
 
@@ -1194,7 +1194,7 @@ class ListMarkerData {
     }
 }
 
-public class ListItemParser <: AbstractBlockParser {
+class ListItemParser <: AbstractBlockParser {
     private var block: ListItem = ListItem()
 
     /**
@@ -1253,7 +1253,7 @@ public class ListItemParser <: AbstractBlockParser {
     }
 }
 
-public class ParagraphParser <: AbstractBlockParser {
+class ParagraphParser <: AbstractBlockParser {
     private var block: Paragraph = Paragraph()
     private var linkReferenceDefinitionParser: LinkReferenceDefinitionParser = LinkReferenceDefinitionParser()
 
@@ -1299,7 +1299,7 @@ public class ParagraphParser <: AbstractBlockParser {
     }
 }
 
-public class ThematicBreakParser <: AbstractBlockParser {
+class ThematicBreakParser <: AbstractBlockParser {
     private var block: ThematicBreak = ThematicBreak()
 
     public func getBlock(): Block {
