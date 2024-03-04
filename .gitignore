@@ -25,3 +25,5 @@ temp_ci_lib/
 *.macrocall
 .cache
 output/
+cjpm.lock
+cjpm.toml
