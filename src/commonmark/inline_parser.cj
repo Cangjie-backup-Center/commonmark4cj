@@ -35,7 +35,7 @@ public interface InlineParserFactory {
     func create(inlineParserContext: InlineParserContext): InlineParser
 }
 
-public class InlineParserContextImpl <: InlineParserContext {
+class InlineParserContextImpl <: InlineParserContext {
     private var delimiterProcessors: ArrayList<DelimiterProcessor>
     private var linkReferenceDefinitions: HashMap<String, LinkReferenceDefinition>
 
@@ -56,7 +56,7 @@ public class InlineParserContextImpl <: InlineParserContext {
     }
 }
 
-public class InlineParserImpl <: InlineParser {
+class InlineParserImpl <: InlineParser {
     private static let HTMLCOMMENT: String = "<!---->|<!--(?:-?[^>-])(?:-?[^-])*-->"
     private static let PROCESSINGINSTRUCTION: String = "[<][?].*?[?][>]"
     private static let DECLARATION: String = "<![A-Z]+\\s+[^>]*>"

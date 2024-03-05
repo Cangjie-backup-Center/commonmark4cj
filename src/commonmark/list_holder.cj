@@ -26,7 +26,7 @@ public abstract class ListHolder {
     }
 }
 
-public class BulletListHolder <: ListHolder {
+class BulletListHolder <: ListHolder {
     private let marker: Char
 
     public init(parent: ?ListHolder, list: BulletList) {
@@ -39,7 +39,7 @@ public class BulletListHolder <: ListHolder {
     }
 }
 
-public class OrderedListHolder <: ListHolder {
+class OrderedListHolder <: ListHolder {
     private let delimiter: Char
     private var counter: Int
 

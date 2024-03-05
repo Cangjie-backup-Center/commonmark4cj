@@ -5,7 +5,7 @@
 <p align="center">
 <img alt="" src="https://img.shields.io/badge/release-v0.0.1-brightgreen" style="display: inline-block;" />
 <img alt="" src="https://img.shields.io/badge/build-pass-brightgreen" style="display: inline-block;" />
-<img alt="" src="https://img.shields.io/badge/cjc-v0.48.2-brightgreen" style="display: inline-block;" />
+<img alt="" src="https://img.shields.io/badge/cjc-v0.49.2-brightgreen" style="display: inline-block;" />
 <img alt="" src="https://img.shields.io/badge/cjcov-92%25-brightgreen" style="display: inline-block;" />
 <img alt="" src="https://img.shields.io/badge/project-open-brightgreen" style="display: inline-block;" />
 </p>
@@ -40,7 +40,7 @@ gantt
 ```mermaid
 flowchart LR
     md[/MarkdownText/] -->parser(Parser解析)
-    parser --> node>Node树]
+    parser --> node[Node树]
     node --> renderer(Renderer渲染)
     renderer <--> visitor[[Visitor遍历]]
     renderer --> res[/渲染结果/]
