@@ -26,7 +26,6 @@ temp_ci_lib/
 .cache
 output/
 cjpm.lock
-cjpm.toml
 .vnext
 src/z_test.cj
 src/z_main.cj
