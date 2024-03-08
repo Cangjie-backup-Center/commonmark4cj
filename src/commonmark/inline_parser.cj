@@ -152,13 +152,13 @@ class InlineParserImpl <: InlineParser {
 
     private static func addDelimiterProcessors(
         delimiterProcessors: ArrayList<DelimiterProcessor>,
-        map: HashMap<Char, DelimiterProcessor>
+        hashMap: HashMap<Char, DelimiterProcessor>
     ): Unit {
         for (delimiterProcessor in delimiterProcessors) {
             let opening: Char = delimiterProcessor.getOpeningCharacter()
             let closing: Char = delimiterProcessor.getClosingCharacter()
             if (opening == closing) {
-                let old: Option<DelimiterProcessor> = map.get(opening)
+                let old: Option<DelimiterProcessor> = hashMap.get(opening)
                 if (old.isSome() && old().getOpeningCharacter() == old().getClosingCharacter()) {
                     var s: StaggeredDelimiterProcessor
                     if (let Some(v: StaggeredDelimiterProcessor) <- old) {
@@ -168,13 +168,13 @@ class InlineParserImpl <: InlineParser {
                         s.add(old())
                     }
                     s.add(delimiterProcessor)
-                    map.put(opening, s)
+                    hashMap.put(opening, s)
                 } else {
-                    addDelimiterProcessorForChar(opening, delimiterProcessor, map)
+                    addDelimiterProcessorForChar(opening, delimiterProcessor, hashMap)
                 }
             } else {
-                addDelimiterProcessorForChar(opening, delimiterProcessor, map)
-                addDelimiterProcessorForChar(closing, delimiterProcessor, map)
+                addDelimiterProcessorForChar(opening, delimiterProcessor, hashMap)
+                addDelimiterProcessorForChar(closing, delimiterProcessor, hashMap)
             }
         }
     }
@@ -473,24 +473,24 @@ class InlineParserImpl <: InlineParser {
         // Check to see if we have a link/image
 
         var dest: ?String = None
-        var title: ?String = None
-        var isLinkOrImage: Bool = false
+        var titleStr: ?String = None
+        var isImageOrLink: Bool = false
 
-        // Maybe a inline link like `[foo](/uri "title")`
+        // Maybe a inline link like `[foo](/uri "titleStr")`
         if (peek() == '(') {
             index++
             spnl()
             dest = parseLinkDestination()
             if (dest.isSome()) {
                 spnl()
-                // title needs a whitespace before
+                // titleStr needs a whitespace before
                 if (WHITESPACE.matcher(String(input[(index - 1)..index])).find().isSome()) {
-                    title = parseLinkTitle()
+                    titleStr = parseLinkTitle()
                     spnl()
                 }
                 if (peek() == ')') {
                     index++
-                    isLinkOrImage = true
+                    isImageOrLink = true
                 } else {
                     index = startIndex
                 }
@@ -498,7 +498,7 @@ class InlineParserImpl <: InlineParser {
         }
 
         // Maybe a reference link like `[foo][bar]`, `[foo][]` or `[foo]`
-        if (!isLinkOrImage) {
+        if (!isImageOrLink) {
 
             // See if there's a link label like `[bar]` or `[]`
             let beforeLabel: Int64 = index
@@ -520,18 +520,18 @@ class InlineParserImpl <: InlineParser {
                 let definition: ?LinkReferenceDefinition = context.getLinkReferenceDefinition(label)
                 if (definition.isSome()) {
                     dest = definition().getDestination()
-                    title = definition().getTitle()
-                    isLinkOrImage = true
+                    titleStr = definition().getTitle()
+                    isImageOrLink = true
                 }
             }
         }
 
-        if (isLinkOrImage) {
+        if (isImageOrLink) {
             // If we got here, open is a potential opener
             let linkOrImage: Node = if (opener().images) {
-                Image(dest(), title)
+                Image(dest(), titleStr)
             } else {
-                Link(dest(), title)
+                Link(dest(), titleStr)
             }
 
             var node: ?Node = opener().node.getNext()
@@ -603,7 +603,7 @@ class InlineParserImpl <: InlineParser {
     }
 
     /**
-     * Attempt to parse link title (sans quotes), returning the string or null if no match.
+     * Attempt to parse link titleStr (sans quotes), returning the string or null if no match.
      */
     private func parseLinkTitle(): ?String {
         let afterTitle: Int64 = LinkScanner.scanLinkTitle(input, index)
@@ -612,9 +612,9 @@ class InlineParserImpl <: InlineParser {
         }
 
         // chop off ', " or parens
-        let title: String = String(input[(index + 1)..(afterTitle - 1)])
+        let titleStr: String = String(input[(index + 1)..(afterTitle - 1)])
         index = afterTitle
-        return Escaping.unescapeString(title)
+        return Escaping.unescapeString(titleStr)
     }
 
     /**
@@ -745,18 +745,18 @@ class InlineParserImpl <: InlineParser {
 
         let leftFlanking: Bool = !afterIsWhitespace && (!afterIsPunctuation || beforeIsWhitespace || beforeIsPunctuation)
         let rightFlanking: Bool = !beforeIsWhitespace && (!beforeIsPunctuation || afterIsWhitespace || afterIsPunctuation)
-        var canOpen: Bool
-        var canClose: Bool
+        var isCanOpen: Bool
+        var isCanClose: Bool
         if (delimiterChar == '_') {
-            canOpen = leftFlanking && (!rightFlanking || beforeIsPunctuation)
-            canClose = rightFlanking && (!leftFlanking || afterIsPunctuation)
+            isCanOpen = leftFlanking && (!rightFlanking || beforeIsPunctuation)
+            isCanClose = rightFlanking && (!leftFlanking || afterIsPunctuation)
         } else {
-            canOpen = leftFlanking && delimiterChar == delimiterProcessor.getOpeningCharacter()
-            canClose = rightFlanking && delimiterChar == delimiterProcessor.getClosingCharacter()
+            isCanOpen = leftFlanking && delimiterChar == delimiterProcessor.getOpeningCharacter()
+            isCanClose = rightFlanking && delimiterChar == delimiterProcessor.getClosingCharacter()
         }
 
         index = startIndex
-        return DelimiterData(delimiterCount, canOpen, canClose)
+        return DelimiterData(delimiterCount, isCanOpen, isCanClose)
     }
 
     private func processDelimiters(stackBottom: ?Delimiter): Unit {
@@ -798,13 +798,15 @@ class InlineParserImpl <: InlineParser {
 
             if (!openerFound) {
                 if (!potentialOpenerFound) {
-                    // Set lower bound for future searches for openers.
-                    // Only do this when we didn't even have a potential
-                    // opener (one that matches the character and can open).
-                    // If an opener was rejected because of the number of
-                    // delimiters (e.g. because of the "multiple of 3" rule),
-                    // we want to consider it next time because the number
-                    // of delimiters can change as we continue processing.
+                    /*
+                     Set lower bound for future searches for openers.
+                     Only do this when we didn't even have a potential opener 
+                     (one that matches the character and can open).
+                     If an opener was rejected because of the number of delimiters 
+                     (e.g. because of the "multiple of 3" rule),
+                     we want to consider it next time because the number
+                     of delimiters can change as we continue processing.
+                    */
                     openersBottom.put(delimiterChar, closer().previous)
                     if (closer.isSome() && !closer().canOpen()) {
                         // We can remove a closer that can't be an opener,

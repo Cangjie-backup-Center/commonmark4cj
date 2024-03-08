@@ -175,31 +175,31 @@ public class DocumentParser <: ParserState {
 
                 var result: ?BlockContinue = blockParser.tryContinue(this)
                 if (result.isSome() && result() is BlockContinueImpl) {
-                    var blockContinue: BlockContinueImpl = (result() as BlockContinueImpl).getOrThrow()
-                    if (blockContinue.isFinalize()) {
+                    var blockContinueImpl: BlockContinueImpl = (result() as BlockContinueImpl).getOrThrow()
+                    if (blockContinueImpl.isFinalize()) {
                         finalize(blockParser)
                         return
                     } else {
-                        if (blockContinue.getNewIndex() != -1) {
-                            setNewIndex(blockContinue.getNewIndex())
-                        } else if (blockContinue.getNewColumn() != -1) {
-                            setNewColumn(blockContinue.getNewColumn())
+                        if (blockContinueImpl.getNewIndex() != -1) {
+                            setNewIndex(blockContinueImpl.getNewIndex())
+                        } else if (blockContinueImpl.getNewColumn() != -1) {
+                            setNewColumn(blockContinueImpl.getNewColumn())
                         }
                         matches++
                     }
                 } else {
                     break
-                }
+                }    
             }
         }
 
-        var unmatchedBlockParsers: ArrayList<AbstractBlockParser> = ArrayList<AbstractBlockParser>()
+        var unmatchedBlockParser: ArrayList<AbstractBlockParser> = ArrayList<AbstractBlockParser>()
         if (matches < activeBlockParsers.size) {
-            unmatchedBlockParsers = activeBlockParsers[matches..activeBlockParsers.size]
+            unmatchedBlockParser = activeBlockParsers[matches..activeBlockParsers.size]
         }
         var lastMatchedBlockParser: AbstractBlockParser = activeBlockParsers[matches - 1]
         var blockParser: AbstractBlockParser = lastMatchedBlockParser
-        var allClosed: Bool = unmatchedBlockParsers.isEmpty()
+        var allClosed: Bool = unmatchedBlockParser.isEmpty()
 
         // Unless last matched container is a code block, try container starts,
         // adding children to the last matched container:
@@ -220,7 +220,7 @@ public class DocumentParser <: ParserState {
             }
 
             if (!allClosed) {
-                finalizeBlocks(unmatchedBlockParsers)
+                finalizeBlocks(unmatchedBlockParser)
                 allClosed = true
             }
             var blockStart = (blockStartOption.getOrThrow() as BlockStartImpl).getOrThrow()
@@ -251,7 +251,7 @@ public class DocumentParser <: ParserState {
 
             // finalize any blocks not matched
             if (!allClosed) {
-                finalizeBlocks(unmatchedBlockParsers)
+                finalizeBlocks(unmatchedBlockParser)
             }
 
             if (!blockParser.isContainer()) {
@@ -266,7 +266,7 @@ public class DocumentParser <: ParserState {
 
     private func findNextNonSpace(): Unit {
         var i: Int64 = index
-        var cols: Int64 = column
+        var colsNum: Int64 = column
 
         blank = true
         var length: Int64 = line.size
@@ -274,11 +274,11 @@ public class DocumentParser <: ParserState {
             var c = line[i]
             if (c == ' ') {
                 i++
-                cols++
+                colsNum++
                 continue
             } else if (c == '\t') {
                 i++
-                cols += (4 - (cols % 4))
+                colsNum += (4 - (colsNum % 4))
                 continue
             }
             blank = false
@@ -286,7 +286,7 @@ public class DocumentParser <: ParserState {
         }
 
         nextNonSpace = i
-        nextNonSpaceColumn = cols
+        nextNonSpaceColumn = colsNum
         indent = nextNonSpaceColumn - column
     }
 
@@ -304,20 +304,20 @@ public class DocumentParser <: ParserState {
         columnIsInTab = false
     }
 
-    private func setNewColumn(newColumn: Int64): Unit {
-        if (newColumn >= nextNonSpaceColumn) {
+    private func setNewColumn(newColumnNum: Int64): Unit {
+        if (newColumnNum >= nextNonSpaceColumn) {
             // We can start from here, no need to calculate tab stops again
             index = nextNonSpace
             column = nextNonSpaceColumn
         }
         var length: Int64 = line.size
-        while (column < newColumn && index != length) {
+        while (column < newColumnNum && index != length) {
             advance()
         }
-        if (column > newColumn) {
+        if (column > newColumnNum) {
             // Last character was a tab and we overshot our target
             index--
-            column = newColumn
+            column = newColumnNum
             columnIsInTab = true
         } else {
             columnIsInTab = false
@@ -325,8 +325,8 @@ public class DocumentParser <: ParserState {
     }
 
     private func advance(): Unit {
-        var c = line[index]
-        if (c == '\t') {
+        var char = line[index]
+        if (char == '\t') {
             index++
             column += Parsing.columnsToNextTabStop(column)
         } else {
