@@ -327,7 +327,7 @@ public type AttributeProviderFactory = (context: AttributeProviderContext) -> At
 /**
  * The node renderer that renders all the core nodes (comes last in the order of node renderers).
  */
-public class CoreHtmlNodeRenderer <: AbstractVisitor & NodeRenderer {
+class CoreHtmlNodeRenderer <: AbstractVisitor & NodeRenderer {
     protected let context: HtmlNodeRendererContext
     private let html: HtmlWriter
 

@@ -202,7 +202,7 @@ class BlockContent {
     }
 }
 
-public class BlockContinueImpl <: BlockContinue {
+class BlockContinueImpl <: BlockContinue {
     private var newIndex: Int64
     private var newColumn: Int64
     private var finalize: Bool
@@ -277,7 +277,7 @@ public class BlockQuoteParserFactory <: BlockParserFactory {
     }
 }
 
-public class BlockStartImpl <: BlockStart {
+class BlockStartImpl <: BlockStart {
     private var blockParsers: Array<AbstractBlockParser>
     private var newIndex: Int64 = -1
     private var newColumn: Int64 = -1

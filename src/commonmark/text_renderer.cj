@@ -131,7 +131,7 @@ class RendererContext <: TextContentNodeRendererContext {
 /**
  * The node renderer that renders all the core nodes (comes last in the order of node renderers).
  */
-public class CoreTextContentNodeRenderer <: AbstractVisitor & NodeRenderer {
+class CoreTextContentNodeRenderer <: AbstractVisitor & NodeRenderer {
     protected let context: TextContentNodeRendererContext
     private let textContent: TextContentWriter
 
