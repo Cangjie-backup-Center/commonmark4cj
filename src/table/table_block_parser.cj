@@ -203,7 +203,7 @@ class TableBlockParser <: AbstractBlockParser {
     }
 }
 
-public class tableBlockFactory <: AbstractBlockParserFactory {
+class tableBlockFactory <: AbstractBlockParserFactory {
     public func tryStart(state: ParserState, matchedBlockParser: MatchedBlockParser): ?BlockStart {
         var line: CharSequence = state.getLine()
         var paragraph: ?String = matchedBlockParser.getParagraphContent()

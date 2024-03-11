@@ -108,7 +108,7 @@ public class Escaping {
     }
 }
 
-public class UnescapeReplacer <: Replacer {
+class UnescapeReplacer <: Replacer {
     public func replace(input: String, sb: StringBuilder): Unit {
         if (input[0] == b'\\') {
             sb.append(input[1..])
@@ -118,7 +118,7 @@ public class UnescapeReplacer <: Replacer {
     }
 }
 
-public class UriReplacer <: Replacer {
+class UriReplacer <: Replacer {
     private static let HEX_DIGITS: Array<Rune> = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D',
     'E', 'F']
 
@@ -183,7 +183,7 @@ public class Html5Entities {
     }
 }
 
-public class LinkScanner {
+class LinkScanner {
 
     /**
      * Attempt to scan the contents of a link label (inside the brackets), returning the position after the content or
@@ -334,7 +334,7 @@ public class LinkScanner {
     }
 }
 
-public class Parsing {
+class Parsing {
     private static let bytes: Array<Byte> = [b'!', b'"', b'#', b'$', b'%', b'&', b'\'', b'(', b')', b'*', b'+', b',',
     b'-', b'.', b'/', b':', b';', b'<', b'=', b'>', b'?', b'@', b'[', b'\\', b']', b'^', b'_', b'`', b'{', b'|', b'}',
     b'~']

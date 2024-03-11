@@ -1,6 +1,6 @@
 package commonmark
 
-public class Bracket {
+class Bracket {
     public let node: Text
     public let index: Int64
     public let images: Bool
