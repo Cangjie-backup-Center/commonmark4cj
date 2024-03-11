@@ -344,32 +344,32 @@ class InlineParserImpl <: InlineParser {
     private func parseBackslash(): Node {
         index++
         let inputArr: Array<Rune> = input
-        var node: Node
+        var nodes: Node
         if (peek() == '\n') {
-            node = HardLineBreak()
+            nodes = HardLineBreak()
             index++
         } else if (index < inputArr.size && ESCAPABLE.matcher(String(inputArr[index..(index + 1)])).find().isSome()) {
-            node = text(String(inputArr[index..(index + 1)]))
+            nodes = text(String(inputArr[index..(index + 1)]))
             index++
         } else {
-            node = text("\\")
+            nodes = text("\\")
         }
-        return node
+        return nodes
     }
 
     /**
      * Attempt to parse backticks, returning either a backtick code span or a literal sequence of backticks.
      */
     private func parseBackticks(): ?Node {
-        let ticks: String = if (let Some(v) <- matchs(TICKS_HERE)) {
+        let tick: String = if (let Some(v) <- matchs(TICKS_HERE)) {
             v
         } else {
             return None
         }
         let afterOpenTicks: Int64 = index
         while (let Some(matched) <- matchs(TICKS)) {
-            if (matched == ticks) {
-                var content = input[afterOpenTicks..(index - ticks.toRuneArray().size)]
+            if (matched == tick) {
+                var content = input[afterOpenTicks..(index - tick.toRuneArray().size)]
                 content.replace('\n', ' ')
 
                 // spec: If the resulting string both begins and ends with a space character, but does not consist
@@ -379,13 +379,13 @@ class InlineParserImpl <: InlineParser {
                     content = content[1..(content.size - 1)]
                 }
 
-                let node: Code = Code(String(content))
-                return node
+                let nodes: Code = Code(String(content))
+                return nodes
             }
         }
         // If we got here, we didn't match a closing backtick sequence.
         index = afterOpenTicks
-        return text(ticks)
+        return text(tick)
     }
 
     /**
@@ -420,12 +420,12 @@ class InlineParserImpl <: InlineParser {
         let startIndex: Int64 = index
         index++
 
-        let node: Text = text("[")
+        let nodes: Text = text("[")
 
         // Add entry to stack for this opener
-        addBracket(Bracket.link(node, startIndex, lastBracket, lastDelimiter))
+        addBracket(Bracket.link(nodes, startIndex, lastBracket, lastDelimiter))
 
-        return node
+        return nodes
     }
 
     /**
@@ -438,18 +438,18 @@ class InlineParserImpl <: InlineParser {
         if (peek() == '[') {
             index++
 
-            let node: Text = text("![")
+            let nodes: Text = text("![")
 
             // Add entry to stack for this opener
-            addBracket(Bracket.image(node, startIndex + 1, lastBracket, lastDelimiter))
+            addBracket(Bracket.image(nodes, startIndex + 1, lastBracket, lastDelimiter))
 
-            return node
+            return nodes
         } else {
             return text("!")
         }
     }
 
-    /**
+    /*
      * Try to match close bracket against an opening in the delimiter stack. Return either a link or image, or a
      * plain [ character. If there is a matching delimiter, remove it from the delimiter stack.
      */
