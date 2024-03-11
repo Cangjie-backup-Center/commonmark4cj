@@ -23,7 +23,7 @@ public class Escaping {
     public static func escapeHtml(input: String): String {
         // Avoid building a new string in the majority of cases (nothing to escape)
         let runesArray: Array<Rune> = input.toRuneArray()
-        var sb: ?StringBuilder = None
+        var sb: ?ArrayList<Rune> = None
         for (i in 0..runesArray.size) {
             var replacement: String = ""
             match (runesArray[i]) {
@@ -32,19 +32,20 @@ public class Escaping {
                 case '>' => replacement = "&gt;"
                 case '\"' => replacement = "&quot;"
                 case _ =>
-                    if (sb.isSome()) {
-                        sb.getOrThrow().append(runesArray[i])
+                    if (let Some(s) <- sb) {
+                        s.append(runesArray[i])
                     }
                     continue
             }
             if (sb.isNone()) {
-                sb = StringBuilder()
-                sb.getOrThrow().append(runesArray[..i])
+                sb = ArrayList<Rune>(i)
+                sb().appendAll(runesArray[..i])
             }
-            sb.getOrThrow().append(replacement)
+            sb().appendAll(replacement.toRuneArray())
         }
-        if (sb.isSome()) {
-            return sb().toString()
+        if (let Some(s) <- sb) {
+            let size: Int64 = s.size
+            return String(unsafe{s.getRawArray()[0..size]})
         } else {
             return input
         }
@@ -90,30 +91,30 @@ public class Escaping {
             return s
         }
 
-        var sb: StringBuilder = StringBuilder(s.size + 16)
+        var sb: ArrayList<Rune> = ArrayList<Rune>(s.size + 16)
         var lastEnd: Int64 = 0
 
         var pos: Position
         while (let Some(md: MatchData) <- matcher.find()) {
             pos = md.matchPosition()
-            sb.append(s[lastEnd..pos.start])
+            sb.appendAll(s[lastEnd..pos.start].toRuneArray())
             replacer.replace(md.matchStr(), sb)
             lastEnd = pos.end
         }
 
         if (lastEnd != s.size) {
-            sb.append(s[lastEnd..])
+            sb.appendAll(s[lastEnd..].toRuneArray())
         }
-        return sb.toString()
+        return String(unsafe { sb.getRawArray()[0..sb.size] })
     }
 }
 
 class UnescapeReplacer <: Replacer {
-    public func replace(input: String, sb: StringBuilder): Unit {
+    public func replace(input: String, sb: ArrayList<Rune>): Unit {
         if (input[0] == b'\\') {
-            sb.append(input[1..])
+            sb.appendAll(input[1..].toRuneArray())
         } else {
-            sb.append(Html5Entities.entityToString(input))
+            sb.appendAll(Html5Entities.entityToString(input).toRuneArray())
         }
     }
 }
@@ -122,15 +123,15 @@ class UriReplacer <: Replacer {
     private static let HEX_DIGITS: Array<Rune> = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D',
     'E', 'F']
 
-    public func replace(input: String, sb: StringBuilder): Unit {
+    public func replace(input: String, sb: ArrayList<Rune>): Unit {
         if (input[0] == b'%') {
             if (input.size == 3) {
                 // Already percent-encoded, preserve
-                sb.append(input)
+                sb.appendAll(input.toRuneArray())
             } else {
                 // %25 is the percent-encoding for %
-                sb.append("%25")
-                sb.append(input[1..])
+                sb.appendAll("%25".toRuneArray())
+                sb.appendAll(input[1..].toRuneArray())
             }
         } else {
             let bytes: Array<UInt8> = input.toArray()
@@ -144,7 +145,7 @@ class UriReplacer <: Replacer {
 }
 
 public interface Replacer {
-    func replace(input: String, sb: StringBuilder): Unit
+    func replace(input: String, sb: ArrayList<Rune>): Unit
 }
 
 public class Html5Entities {
@@ -429,26 +430,12 @@ class Parsing {
      */
     public static func prepareLine(line: CharSequence): CharSequence {
         // Avoid building a new string in the majority of cases (no \0)
-        var sb: ?StringBuilder = None
-        let length: Int64 = line.size
-        for (i in 0..length) {
-            let c = line[i]
-            match (c) {
-                case '\0' =>
-                    if (sb.isNone()) {
-                        sb = StringBuilder(length)
-                        sb?.append(line[..i])
-                    }
-                    sb?.append('\u{FFFD}')
-                case _ => sb?.append(c)
+        for (i in 0..line.size) {
+            if(line[i] == '\0') {
+                line[i] = '\u{FFFD}'
             }
         }
-
-        if (sb.isSome()) {
-            return sb().toString().toRuneArray()
-        } else {
-            return line
-        }
+        return line
     }
 
     public static func skip(skip: Rune, s: CharSequence, startIndex: Int64, endIndex: Int64): Int64 {
