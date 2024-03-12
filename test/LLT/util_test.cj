@@ -12,6 +12,7 @@ main(): Int64 {
     let tester = Tester()
     tester.escaping_test()
     tester.test()
+    tester.cangjie_readln_test()
     0
 }
 @Test
@@ -42,6 +43,14 @@ public class Tester {
         let unescapeString: String = Escaping.unescapeString(text)
         let t = "Example string with special characters: !@#$%^&*()_+|~- and encoded characters: &#x123; &#123; and &test;"
         @PowerAssert(unescapeString == t)
+    }
+
+    @TestCase
+    func cangjie_readln_test(): Unit {
+        let arr = ByteArrayStream()
+        arr.write(b"---\r\naaa")
+        @PowerAssert(StringReader(arr).readln()?.toArray() == [45, 45, 45])
+        // @PowerAssert(StringReader(arr).readln()?.toArray() == [45, 45, 45, 13]) // cangjie 49.2以下版本
     }
 
     @TestCase

@@ -441,7 +441,9 @@ public class Emphasis <: Node & Delimited {
 ```
 
 #### 1.2 Block系列节点
+
 ##### 1.2.1 主要接口
+
 ```cangjie
 public abstract class Block <: Node {
 	/*
@@ -732,7 +734,7 @@ public class OrderedList <: ListBlock {
 
 #### 1.3 Visitor系列节点
 
-##### 1.2.1 主要接口
+##### 1.3.1 主要接口
 
 ```cangjie
 public interface Visitor {
@@ -924,4 +926,1430 @@ public abstract class AbstractVisitor <: Visitor {
     }
 ```
 
-#### 
+### 2 Parse
+
+前置条件：NA 
+
+场景：markdown解析得到的节点树，不同类型节点为不同的Node子类
+
+约束：NA
+
+可靠性：NA
+
+#### 2.1 Parser
+
+##### 2.1.1 主要接口
+
+```cangjie
+public class Parser {
+	/*
+     * 获取ParserBuilder对象
+     * 返回值 ParserBuilder - ParserBuilder对象
+     */
+    public static func builder(): ParserBuilder
+
+	/*
+     * 解析文本 生成Node
+     * 参数 String - 文本
+     * 返回值 Node - Node对象
+     */
+    public func parse(input: String): Node
+    
+	/*
+     * 解析流 生成Node
+     * 参数 StringReader<InputStream> - 流
+     * 返回值 Node - Node对象
+     */
+    public func parseReader(input: StringReader<InputStream>): Node
+}
+
+public class ParserBuilder {
+
+	/*
+     * 构建parse对象
+     * 返回值 Parser - Parser对象
+     */
+    public func build(): Parser
+
+	/*
+     * 获取那七个block相关node对象象集合
+     * 返回值 HashSet<TypeInfo> - 那七个block相关Node的对象集合
+     */
+    public func getEnabledBlockTypes(): HashSet<TypeInfo>
+
+	/*
+     * 作为插件 拓展解析器 参考table
+     * 参数 Iterable<T> - 拓展的解析器集合 
+     * 返回值 ParserBuilder - ParserBuilder对象
+     */
+    public func extensions<T>(extensions: Iterable<T>): ParserBuilder where T <: Extension
+
+	/*
+     * 更新支持解析的Node对象集合
+     * 参数 HashSet<TypeInfo> - 支持解析的Node对象集合
+     * 返回值 ParserBuilder - ParserBuilder对象
+     */
+    public func enabledBlockTypes(enabledBlockTypes: HashSet<TypeInfo>): ParserBuilder
+
+	/*
+     * 增加用户新增的解析工厂类
+     * 参数 BlockParserFactory - 解析工厂类
+     * 返回值 ParserBuilder - ParserBuilder对象
+     */
+    public func customBlockParserFactory(blockParserFactory: BlockParserFactory): ParserBuilder
+
+	/*
+     * 增加用户新增的分隔符处理器
+     * 参数 DelimiterProcessor - DelimiterProcessor
+     * 返回值 ParserBuilder - ParserBuilder对象
+     */
+    public func customDelimiterProcessor(delimiterProcessor: DelimiterProcessor): ParserBuilder
+    
+	/*
+     * 增加用户新增的PostProcessor处理器
+     * 参数 PostProcessor - PostProcessor
+     * 返回值 ParserBuilder - ParserBuilder对象
+     */
+    public func postProcessor(postProcessor: PostProcessor): ParserBuilder
+
+	/*
+     * 实现InlineParser接口 用户自定义行内解析
+     * 参数 InlineParserFactory - 用户覆盖的InlineParserFactory子类
+     * 返回值 ParserBuilder - ParserBuilder对象
+     */
+    public func inlineParserFactory(inlineParserFactory: InlineParserFactory): ParserBuilder
+
+	/*
+     * 获取InlineParserFactory 没有定义就生成默认的InlineParserImpl类
+     * 返回值 ParserBuilder - ParserBuilder对象
+     */
+    public func getInlineParserFactory(): InlineParserFactory
+}
+
+public interface ParserExtension <: Extension {
+	/*
+     * 插件拓展 生成拓展的插件
+     * 参数 ParserBuilder - ParserBuilder
+     */
+    func ext(parserBuilder: ParserBuilder): Unit
+}
+
+public interface PostProcessor {
+	/*
+     * 解析Node
+     * 参数 Node - Node
+     * 返回值 Node - Node
+     */
+    func process(node: Node): Node
+}
+
+```
+
+##### 2.1.2 示例
+
+```cangjie
+    @TestCase
+    func parse_test():Unit {
+        let given: String = "# heading 1\n\nnot a heading"
+        var parser: Parser = Parser.builder().build()
+        var document: Node = parser.parse(given)
+        assertEquals("Heading{}", document.getFirstChild()().toString())
+    }
+```
+
+#### 2.2 BlockParser
+
+##### 2.2.1 主要接口
+
+```cangjie
+public interface BlockParser {
+	/*
+     * 是否可以包含其他块级元素
+     * 返回值 Bool - Bool
+     */
+    func isContainer(): Bool
+	/*
+     * 是否可以懒惰的换行
+     * 返回值 Bool - Bool
+     */
+    func canHaveLazyContinuationLines(): Bool
+    
+	/*
+     * 是否可以包含这个Block对象
+     * 参数 Block - Block对象
+     * 返回值 Bool - Bool
+     */
+    func canContain(childBlock: Block): Bool
+
+	/*
+     * 获取Block对象
+     * 返回值 Block - block对象
+     */
+    func getBlock(): Block
+
+	/*
+     * 获取跨行元素对象 如果存在
+     * 参数 ParserState - ParserState对象
+     * 返回值 Option<BlockContinue> - BlockContinue
+     */
+    func tryContinue(parserState: ParserState): Option<BlockContinue>
+    
+	/*
+     * 添加一行
+     * 参数 CharSequence - CharSequence
+     */
+    func addLine(line: CharSequence): Unit
+
+	/*
+     * 关闭块对象
+     */
+    func closeBlock(): Unit
+
+	/*
+     * 使用InlineParser解析文本
+     * 参数 InlineParser - InlineParser对象
+     */
+    func parseInlines(inlineParser: InlineParser): Unit
+}
+
+public abstract class AbstractBlockParser <: BlockParser {
+	/*
+     * 是否可以包含其他块级元素
+     * 返回值 Bool - false
+     */
+    public open func isContainer(): Bool
+
+	/*
+     * 是否可以懒惰的换行
+     * 返回值 Bool - false
+     */
+    public open func canHaveLazyContinuationLines(): Bool
+
+	/*
+     * 是否可以包含这个Block对象
+     * 参数 Block - Block对象
+     * 返回值 Bool - false
+     */
+    public open func canContain(_: Block): Bool
+
+	/*
+     * 添加一行
+     * 参数 CharSequence - CharSequence
+     */
+    public open func addLine(_: CharSequence): Unit
+
+	/*
+     * 关闭块对象
+     */
+    public open func closeBlock(): Unit
+
+	/*
+     * 使用InlineParser解析文本
+     * 参数 InlineParser - InlineParser对象
+     */
+    public open func parseInlines(_: InlineParser): Unit
+}
+
+public open class BlockContinue {
+
+	/*
+     * 清空BlockContinue对象
+     * 返回值 InlineParser - Option<BlockContinue>.None
+     */
+    public static func none(): Option<BlockContinue>
+
+	/*
+     * 设置跨行的元素起始下标
+     * 参数 Int64 - 起始下标
+     * 返回值 BlockContinue - 构建跨行元素实现类
+     */
+    public static func atIndex(newIndex: Int64): BlockContinue
+
+	/*
+     * 设置跨行的元素起始下标
+     * 参数 Int64 - 起始下标
+     * 返回值 BlockContinue - 构建跨行元素实现类
+     */
+    public static func atColumn(newColumn: Int64): BlockContinue
+
+	/*
+     * 结束跨行
+     * 返回值 BlockContinue - 构建跨行元素实现类
+     */
+    public static func finished(): BlockContinue
+}
+
+public interface BlockParserFactory {
+
+	/*
+     * 初始化一个特定的 BlockParser 实例来解析当前的文本行
+     * 参数 ParserState - ParserState 对象
+     * 参数 MatchedBlockParser - MatchedBlockParser 对象
+     * 返回值 Option<BlockStart> - BlockStart
+     */
+    func tryStart(state: ParserState, matchedBlockParser: MatchedBlockParser): Option<BlockStart>
+}
+
+public abstract class AbstractBlockParserFactory <: BlockParserFactory {}
+
+public abstract class BlockStart {
+	/*
+     * 生成一个 Option<BlockStart>.None实例
+     * 返回值 Option<BlockStart> - Option<BlockStart>.None
+     */
+    public static func none(): Option<BlockStart>
+
+	/*
+     * 生成默认的BlockStart实现类
+     * 参数 Array<AbstractBlockParser> - 解析类数组
+     * 返回值 BlockStart - BlockStart实现类
+     */
+    public static func of4Cj(blockParsers: Array<AbstractBlockParser>): BlockStart
+
+	/*
+     * 指定下标
+     * 参数 Int64 - index
+     * 返回值 BlockStart - BlockStart实现类
+     */
+    public func atIndex(newIndex: Int64): BlockStart
+
+	/*
+     * 指定下标
+     * 参数 Int64 - column
+     * 返回值 BlockStart - BlockStart实现类
+     */
+    public func atColumn(newColumn: Int64): BlockStart
+
+	/*
+     * 是否可替换当前解析类
+     * 返回值 BlockStart - BlockStart实现类
+     */
+    public func replaceActiveBlockParser(): BlockStart
+}
+
+public interface MatchedBlockParser {
+	/*
+     * 获取匹配到的解析类
+     * 返回值 AbstractBlockParser - 解析类
+     */
+    func getMatchedBlockParser(): AbstractBlockParser
+
+	/*
+     * 获取段落文本 如果匹配的是段落Node
+     * 返回值 ?String - 段落文本
+     */
+    func getParagraphContent(): ?String
+}
+
+
+public interface ParserState {
+	/*
+     * 获取当前行内容
+     * 返回值 CharSequence - 内容
+     */
+    func getLine(): CharSequence
+    
+	/*
+     * 获取下标
+     * 返回值 Int64 - 下标
+     */
+    func getIndex(): Int64
+
+	/*
+     * 获取下一个没有空格的下标
+     * 返回值 Int64 - 下标
+     */
+    func getNextNonSpaceIndex(): Int64
+
+	/*
+     * 获取下标
+     * 返回值 Int64 - 下标
+     */
+    func getColumn(): Int64
+
+	/*
+     * 获取缩进级别
+     * 返回值 Int64 - 缩进级别
+     */
+    func getIndent(): Int64
+
+	/*
+     * 是否是空行
+     * 返回值 Bool - 是否是空行
+     */
+    func isBlank(): Bool
+
+	/*
+     * 获取最底层的块块解析对象
+     * 返回值 AbstractBlockParser - 最底层的块块解析对象
+     */
+    func getActiveBlockParser(): AbstractBlockParser
+}
+
+public class BlockQuoteParserFactory <: BlockParserFactory {
+	/*
+     * 初始化一个特定的 BlockParser 实例来解析当前的文本行
+     * 参数 ParserState - ParserState 对象
+     * 参数 MatchedBlockParser - MatchedBlockParser 对象
+     * 返回值 Option<BlockStart> - BlockStart
+     */
+    public func tryStart(state: ParserState, _: MatchedBlockParser): Option<BlockStart>
+}
+
+public class FencedCodeBlockParserFactory <: BlockParserFactory {
+	/*
+     * 初始化一个特定的 FencedCodeBlockParser 实例来解析当前的文本行
+     * 参数 ParserState - ParserState 对象
+     * 参数 MatchedBlockParser - MatchedBlockParser 对象
+     * 返回值 Option<BlockStart> - BlockStart
+     */
+    public func tryStart(state: ParserState, _: MatchedBlockParser): Option<BlockStart>
+}
+
+public class HeadingParserFactory <: BlockParserFactory {
+	/*
+     * 初始化一个特定的 HeadingParser 实例来解析当前的文本行
+     * 参数 ParserState - ParserState 对象
+     * 参数 MatchedBlockParser - MatchedBlockParser 对象
+     * 返回值 Option<BlockStart> - BlockStart
+     */
+    public func tryStart(state: ParserState, matchedBlockParser: MatchedBlockParser): Option<BlockStart>
+}
+
+public class HtmlBlockParserFactory <: BlockParserFactory {
+	/*
+     * 初始化一个特定的 HtmlBlockParser 实例来解析当前的文本行
+     * 参数 ParserState - ParserState 对象
+     * 参数 MatchedBlockParser - MatchedBlockParser 对象
+     * 返回值 Option<BlockStart> - BlockStart
+     */
+    public func tryStart(state: ParserState, matchedBlockParser: MatchedBlockParser): Option<BlockStart> 
+}
+
+public class IndentedCodeBlockParserFactory <: BlockParserFactory {
+	/*
+     * 初始化一个特定的 IndentedCodeBlockParser 实例来解析当前的文本行
+     * 参数 ParserState - ParserState 对象
+     * 参数 MatchedBlockParser - MatchedBlockParser 对象
+     * 返回值 Option<BlockStart> - BlockStart
+     */
+    public func tryStart(state: ParserState, _: MatchedBlockParser): Option<BlockStart>
+}
+
+public class LinkReferenceDefinitionParser {
+	/*
+     * 解析当前的文本行
+     * 参数 CharSequence - 文本
+     */
+    public func parse(line: CharSequence): Unit
+}
+
+public class ListBlockParserFactory <: BlockParserFactory {
+	/*
+     * 初始化一个特定的 ListBlockParser 实例来解析当前的文本行
+     * 参数 ParserState - ParserState 对象
+     * 参数 MatchedBlockParser - MatchedBlockParser 对象
+     * 返回值 Option<BlockStart> - BlockStart
+     */
+    public func tryStart(state: ParserState, matchedBlockParser: MatchedBlockParser): Option<BlockStart> 
+}
+
+public class ThematicBreakParserFactory <: BlockParserFactory {
+	/*
+     * 初始化一个特定的 ThematicBreakParser 实例来解析当前的文本行
+     * 参数 ParserState - ParserState 对象
+     * 参数 MatchedBlockParser - MatchedBlockParser 对象
+     * 返回值 Option<BlockStart> - BlockStart
+     */
+    public func tryStart(state: ParserState, _: MatchedBlockParser): Option<BlockStart>
+}
+```
+
+##### 2.2.2 示例
+
+```cangjie
+    @TestCase
+    func parse_test():Unit {
+        let given: String = "# heading 1\n\nnot a heading"
+        var parser: Parser = Parser.builder().build()
+        var document: Node = parser.parse(given)
+        assertEquals("Heading{}", document.getFirstChild()().toString())
+    }
+```
+
+
+
+#### 2.3 DocumentParser
+
+##### 2.3.1 主要接口
+
+```cangjie
+public class DocumentParser <: ParserState {
+	/*
+     * 构建 DocumentParser
+     * 参数 ArrayList<BlockParserFactory> - BlockParserFactory 数组
+     * 参数 InlineParserFactory - InlineParserFactory对象
+     * 参数 ArrayList<DelimiterProcessor> - DelimiterProcessor 数组
+     */
+    public init(
+        blockParserFactories: ArrayList<BlockParserFactory>,
+        inlineParserFactory: InlineParserFactory,
+        delimiterProcessors: ArrayList<DelimiterProcessor>
+    )
+ 
+	/*
+     * 获取核心的7种块类型对象 
+     * 返回值 HashSet<TypeInfo> - 块类型对象集合
+     */
+    public static func getDefaultBlockParserTypes(): HashSet<TypeInfo>
+
+	/*
+     * 生成需要的块解析工厂列表
+     * 参数 ArrayList<BlockParserFactory> - 用户自定义的BlockParserFactory 数组
+     * 参数 HashSet<TypeInfo> - 块对象集合
+     * 返回值 ArrayList<BlockParserFactory> - BlockParserFactory 数组
+     */
+    public static func calculateBlockParserFactories(
+        customBlockParserFactories: ArrayList<BlockParserFactory>,
+        enabledBlockTypes: HashSet<TypeInfo>
+    ): ArrayList<BlockParserFactory>
+
+	/*
+     * 主要的解析方法 解析文本 生成Document对象
+     * 参数 String - 文本
+     * 返回值 Document - Document对象
+     */
+    public func parse(inputStr: String): Document
+
+	/*
+     * 解析流 生成Document对象
+     * 参数 StringReader<InputStream> - 流
+     * 返回值 Document - Document对象
+     */
+    public func parse(input: StringReader<InputStream>): Document
+
+	/*
+     * 返回当前解析Char数组
+     * 返回值 CharSequence - 当前一行的Char数组
+     */
+    public func getLine(): CharSequence
+ 
+	/*
+     * 返回当前解析的下标
+     * 返回值 Int64 - 当前解析的下标
+     */
+    public func getIndex(): Int64
+
+	/*
+     * 返回当前解析的下一个非空格下标
+     * 返回值 Int64 - 下一个非空格下标
+     */
+    public func getNextNonSpaceIndex(): Int64
+
+	/*
+     * 返回当前解析的下标 当存在制表符的情况下
+     * 返回值 Int64 - 当前解析的下标
+     */
+    public func getColumn(): Int64
+
+	/*
+     * 获取缩进级别
+     * 返回值 Int64 - 缩进级别
+     */
+    public func getIndent(): Int64
+
+	/*
+     * 判断该行是不是空行
+     * 返回值 Bool - 是不是空行
+     */
+    public func isBlank(): Bool
+
+	/*
+     * 获取最底层的块块解析对象
+     * 返回值 AbstractBlockParser - 最底层的块块解析对象
+     */
+    public func getActiveBlockParser(): AbstractBlockParser
+}
+```
+
+##### 2.3.2 示例
+
+```cangjie
+    @TestCase
+    func parse_test():Unit {
+        let given: String = "# heading 1\n\nnot a heading"
+        var parser: Parser = Parser.builder().build()
+        var document: Node = parser.parse(given)
+        assertEquals("Heading{}", document.getFirstChild()().toString())
+    }
+```
+
+#### 2.4 InlineParser
+
+##### 2.4.1 主要接口
+
+```cangjie
+public interface InlineParser {
+	/*
+     * 解析行内元素
+     * 参数 String - 文本
+     * 返回值 Node - 与生成的Node互为父子节点
+     */
+    func parse(input: String, node: Node): Unit
+}
+
+public interface InlineParserContext {
+	/*
+     * 获取用户自定义的分割符处理器
+     * 返回值 ArrayList<DelimiterProcessor> - ArrayList<DelimiterProcessor>
+     */
+    func getCustomDelimiterProcessors(): ArrayList<DelimiterProcessor>
+    
+	/*
+     * 根据名字获取对应的链接引用
+     * 参数 String - 名字
+     * 返回值 ?LinkReferenceDefinition - ?LinkReferenceDefinition
+     */
+    func getLinkReferenceDefinition(label: String): ?LinkReferenceDefinition
+}
+
+public interface InlineParserFactory {
+	/*
+     * 构建InlineParser行内解析器实例
+     * 参数 InlineParserContext - InlineParserContext
+     * 返回值 InlineParser - InlineParser对象
+     */
+    func create(inlineParserContext: InlineParserContext): InlineParser
+}
+
+public interface DelimiterProcessor {
+	/*
+     * 获取开始分隔符
+     * 返回值 Char - 开始分隔符
+     */
+    func getOpeningCharacter(): Char
+
+	/*
+     * 获取结束分隔符
+     * 返回值 Char - 结束分隔符
+     */
+    func getClosingCharacter(): Char
+
+	/*
+     * 获取最小长度 为1
+     * 返回值 Int64
+     */
+    func getMinLength(): Int64
+
+	/*
+     * 获取多少分隔符可以被使用
+     * 参数 DelimiterRun - 开始 DelimiterRun(连续分隔符序列)
+     * 参数 DelimiterRun - 结束DelimiterRun(连续分隔符序列)
+     * 返回值 Int64 - 个数
+     */
+    func getDelimiterUse(opener: DelimiterRun, closer: DelimiterRun): Int64
+
+	/*
+     * 处理行内元素
+     * 参数 Text - 开始文本
+     * 参数 Text - 结束文本
+     * 参数 Int64 - 可以用的分隔符数量 决定是Emphasis还是StrongEmphasis 的 Node
+     */
+    func process(opener: Text, closer: Text, delimiterUse: Int64): Unit
+}
+
+public abstract class EmphasisDelimiterProcessor <: DelimiterProcessor {
+	/*
+     * 获取开始分隔符
+     * 返回值 Char - 开始分隔符
+     */
+    public override func getOpeningCharacter(): Char
+
+	/*
+     * 获取结束分隔符
+     * 返回值 Char - 结束分隔符
+     */
+    public override func getClosingCharacter(): Char
+
+	/*
+     * 获取最小长度 为1
+     * 返回值 Int64 - 最小长度 为1
+     */
+    public override func getMinLength(): Int64
+
+	/*
+     * 获取多少分隔符可以被使用
+     * 参数 DelimiterRun - 开始 DelimiterRun(连续分隔符序列)
+     * 参数 DelimiterRun - 结束DelimiterRun(连续分隔符序列)
+     * 返回值 Int64 - 个数
+     */
+    public override func getDelimiterUse(opener: DelimiterRun, closer: DelimiterRun): Int64 
+
+	/*
+     * 处理行内元素
+     * 参数 Text - 开始文本
+     * 参数 Text - 结束文本
+     * 参数 Int64 - 可以用的分隔符数量 决定是Emphasis还是StrongEmphasis 的 Node 
+     */
+    public override func process(opener: Text, closer: Text, delimiterUse: Int64): Unit
+}
+
+public interface DelimiterRun {
+	/*
+     * 是否可以开启一个新的分隔符
+     * 返回值 Bool - 是否可以打开
+     */
+    func canOpen(): Bool
+
+	/*
+     * 是否可以关闭分隔符
+     * 返回值 Bool - 是否可以关闭
+     */
+    func canClose(): Bool
+
+	/*
+     * 序列长度
+     * 返回值 Bool - 是否可以关闭
+     */
+    func getLength(): Int64
+    
+	/*
+     * 序列原始长度
+     * 返回值 Bool - 是否可以关闭
+     */
+    func getOriginalLength(): Int64
+}
+```
+
+##### 2.4.2 示例
+
+```cangjie
+    @TestCase
+    func parse_test():Unit {
+        let given: String = "# heading 1\n\nnot a heading"
+        var parser: Parser = Parser.builder().build()
+        var document: Node = parser.parse(given)
+        assertEquals("Heading{}", document.getFirstChild()().toString())
+    }
+```
+
+#### 2.5 Strikethrough
+
+##### 2.5.1 主要接口
+
+```cangjie
+public abstract class StrikethroughNodeRenderer <: NodeRenderer {
+	/*
+     * 获取删除线类型
+     * 返回值 HashSet<TypeInfo> - 删除线类型
+     */
+    public override func getNodeTypes(): HashSet<TypeInfo> {
+        return HashSet<TypeInfo>([TypeInfo.of<Strikethrough>()])
+    }
+}
+
+public class Strikethrough <: CustomNode & Delimited {
+	/*
+     * 获取起始分隔符
+     * 返回值 ?String> - 起始分隔符
+     */
+	public override func getOpeningDelimiter(): ?String
+
+	/*
+     * 获取结束分隔符
+     * 返回值 ?String> - 结束分隔符
+     */
+    public override func getClosingDelimiter(): ?String
+}
+
+public class StrikethroughDelimiterProcessor <: DelimiterProcessor {
+
+	/*
+     * 删除线类型的 起始分隔符 '~'
+     * 返回值 Char - 起始分隔符 '~'
+     */
+    public override func getOpeningCharacter(): Char
+
+	/*
+     * 删除线类型的 结束分隔符 '~'
+     * 返回值 Char - 结束分隔符 '~'
+     */
+    public override func getClosingCharacter(): Char
+
+	/*
+     * 最小长度 2
+     * 返回值 Int64 - 2
+     */
+    public override func getMinLength(): Int64
+
+	/*
+     * 获取多少分隔符可以被使用
+     * 参数 DelimiterRun - 开始 DelimiterRun(连续分隔符序列)
+     * 参数 DelimiterRun - 结束DelimiterRun(连续分隔符序列)
+     * 返回值 Int64 - 个数
+     */
+    public override func getDelimiterUse(opener: DelimiterRun, closer: DelimiterRun): Int64
+
+	/*
+     * 处理行内元素
+     * 参数 Text - 开始文本
+     * 参数 Text - 结束文本
+     * 参数 Int64 - 可以用的分隔符数量
+     */
+    public override func process(opener: Text, closer: Text, _: Int64): Unit
+}
+
+public class StrikethroughHtmlNodeRenderer <: StrikethroughNodeRenderer {
+	/*
+     * 初始化
+     * 参数 HtmlNodeRendererContext - HtmlNodeRendererContext
+     */
+    public init(context: HtmlNodeRendererContext)
+
+	/*
+     * 渲染
+     * 参数 Node - Node
+     */
+    public override func render(node: Node): Unit
+}
+
+public class StrikethroughTextContentNodeRenderer <: StrikethroughNodeRenderer {
+
+	/*
+     * 初始化
+     * 参数 TextContentNodeRendererContext - TextContentNodeRendererContext
+     */
+    public init(context: TextContentNodeRendererContext)
+	/*
+     * 渲染
+     * 参数 Node - Node
+     */
+    public override func render(node: Node): Unit
+}
+
+public class StrikethroughExtension <: ParserExtension & HtmlRendererExtension & TextContentRendererExtension {
+
+	/*
+     * 拓展插件
+     * 返回值 Extension - Extension
+     */
+    public static func create(): Extension
+    
+	/*
+     * 插件拓展 
+     * 参数 ParserBuilder - ParserBuilder
+     */
+    public override func ext(parserBuilder: ParserBuilder): Unit
+	/*
+     * 插件拓展 
+     * 参数 HtmlRendererBuilder - HtmlRendererBuilder
+     */
+    public override func ext(rendererBuilder: HtmlRendererBuilder): Unit
+    
+	/*
+     * 插件拓展 
+     * 参数 TextContentRendererBuilder - TextContentRendererBuilder
+     */
+    public override func ext(rendererBuilder: TextContentRendererBuilder): Unit
+}
+```
+
+##### 2.5.2 示例
+
+```cangjie
+    @TestCase
+    func parse_test():Unit {
+        let given: String = "# heading 1\n\nnot a heading"
+        var parser: Parser = Parser.builder().build()
+        var document: Node = parser.parse(given)
+        assertEquals("Heading{}", document.getFirstChild()().toString())
+    }
+```
+
+#### 2.6 Table
+
+##### 2.6.1 主要接口
+
+```cangjie
+public abstract class TableNodeRenderer <: NodeRenderer {
+	/*
+     * 获取表格类型
+     * 返回值 HashSet<TypeInfo> - 表格类型
+     */
+    public override func getNodeTypes(): HashSet<TypeInfo>
+
+	/*
+     * 渲染
+     * 参数 Node - Node
+     */
+    public override func render(node: Node): Unit
+}
+
+public class TableBlock <: CustomBlock {}
+
+public class TableBody <: CustomNode {}
+
+public class TableCell <: CustomNode {
+
+	/*
+     * 是不是表头
+     * 返回值 ?Bool - ?Bool
+     */
+    public func isHeader(): ?Bool
+
+	/*
+     * 设置该行是表头
+     * 参数 Bool - Bool
+     */
+    public func setHeader(header: Bool): Unit
+
+	/*
+     * 获取对齐方式
+     * 返回值 ?Alignment - 对齐方式
+     */
+    public func getAlignment(): ?Alignment
+
+	/*
+     * 设置对齐方式
+     * 参数 Alignment - 对齐方式
+     */
+    public func setAlignment(alignment: Alignment): Unit
+}
+
+public enum Alignment {
+    | LEFT
+    | CENTER
+    | RIGHT
+}
+
+public class TableHead <: CustomNode {}
+
+public class TableRow <: CustomNode {}
+
+public class TablesExtension <: ParserExtension & HtmlRendererExtension & TextContentRendererExtension {
+	/*
+     * 拓展插件
+     * 返回值 Extension - Extension
+     */
+    public static func create(): Extension
+	/*
+     * 拓展插件
+     * 参数 ParserBuilder - ParserBuilder
+     */
+    public func ext(parserBuilder: ParserBuilder): Unit
+	/*
+     * 拓展插件
+     * 参数 HtmlRendererBuilder - HtmlRendererBuilder
+     */
+    public func ext(rendererBuilder: HtmlRendererBuilder): Unit
+	/*
+     * 拓展插件
+     * 参数 TextContentRendererBuilder - TextContentRendererBuilder
+     */
+    public func ext(rendererBuilder: TextContentRendererBuilder): Unit
+}
+
+public class TableHtmlNodeRenderer <: TableNodeRenderer {
+	/*
+     * 初始化
+     * 参数 HtmlNodeRendererContext - HtmlNodeRendererContext
+     */
+    public init(context: HtmlNodeRendererContext)
+}
+
+public class TableTextContentNodeRenderer <: TableNodeRenderer {
+	/*
+     * 初始化
+     * 参数 TextContentNodeRendererContext - TextContentNodeRendererContext
+     */
+    public init(context: TextContentNodeRendererContext) {
+        this.textContentWriter = context.getWriter()
+        this.context = context
+    }
+}
+```
+
+##### 2.6.2 示例
+
+```cangjie
+    @TestCase
+    func parse_test():Unit {
+        let given: String = "# heading 1\n\nnot a heading"
+        var parser: Parser = Parser.builder().build()
+        var document: Node = parser.parse(given)
+        assertEquals("Heading{}", document.getFirstChild()().toString())
+    }
+```
+
+### 3 Render
+
+前置条件：NA 
+
+场景：
+
+约束：NA
+
+可靠性：NA
+
+#### 3.1 TextRender
+
+##### 3.1.1 主要接口
+
+```cangjie
+public class TextContentRenderer <: Renderer {
+	/*
+     * 构建TextContentRendererBuilder对象
+     * 返回值 TextContentRendererBuilder - TextContentRendererBuilder
+     */
+    public static func builder(): TextContentRendererBuilder
+
+	/*
+     * 渲染node 追加到StringBuilder中
+     * 参数 Node - Ndoe
+     * 参数 StringBuilder - StringBuilder文本
+     */
+    public override func render(node: Node, output: StringBuilder): Unit
+
+	/*
+     * 渲染node
+     * 参数 Node - Ndoe
+     * 返回值 String - 渲染完成的文本
+     */
+    public override func render(node: Node): String
+}
+
+public class TextContentRendererBuilder {
+	/*
+     * 构建 TextContentRenderer 对象
+     * 返回值 TextContentRenderer - TextContentRenderer
+     */
+    public func build(): TextContentRenderer
+
+	/*
+     * 是否忽略换行符 true是忽略
+     * 参数 Bool - 是否忽略换行符
+     * 返回值 TextContentRendererBuilder - TextContentRendererBuilder
+     */
+    public func setStripNewlines(stripNewlines: Bool): TextContentRendererBuilder
+
+	/*
+     * 新增一个 TextContentNodeRendererFactory实例对象
+     * 参数 TextContentNodeRendererFactory - TextContentNodeRendererFactory
+     * 返回值 TextContentRendererBuilder - TextContentRendererBuilder
+     */
+    public func nodeRendererFactory(nodeRendererFactory: TextContentNodeRendererFactory): TextContentRendererBuilder
+
+	/*
+     * 拓展新的render 例如 TablesExtension
+     * 参数 Iterable<Extension> - 拓展列表
+     * 返回值 TextContentRendererBuilder - TextContentRendererBuilder
+     */
+    public func extensions(extensions: Iterable<Extension>): TextContentRendererBuilder
+}
+
+public interface TextContentRendererExtension <: Extension {
+
+	/*
+     * 拓展新的render 例如 TablesExtension
+     * 参数 TextContentRendererBuilder - TextContentRendererBuilder
+     */
+    func ext(rendererBuilder: TextContentRendererBuilder): Unit
+}
+
+public interface TextContentNodeRendererContext {
+	/*
+     * 是否忽略换行符 true是忽略
+     * 返回值 Bool - 是否忽略换行符
+     */
+    func stripNewlines(): Bool
+
+	/*
+     * 获取TextContentWriter
+     * 返回值 TextContentWriter - 是否忽TextContentWriter略换行符
+     */
+    func getWriter(): TextContentWriter
+
+	/*
+     * 渲染render
+     * 参数 Node - Node
+     */
+    func render(node: Node): Unit
+}
+
+public type TextContentNodeRendererFactory = (context: TextContentNodeRendererContext) -> NodeRenderer
+
+public class TextContentWriter {
+	/*
+     * 构建TextContentWriter对象
+     * 参数 StringBuilder - 初始文本
+     */
+    public TextContentWriter(out: StringBuilder)
+    
+	/*
+     * 写入空格 " "
+     */
+    public func whitespace(): Unit
+
+	/*
+     * 写入冒号 ":"
+     */
+    public func colon(): Unit
+
+	/*
+     * 写入 "\n"
+     */
+    public func line(): Unit
+
+	/*
+     * 去除文本的 [\r\n\s]格式 
+     * 参数 ?String - 文本
+     */
+    public func writeStripped(s: ?String): Unit
+
+	/*
+     * 写入文本
+     * 参数 ?String - 文本
+     */
+    public func write(s: ?String): Unit
+
+	/*
+     * 写入文本
+     * 参数 Char - 文本
+     */
+    public func write(c: Char): Unit
+}
+```
+
+##### 3.1.2 示例
+
+```cangjie
+    
+    @TestCase
+    func render_test():Unit {
+        var source: String = ""
+        var rendered: String = ""
+        source = "foo bar"
+        rendered = defaultRenderer().render(parse(source))
+        assertEquals("foo bar", rendered)
+        rendered = strippedRenderer().render(parse(source))
+        assertEquals("foo bar", rendered)
+
+        source = "foo foo\n\nbar\nbar"
+        rendered = defaultRenderer().render(parse(source))
+        assertEquals("foo foo\nbar\nbar", rendered)
+        rendered = strippedRenderer().render(parse(source))
+        assertEquals("foo foo bar bar", rendered)
+    }
+
+    func defaultRenderer(): TextContentRenderer {
+        return TextContentRenderer.builder().build()
+    }
+
+    func strippedRenderer(): TextContentRenderer {
+        return TextContentRenderer.builder().setStripNewlines(true).build()
+    }
+```
+
+#### 3.2 HtmlRender
+
+##### 3.2.1 主要接口
+
+```cangjie
+public class HtmlRenderer <: Renderer {
+	/*
+     * 构建HtmlRendererBuilder对象
+     * 返回值 HtmlRendererBuilder - HtmlRendererBuilder
+     */
+    public static func builder(): HtmlRendererBuilder
+
+	/*
+     * 渲染node 追加到StringBuilder中
+     * 参数 Node - Ndoe
+     * 参数 StringBuilder - StringBuilder文本
+     */
+    public override func render(node: Node, output: StringBuilder): Unit
+
+	/*
+     * 渲染node
+     * 参数 Node - Ndoe
+     * 返回值 String - 渲染完成的文本
+     */
+    public override func render(node: Node): String
+}
+
+public class HtmlRendererBuilder {
+	/*
+     * 构建 HtmlRenderer 对象
+     * 返回值 HtmlRenderer - HtmlRenderer
+     */
+    public func build(): HtmlRenderer
+	
+	/*
+     * 更改 softbreak 默认 "\n"
+     * 参数 String - softbreak
+     * 返回值 HtmlRendererBuilder - HtmlRendererBuilder
+     */
+    public func softbreak(softbreak: String): HtmlRendererBuilder
+
+	/*
+     * 是否需要转义 默认 false
+     * 参数 Bool - 是否需要转义
+     * 返回值 HtmlRendererBuilder - HtmlRendererBuilder
+     */
+    public func escapeHtml(escapeHtml: Bool): HtmlRendererBuilder
+
+	/*
+     * 是否URL编码 默认 false
+     * 参数 Bool - 是否URL编码
+     * 返回值 HtmlRendererBuilder - HtmlRendererBuilder
+     */
+    public func percentEncodeUrls(percentEncodeUrls: Bool): HtmlRendererBuilder
+
+	/*
+     * 新增属性工厂类
+     * 参数 AttributeProviderFactory - AttributeProviderFactory
+     * 返回值 HtmlRendererBuilder - HtmlRendererBuilder
+     */
+    public func attributeProviderFactory(attributeProviderFactory: AttributeProviderFactory): HtmlRendererBuilder
+
+	/*
+     * 新增属性渲染工厂类
+     * 参数 HtmlNodeRendererFactory - HtmlNodeRendererFactory
+     * 返回值 HtmlRendererBuilder - HtmlRendererBuilder
+     */
+    public func nodeRendererFactory(nodeRendererFactory: HtmlNodeRendererFactory): HtmlRendererBuilder
+
+	/*
+     * 拓展新的render 例如 TablesExtension
+     * 参数 Iterable<Extension> - 拓展列表
+     * 返回值 HtmlRendererBuilder - HtmlRendererBuilder
+     */
+    public func extensions(extensions: Iterable<Extension>): HtmlRendererBuilder
+}
+
+public interface HtmlRendererExtension <: Extension {
+	/*
+     * 拓展新的render 例如 TablesExtension
+     * 参数 HtmlRendererBuilder - HtmlRendererBuilder
+     */
+    func ext(rendererBuilder: HtmlRendererBuilder): Unit
+}
+
+public class HtmlWriter {
+	/*
+     * 初始化
+     * 参数 StringBuilder - 初始文本
+     */
+    public init(out: StringBuilder)
+
+	/*
+     * 新增文本
+     * 参数 String - 文本
+     */
+    public func raw(s: String): Unit
+
+	/*
+     * 新增转义后的文本
+     * 参数 String - 文本
+     */
+    public func text(text: String): Unit
+
+	/*
+     * 新增标签
+     * 参数 String - 文本
+     */
+    public func tag(name: String): Unit
+
+	/*
+     * 新增标签
+     * 参数 String - 文本
+     * 参数 Map<String, String> - 属性map
+     */
+    public func tag(name: String, attrs: Map<String, String>): Unit
+
+	/*
+     * 新增标签
+     * 参数 String - 文本
+     * 参数 Map<String, String> - 属性map
+     * 参数 Bool - 是否需要闭合 " /"
+     */
+    public func tag(name: String, attrs: ?Map<String, String>, voidElement: Bool): Unit
+
+	/*
+     * 新增 "\n"
+     */
+    public func line(): Unit
+}
+
+public interface AttributeProvider {
+	/*
+     * 设置标签属性
+     * 参数 Node - Node
+     * 参数 String - 标签
+     * 参数 Map<String, String> - 属性map
+     */
+    func setAttributes(node: Node, tagName: String, attributes: Map<String, String>): Unit
+}
+
+public interface AttributeProviderContext {}
+
+public type AttributeProviderFactory = (context: AttributeProviderContext) -> AttributeProvider
+
+public interface HtmlNodeRendererContext {
+
+	/*
+     * URL编码
+     * 参数 String - url
+     * 返回值 String - 编码后的url
+     */
+    func encodeUrl(url: String): String
+
+	/*
+     * 拓展自定义的tag属性
+     * 参数 Node - 被应用的Node
+     * 参数 String - 标签
+     * 参数 Map<String, String> - 属性map
+     * 返回值 Map<String, String> - 拓展后的属性map
+     */
+    func extendAttributes(node: Node, tagName: String, attributes: Map<String, String>): Map<String, String>
+
+	/*
+     * 获取HtmlWriter
+     * 返回值 HtmlWriter - HtmlWriter
+     */
+    func getWriter(): HtmlWriter
+
+	/*
+     * 获取HtmlWriter 默认 "\n"
+     * 返回值 HtmlWriter - HtmlWriter
+     */
+    func getSoftbreak(): String
+
+	/*
+     * 渲染Node
+     * 参数 Node - Node
+     */
+    func render(node: Node): Unit
+
+	/*
+     * 是否需要转义 默认false
+     * 返回值 Bool - Bool
+     */
+    func shouldEscapeHtml(): Bool
+}
+
+public type HtmlNodeRendererFactory = (context: HtmlNodeRendererContext) -> NodeRenderer
+```
+
+##### 3.2.2 示例
+
+```cangjie
+    @TestCase
+    func render_test():Unit {
+        let rendered: String = htmlAllowingRenderer().render(
+            parse("paragraph with <span id='foo' class=\"bar\">inline &amp; html</span>"))
+        assertEquals("<p>paragraph with <span id='foo' class=\"bar\">inline &amp; html</span></p>\n", rendered)
+    }
+
+    private func htmlAllowingRenderer(): HtmlRenderer {
+        return HtmlRenderer.builder().escapeHtml(false).build()
+    }
+```
+
+### 4 util
+
+前置条件：NA 
+
+场景：
+
+约束：NA
+
+可靠性：NA
+
+#### 4.1 util
+
+##### 4.1.1 主要接口
+
+```
+public class Escaping {
+	/*
+     * html转义
+     * 参数 String - String
+     * 返回值 String - 转义后的String
+     */
+    public static func escapeHtml(input: String): String
+
+	/*
+     * 返回转义前的原始文本
+     * 参数 String - String
+     * 返回值 String -String
+     */
+    public static func unescapeString(s: String): String
+
+	/*
+     * 百分比编码
+     * 参数 String - String
+     * 返回值 String - 编码后的String
+     */
+    public static func percentEncodeUrl(s: String): String
+
+	/*
+     * 规范化引用
+     * 参数 String - String
+     * 返回值 String - String
+     */
+    public static func normalizeReference(input: String): String
+
+	/*
+     * 规范化正文
+     * 参数 String - String
+     * 返回值 String - String
+     */
+    public static func normalizeLabelContent(input: String): String
+}
+
+public interface Replacer {
+	/*
+     * 替换
+     * 参数 String - String
+     * 参数 StringBuilder - String
+     */
+    func replace(input: String, sb: StringBuilder): Unit
+}
+
+public class Html5Entities {
+	/*
+     * 转换为原始字符
+     * 参数 String - String
+     * 参数 String - String
+     */
+    public static func entityToString(input: String): String
+
+	/*
+     * 获取特殊字符的map
+     * 返回值 HashMap<String, String> - 特殊字符的map
+     */
+    public static func readEntities(): HashMap<String, String>
+}
+```
+
+##### 4.2.2 示例
+
+```cangjie
+    @TestCase
+    func escaping_test(): Unit {
+        let escapeString6: String = Escaping.escapeHtml("< start")
+        @PowerAssert(escapeString6 == "&lt; start")
+        let escapeString7: String = Escaping.escapeHtml("end >")
+        @PowerAssert(escapeString7 == "end &gt;")
+        let escapeString8: String = Escaping.escapeHtml("< both >")
+        @PowerAssert(escapeString8 == "&lt; both &gt;")
+        let escapeString9: String = Escaping.escapeHtml("< middle & too >")
+        @PowerAssert(escapeString9 == "&lt; middle &amp; too &gt;")
+
+        let text = "Example string with special characters: !@#$%^&*()_+|~- and encoded characters: &amp;#x123; &amp;#123; and &amp;test;"
+        let unescapeString: String = Escaping.unescapeString(text)
+        let t = "Example string with special characters: !@#$%^&*()_+|~- and encoded characters: &#x123; &#123; and &test;"
+        @PowerAssert(unescapeString == t)
+    }
+```
