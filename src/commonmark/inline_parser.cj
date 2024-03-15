@@ -369,7 +369,8 @@ class InlineParserImpl <: InlineParser {
         let afterOpenTicks: Int64 = index
         while (let Some(matched) <- matchs(TICKS)) {
             if (matched == tick) {
-                var content = input[afterOpenTicks..(index - tick.toRuneArray().size)]
+                let inputStr = String(input)
+                var content = inputStr[afterOpenTicks..(index - tick.toRuneArray().size)].toRuneArray()
                 content.replace('\n', ' ')
 
                 // spec: If the resulting string both begins and ends with a space character, but does not consist
