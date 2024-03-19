@@ -15,6 +15,7 @@ extend Option<T> {
 }
 
 public type CharSequence = Array<Rune>
+
 extend Array<T> where T <: Rune {
     func trim(): Array<T> {
         var (a, b) = (0, this.size - 1)

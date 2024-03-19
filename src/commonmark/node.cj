@@ -1,6 +1,6 @@
 package commonmark
 
-public abstract class Node <: ToString & Equatable<Node> {
+public abstract class Node <: Context & ToString & Equatable<Node> & Hashable {
     private var parent: ?Node = None
     private var firstChild: ?Node = None
     private var lastChild: ?Node = None
@@ -117,6 +117,10 @@ public abstract class Node <: ToString & Equatable<Node> {
 
     public operator func !=(other: Node): Bool {
         return !refEq(this, other)
+    }
+
+    public func hashCode(): Int {
+        return "${this}${getParent()}${getPrevious()}${getNext()}${getFirstChild()}${getLastChild()}".hashCode()
     }
 }
 
@@ -378,5 +382,17 @@ public class Emphasis <: Node & Delimited {
 
     public override func accept(visitor: Visitor): Unit {
         visitor.visit(this)
+    }
+}
+
+public abstract class Context {
+    private var _custom: Any = -1
+    public mut prop custom: Any {
+        get() {
+            _custom
+        }
+        set(v) {
+            this._custom = v
+        }
     }
 }

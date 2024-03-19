@@ -38,6 +38,7 @@ let EMPTY_STRING: String = ""
 let EMPTY_MAP: Map<String, String> = HashMap()
 
 public type CharSequence = Array<Rune>
+
 extend Array<T> where T <: Rune {
     func trim(): Array<T> {
         var (a, b) = (0, this.size - 1)

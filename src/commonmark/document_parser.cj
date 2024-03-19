@@ -189,7 +189,7 @@ public class DocumentParser <: ParserState {
                     }
                 } else {
                     break
-                }    
+                }
             }
         }
 
