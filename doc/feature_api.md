@@ -1377,116 +1377,9 @@ public class ThematicBreakParserFactory <: BlockParserFactory {
     }
 ```
 
-
-
-#### 2.3 DocumentParser
+#### 2.3 InlineParser
 
 ##### 2.3.1 主要接口
-
-```cangjie
-public class DocumentParser <: ParserState {
-	/*
-     * 构建 DocumentParser
-     * 参数 ArrayList<BlockParserFactory> - BlockParserFactory 数组
-     * 参数 InlineParserFactory - InlineParserFactory对象
-     * 参数 ArrayList<DelimiterProcessor> - DelimiterProcessor 数组
-     */
-    public init(
-        blockParserFactories: ArrayList<BlockParserFactory>,
-        inlineParserFactory: InlineParserFactory,
-        delimiterProcessors: ArrayList<DelimiterProcessor>
-    )
- 
-	/*
-     * 获取核心的7种块类型对象 
-     * 返回值 HashSet<TypeInfo> - 块类型对象集合
-     */
-    public static func getDefaultBlockParserTypes(): HashSet<TypeInfo>
-
-	/*
-     * 生成需要的块解析工厂列表
-     * 参数 ArrayList<BlockParserFactory> - 用户自定义的BlockParserFactory 数组
-     * 参数 HashSet<TypeInfo> - 块对象集合
-     * 返回值 ArrayList<BlockParserFactory> - BlockParserFactory 数组
-     */
-    public static func calculateBlockParserFactories(
-        customBlockParserFactories: ArrayList<BlockParserFactory>,
-        enabledBlockTypes: HashSet<TypeInfo>
-    ): ArrayList<BlockParserFactory>
-
-	/*
-     * 主要的解析方法 解析文本 生成Document对象
-     * 参数 String - 文本
-     * 返回值 Document - Document对象
-     */
-    public func parse(inputStr: String): Document
-
-	/*
-     * 解析流 生成Document对象
-     * 参数 StringReader<InputStream> - 流
-     * 返回值 Document - Document对象
-     */
-    public func parse(input: StringReader<InputStream>): Document
-
-	/*
-     * 返回当前解析Char数组
-     * 返回值 CharSequence - 当前一行的Char数组
-     */
-    public func getLine(): CharSequence
- 
-	/*
-     * 返回当前解析的下标
-     * 返回值 Int64 - 当前解析的下标
-     */
-    public func getIndex(): Int64
-
-	/*
-     * 返回当前解析的下一个非空格下标
-     * 返回值 Int64 - 下一个非空格下标
-     */
-    public func getNextNonSpaceIndex(): Int64
-
-	/*
-     * 返回当前解析的下标 当存在制表符的情况下
-     * 返回值 Int64 - 当前解析的下标
-     */
-    public func getColumn(): Int64
-
-	/*
-     * 获取缩进级别
-     * 返回值 Int64 - 缩进级别
-     */
-    public func getIndent(): Int64
-
-	/*
-     * 判断该行是不是空行
-     * 返回值 Bool - 是不是空行
-     */
-    public func isBlank(): Bool
-
-	/*
-     * 获取最底层的块块解析对象
-     * 返回值 AbstractBlockParser - 最底层的块块解析对象
-     */
-    public func getActiveBlockParser(): AbstractBlockParser
-}
-```
-
-##### 2.3.2 示例
-
-```cangjie
-    @TestCase
-    func parse_test():Unit {
-        let given: String = "# heading 1\n\nnot a heading"
-        var parser: Parser = Parser.builder().build()
-        var document: Node = parser.parse(given)
-        assertEquals("Heading{}", document.getFirstChild()().toString())
-    }
-```
-
-#### 2.4 InlineParser
-
-##### 2.4.1 主要接口
 
 ```cangjie
 public interface InlineParser {
@@ -1621,7 +1514,7 @@ public interface DelimiterRun {
 }
 ```
 
-##### 2.4.2 示例
+##### 2.3.2 示例
 
 ```cangjie
     @TestCase
@@ -1633,9 +1526,9 @@ public interface DelimiterRun {
     }
 ```
 
-#### 2.5 Strikethrough
+#### 2.4 Strikethrough
 
-##### 2.5.1 主要接口
+##### 2.4.1 主要接口
 
 ```cangjie
 public abstract class StrikethroughNodeRenderer <: NodeRenderer {
@@ -1660,71 +1553,6 @@ public class Strikethrough <: CustomNode & Delimited {
      * 返回值 ?String> - 结束分隔符
      */
     public override func getClosingDelimiter(): ?String
-}
-
-public class StrikethroughDelimiterProcessor <: DelimiterProcessor {
-
-	/*
-     * 删除线类型的 起始分隔符 '~'
-     * 返回值 Char - 起始分隔符 '~'
-     */
-    public override func getOpeningCharacter(): Char
-
-	/*
-     * 删除线类型的 结束分隔符 '~'
-     * 返回值 Char - 结束分隔符 '~'
-     */
-    public override func getClosingCharacter(): Char
-
-	/*
-     * 最小长度 2
-     * 返回值 Int64 - 2
-     */
-    public override func getMinLength(): Int64
-
-	/*
-     * 获取多少分隔符可以被使用
-     * 参数 DelimiterRun - 开始 DelimiterRun(连续分隔符序列)
-     * 参数 DelimiterRun - 结束DelimiterRun(连续分隔符序列)
-     * 返回值 Int64 - 个数
-     */
-    public override func getDelimiterUse(opener: DelimiterRun, closer: DelimiterRun): Int64
-
-	/*
-     * 处理行内元素
-     * 参数 Text - 开始文本
-     * 参数 Text - 结束文本
-     * 参数 Int64 - 可以用的分隔符数量
-     */
-    public override func process(opener: Text, closer: Text, _: Int64): Unit
-}
-
-public class StrikethroughHtmlNodeRenderer <: StrikethroughNodeRenderer {
-	/*
-     * 初始化
-     * 参数 HtmlNodeRendererContext - HtmlNodeRendererContext
-     */
-    public init(context: HtmlNodeRendererContext)
-
-	/*
-     * 渲染
-     * 参数 Node - Node
-     */
-    public override func render(node: Node): Unit
-}
-
-public class StrikethroughTextContentNodeRenderer <: StrikethroughNodeRenderer {
-
-	/*
-     * 初始化
-     * 参数 TextContentNodeRendererContext - TextContentNodeRendererContext
-     */
-    public init(context: TextContentNodeRendererContext)
-	/*
-     * 渲染
-     * 参数 Node - Node
-     */
-    public override func render(node: Node): Unit
 }
 
 public class StrikethroughExtension <: ParserExtension & HtmlRendererExtension & TextContentRendererExtension {
@@ -1754,7 +1582,7 @@ public class StrikethroughExtension <: ParserExtension & HtmlRendererExtension &
 }
 ```
 
-##### 2.5.2 示例
+##### 2.4.2 示例
 
 ```cangjie
     @TestCase
@@ -1766,9 +1594,9 @@ public class StrikethroughExtension <: ParserExtension & HtmlRendererExtension &
     }
 ```
 
-#### 2.6 Table
+#### 2.5 Table
 
-##### 2.6.1 主要接口
+##### 2.5.1 主要接口
 
 ```cangjie
 public abstract class TableNodeRenderer <: NodeRenderer {
@@ -1848,28 +1676,9 @@ public class TablesExtension <: ParserExtension & HtmlRendererExtension & TextCo
      */
     public func ext(rendererBuilder: TextContentRendererBuilder): Unit
 }
-
-public class TableHtmlNodeRenderer <: TableNodeRenderer {
-	/*
-     * 初始化
-     * 参数 HtmlNodeRendererContext - HtmlNodeRendererContext
-     */
-    public init(context: HtmlNodeRendererContext)
-}
-
-public class TableTextContentNodeRenderer <: TableNodeRenderer {
-	/*
-     * 初始化
-     * 参数 TextContentNodeRendererContext - TextContentNodeRendererContext
-     */
-    public init(context: TextContentNodeRendererContext) {
-        this.textContentWriter = context.getWriter()
-        this.context = context
-    }
-}
 ```
 
-##### 2.6.2 示例
+##### 2.5.2 示例
 
 ```cangjie
     @TestCase
@@ -2292,20 +2101,6 @@ public class Escaping {
      * 返回值 String - 编码后的String
      */
     public static func percentEncodeUrl(s: String): String
-
-	/*
-     * 规范化引用
-     * 参数 String - String
-     * 返回值 String - String
-     */
-    public static func normalizeReference(input: String): String
-
-	/*
-     * 规范化正文
-     * 参数 String - String
-     * 返回值 String - String
-     */
-    public static func normalizeLabelContent(input: String): String
 }
 
 public interface Replacer {
@@ -2318,13 +2113,6 @@ public interface Replacer {
 }
 
 public class Html5Entities {
-	/*
-     * 转换为原始字符
-     * 参数 String - String
-     * 参数 String - String
-     */
-    public static func entityToString(input: String): String
-
 	/*
      * 获取特殊字符的map
      * 返回值 HashMap<String, String> - 特殊字符的map

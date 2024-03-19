@@ -1,6 +1,6 @@
 package commonmark
 
-public class DocumentParser <: ParserState {
+class DocumentParser <: ParserState {
     private static var CORE_FACTORY_TYPES: HashSet<TypeInfo> = HashSet<TypeInfo>(
         [
             TypeInfo.of<BlockQuote>(),
