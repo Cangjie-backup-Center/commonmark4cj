@@ -21,7 +21,7 @@ public class Strikethrough <: CustomNode & Delimited {
     }
 }
 
-public class StrikethroughDelimiterProcessor <: DelimiterProcessor {
+class StrikethroughDelimiterProcessor <: DelimiterProcessor {
     public override func getOpeningCharacter(): Char {
         return '~'
     }
@@ -58,7 +58,7 @@ public class StrikethroughDelimiterProcessor <: DelimiterProcessor {
     }
 }
 
-public class StrikethroughHtmlNodeRenderer <: StrikethroughNodeRenderer {
+class StrikethroughHtmlNodeRenderer <: StrikethroughNodeRenderer {
     private let context: HtmlNodeRendererContext
     private let html: HtmlWriter
 
@@ -84,7 +84,7 @@ public class StrikethroughHtmlNodeRenderer <: StrikethroughNodeRenderer {
     }
 }
 
-public class StrikethroughTextContentNodeRenderer <: StrikethroughNodeRenderer {
+class StrikethroughTextContentNodeRenderer <: StrikethroughNodeRenderer {
     private let context: TextContentNodeRendererContext
     private let textContent: TextContentWriter
 

@@ -72,13 +72,13 @@ public class Escaping {
         return replaceAll(ESCAPE_IN_URI, str, UriReplacer())
     }
 
-    public static func normalizeReference(input: String): String {
+    protected static func normalizeReference(input: String): String {
         // Strip '[' and ']'
         let stripped: String = input[1..input.size - 1]
         return normalizeLabelContent(stripped)
     }
 
-    public static func normalizeLabelContent(input: String): String {
+    protected static func normalizeLabelContent(input: String): String {
         let trimmed: String = input.trimAscii()
         let lowercase: String = trimmed.toAsciiLower()
         return WHITESPACE.matcher(lowercase).replaceAll(" ")
@@ -152,7 +152,7 @@ public class Html5Entities {
     private static let NAMED_CHARACTER_REFERENCES: Map<String, String> = readEntities()
     private static let NUMERIC_PATTERN = Regex("^&#[Xx]?")
 
-    public static func entityToString(input: String): String {
+    protected static func entityToString(input: String): String {
         let matcher: Matcher = NUMERIC_PATTERN.matcher(input)
         let md: ?MatchData = matcher.find()
         if (md.isSome()) {

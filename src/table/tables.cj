@@ -101,7 +101,7 @@ public class TablesExtension <: ParserExtension & HtmlRendererExtension & TextCo
     }
 }
 
-public class TableHtmlNodeRenderer <: TableNodeRenderer {
+class TableHtmlNodeRenderer <: TableNodeRenderer {
     private let context: HtmlNodeRendererContext
     private let htmlWriter: HtmlWriter
 
@@ -186,7 +186,7 @@ public class TableHtmlNodeRenderer <: TableNodeRenderer {
     }
 }
 
-public class TableTextContentNodeRenderer <: TableNodeRenderer {
+class TableTextContentNodeRenderer <: TableNodeRenderer {
     private let context: TextContentNodeRendererContext
     private let textContentWriter: TextContentWriter
 
