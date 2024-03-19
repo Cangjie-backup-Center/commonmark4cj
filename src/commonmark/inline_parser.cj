@@ -801,13 +801,13 @@ class InlineParserImpl <: InlineParser {
                 if (!potentialOpenerFound) {
                     /*
                      Set lower bound for future searches for openers.
-                     Only do this when we didn't even have a potential opener 
+                     Only do this when we didn't even have a potential opener
                      (one that matches the character and can open).
-                     If an opener was rejected because of the number of delimiters 
+                     If an opener was rejected because of the number of delimiters
                      (e.g. because of the "multiple of 3" rule),
                      we want to consider it next time because the number
                      of delimiters can change as we continue processing.
-                    */
+                     */
                     openersBottom.put(delimiterChar, closer().previous)
                     if (closer.isSome() && !closer().canOpen()) {
                         // We can remove a closer that can't be an opener,
@@ -956,6 +956,7 @@ class InlineParserImpl <: InlineParser {
         }
     }
 }
+
 class DelimiterData {
     let count: Int64
     let canClose: Bool

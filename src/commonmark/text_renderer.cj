@@ -257,8 +257,7 @@ class CoreTextContentNodeRenderer <: AbstractVisitor & NodeRenderer {
     }
 
     public override func visit(listItem: ListItem): Unit {
-        if (listHolder.isSome() && listHolder() is OrderedListHolder) {
-            let orderedListHolder: OrderedListHolder = (listHolder() as OrderedListHolder)()
+        if (let Some(orderedListHolder: OrderedListHolder) <- listHolder) {
             let indent: String = if (context.stripNewlines()) {
                 ""
             } else {
@@ -268,8 +267,7 @@ class CoreTextContentNodeRenderer <: AbstractVisitor & NodeRenderer {
             visitChildren(listItem)
             writeEndOfLineIfNeeded(listItem, None)
             orderedListHolder.increaseCounter()
-        } else if (listHolder.isSome() && listHolder() is BulletListHolder) {
-            let bulletListHolder: BulletListHolder = (listHolder() as BulletListHolder)()
+        } else if (let Some(bulletListHolder: BulletListHolder) <- listHolder) {
             if (!context.stripNewlines()) {
                 textContent.write("${bulletListHolder.getIndent()}${bulletListHolder.getMarker()} ")
             }

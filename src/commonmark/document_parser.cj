@@ -189,7 +189,7 @@ class DocumentParser <: ParserState {
                     }
                 } else {
                     break
-                }    
+                }
             }
         }
 

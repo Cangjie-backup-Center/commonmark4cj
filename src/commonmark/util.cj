@@ -45,7 +45,7 @@ public class Escaping {
         }
         if (let Some(s) <- sb) {
             let size: Int64 = s.size
-            return String(unsafe{s.getRawArray()[0..size]})
+            return String(unsafe { s.getRawArray()[0..size] })
         } else {
             return input
         }
@@ -431,7 +431,7 @@ class Parsing {
     public static func prepareLine(line: CharSequence): CharSequence {
         // Avoid building a new string in the majority of cases (no \0)
         for (i in 0..line.size) {
-            if(line[i] == '\0') {
+            if (line[i] == '\0') {
                 line[i] = '\u{FFFD}'
             }
         }
