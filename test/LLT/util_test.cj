@@ -13,6 +13,7 @@ main(): Int64 {
     tester.escaping_test()
     tester.test()
     tester.cangjie_readln_test()
+    tester.testState()
     0
 }
 @Test
@@ -43,6 +44,14 @@ public class Tester {
         let unescapeString: String = Escaping.unescapeString(text)
         let t = "Example string with special characters: !@#$%^&*()_+|~- and encoded characters: &#x123; &#123; and &test;"
         @PowerAssert(unescapeString == t)
+    }
+
+    @TestCase
+    public func testState(): Unit {
+        let parser: LinkReferenceDefinitionParser = LinkReferenceDefinitionParser()
+        parser.parse("[".toRuneArray())
+        var state: State = parser.getState()
+        @Assert(getStateString(state), "lable")
     }
 
     @TestCase
@@ -110,5 +119,12 @@ public class Tester {
             case Some(stringS) => println("quaternions: ${stringS.toArray()}")
             case _ => println("wrong")
         }
+    }
+}
+
+func getStateString(state: State): String {
+    match (state) {
+        case LABEL => return "lable"
+        case _ => return "else"
     }
 }
