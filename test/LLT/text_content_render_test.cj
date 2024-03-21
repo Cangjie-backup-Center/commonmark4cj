@@ -295,23 +295,3 @@ func parse(source: String): Node {
 func strippedRenderer(): TextContentRenderer {
     return TextContentRenderer.builder().setStripNewlines(true).build()
 }
-
-func printNode(node: ?Node): Unit {
-    if (let Some(v) <- node) {
-        var current = v
-        while (let Some(p) <- (current.getParent())) {
-            current = p
-        }
-        printNode(current, 0)
-    }
-}
-func printNode(node: ?Node, dep: Int): Unit {
-    if (node.isNone()) {
-        return
-    }
-    println("${" "*dep}${node}")
-    let child = node?.getFirstChild() ?? None
-    printNode(child, dep + 4)
-    let next = node?.getNext() ?? None
-    printNode(next, dep)
-}

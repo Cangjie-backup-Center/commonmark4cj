@@ -455,7 +455,7 @@ public class TextContentWriter {
             buffer.append(s)
 
             let runes = s.toRuneArray()
-            let length: Int = s.size
+            let length: Int = runes.size
             if (length != 0) {
                 lastChar = runes[length - 1]
             }

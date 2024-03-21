@@ -71,3 +71,31 @@ public class Example {
         return "File \"" + filename + "\" section \"" + section + "\" example ${exampleNumber}"
     }
 }
+
+public func printNode(node: ?Node): Unit {
+    if (let Some(v) <- node) {
+        var current = v
+        while (let Some(p) <- (current.getParent())) {
+            current = p
+        }
+        let builder = StringBuilder()
+        printNode(current, 0, builder)
+        println(builder)
+    }
+}
+
+public func printNode(node: ?Node, dep: Int, builder: StringBuilder): Unit {
+    if (let Some(v) <- node) {
+        // let str = if (v.custom is NodeView) {
+        //     v.toViewString()
+        // } else {
+        //     v.toString()
+        // }
+        let str = v.toString()
+        builder.append("${" "*dep}${str}\n")
+        let child = v.getFirstChild()
+        printNode(child, dep + 4, builder)
+        let next = v.getNext()
+        printNode(next, dep, builder)
+    }
+}
