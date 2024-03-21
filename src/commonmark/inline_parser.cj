@@ -274,11 +274,15 @@ class InlineParserImpl <: InlineParser {
         if (index >= size) {
             return Option<String>.None
         }
-        var matcher: Matcher = re.matcher(String(input[index..]))
+        let regInput = String(input[index..])
+
+        var matcher: Matcher = re.matcher(regInput)
         let m = matcher.find()
         match (m) {
             case Some(d) =>
-                index += d.matchPosition().end
+                let byteIndex = d.matchPosition().end
+                let charSize = regInput[..byteIndex].toRuneArray().size
+                index += charSize
                 return d.matchStr()
             case None => return Option<String>.None
         }
@@ -369,8 +373,7 @@ class InlineParserImpl <: InlineParser {
         let afterOpenTicks: Int64 = index
         while (let Some(matched) <- matchs(TICKS)) {
             if (matched == tick) {
-                let inputStr = String(input)
-                var content = inputStr[afterOpenTicks..(index - tick.toRuneArray().size)].toRuneArray()
+                var content = input[afterOpenTicks..(index - tick.toRuneArray().size)]
                 content.replace('\n', ' ')
 
                 // spec: If the resulting string both begins and ends with a space character, but does not consist

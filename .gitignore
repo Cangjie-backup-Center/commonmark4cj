@@ -30,5 +30,4 @@ cjpm.lock
 src/z_test.cj
 src/z_main.cj
 test_temp/run
-cjpm.toml
 target
