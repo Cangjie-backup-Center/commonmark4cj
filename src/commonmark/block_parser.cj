@@ -721,7 +721,7 @@ public class IndentedCodeBlockParserFactory <: BlockParserFactory {
     }
 }
 
-enum State {
+public enum State {
     // Looking for the start of a definition, i.e. `[`
     | START_DEFINITION
     // Parsing the label, i.e. `foo` within `[foo]`
@@ -789,7 +789,7 @@ public class LinkReferenceDefinitionParser {
         return definitions
     }
 
-    func getState(): State {
+    public func getState(): State {
         return state
     }
 

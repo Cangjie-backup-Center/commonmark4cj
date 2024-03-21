@@ -40,6 +40,14 @@ public class TestTableParser{
     }
 
     @TestCase
+    public func testState(): Unit {
+        let parser: LinkReferenceDefinitionParser = LinkReferenceDefinitionParser()
+        parser.parse("[".toRuneArray())
+        var state: State = parser.getState()
+        @Assert(getStateString(state), "lable")
+    }
+
+    @TestCase
     func test_table_parser5():Unit {
         let text = textContentRender("")
         @Assert("", text)
@@ -73,6 +81,13 @@ func getAlignValue(alignment: Alignment): String {
         case LEFT => return "left"
         case CENTER => return "center"
         case RIGHT => return "right"
+    }
+}
+
+func getStateString(state: State): String {
+    match (state) {
+        case LABEL => return "lable"
+        case _ => return "else"
     }
 }
 
