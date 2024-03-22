@@ -1342,6 +1342,26 @@ public class LinkReferenceDefinitionParser {
      * 参数 CharSequence - 文本
      */
     public func parse(line: CharSequence): Unit
+
+    /*
+     * 获取State对象
+     * 返回值 State - State对象
+     */
+    public func getState(): State
+}
+
+public enum State {
+    | START_DEFINITION
+
+    | LABEL
+
+    | DESTINATION
+
+    | START_TITLE
+
+    | TITLE
+
+    | PARAGRAPH
 }
 
 public class ListBlockParserFactory <: BlockParserFactory {
