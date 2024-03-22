@@ -179,9 +179,9 @@ class CoreTextContentNodeRenderer <: AbstractVisitor & NodeRenderer {
     }
 
     public override func visit(blockQuote: BlockQuote): Unit {
-        textContent.write('«')
+        textContent.write("«")
         visitChildren(blockQuote)
-        textContent.write('»')
+        textContent.write("»")
 
         writeEndOfLineIfNeeded(blockQuote, None)
     }
@@ -201,9 +201,9 @@ class CoreTextContentNodeRenderer <: AbstractVisitor & NodeRenderer {
     }
 
     public override func visit(code: Code): Unit {
-        textContent.write('\"')
+        textContent.write("\"")
         textContent.write(code.getLiteral())
-        textContent.write('\"')
+        textContent.write("\"")
     }
 
     public override func visit(fencedCodeBlock: FencedCodeBlock): Unit {
@@ -315,7 +315,7 @@ class CoreTextContentNodeRenderer <: AbstractVisitor & NodeRenderer {
         }
     }
 
-    private func writeText(text: ?String): Unit {
+    private func writeText(text: String): Unit {
         if (context.stripNewlines()) {
             textContent.writeStripped(text)
         } else {
@@ -326,20 +326,20 @@ class CoreTextContentNodeRenderer <: AbstractVisitor & NodeRenderer {
     private func writeLink(node: Node, title: ?String, destination: ?String): Unit {
         let hasChild: Bool = node.getFirstChild().isSome()
         let hasTitle: Bool = title.isSome() && title != destination
-        let hasDestination: Bool = destination.isSome() && destination() != ""
+        let hasDestination: Bool = destination.isSome() && destination() != EMPTY_STRING
 
         if (hasChild) {
-            textContent.write('"')
+            textContent.write("\"")
             visitChildren(node)
-            textContent.write('"')
+            textContent.write("\"")
             if (hasTitle || hasDestination) {
                 textContent.whitespace()
-                textContent.write('(')
+                textContent.write("(")
             }
         }
 
         if (hasTitle) {
-            textContent.write(title)
+            textContent.write(title())
             if (hasDestination) {
                 textContent.colon()
                 textContent.whitespace()
@@ -347,18 +347,18 @@ class CoreTextContentNodeRenderer <: AbstractVisitor & NodeRenderer {
         }
 
         if (hasDestination) {
-            textContent.write(destination)
+            textContent.write(destination())
         }
 
         if (hasChild && (hasTitle || hasDestination)) {
-            textContent.write(')')
+            textContent.write(")")
         }
     }
 
     private func writeEndOfLineIfNeeded(node: Node, c: ?Char): Unit {
         if (context.stripNewlines()) {
-            if (c.isSome()) {
-                textContent.write(c())
+            if (let Some(v) <- c?.toString()) {
+                textContent.write(v)
             }
             if (node.getNext().isSome()) {
                 textContent.whitespace()
@@ -410,61 +410,46 @@ public interface TextContentNodeRendererContext {
 public type TextContentNodeRendererFactory = (context: TextContentNodeRendererContext) -> NodeRenderer
 
 public class TextContentWriter {
-    private let buffer: StringBuilder
+    let buffer: StringBuilder
 
-    private var lastChar: Char = NULL_CHAR
+    private var lastChar: Byte = 0 // 只关注[\x0 :\n]所以用Byte类型
 
     public TextContentWriter(out: StringBuilder) {
         buffer = out
     }
 
     public func whitespace(): Unit {
-        if (lastChar != NULL_CHAR && lastChar != ' ') {
-            append(' ')
+        if (lastChar != 0 && lastChar != b' ') {
+            append(" ")
         }
     }
 
     public func colon(): Unit {
-        if (lastChar != NULL_CHAR && lastChar != ':') {
-            append(':')
+        if (lastChar != 0 && lastChar != b':') {
+            append(":")
         }
     }
 
     public func line(): Unit {
-        if (lastChar != NULL_CHAR && lastChar != '\n') {
-            append('\n')
+        if (lastChar != 0 && lastChar != b'\n') {
+            append("\n")
         }
     }
 
-    public func writeStripped(s: ?String): Unit {
-        if (let Some(str) <- s) {
+    public func writeStripped(str: String): Unit {
+        if (str.size > 0) {
             append(Regex("[\\r\\n\\s]+").matcher(str).replaceAll(" "))
         }
     }
 
-    public func write(s: ?String): Unit {
+    public func write(s: String): Unit {
         append(s)
     }
 
-    public func write(c: Char): Unit {
-        append(c)
-    }
-
-    private func append(str: ?String): Unit {
-        if (let Some(s) <- str) {
-            buffer.append(s)
-
-            let runes = s.toRuneArray()
-            let length: Int = runes.size
-            if (length != 0) {
-                lastChar = runes[length - 1]
-            }
+    private func append(str: String): Unit {
+        if (str.size > 0) {
+            buffer.append(str)
+            lastChar = str[str.size - 1]
         }
-    }
-
-    private func append(c: Char): Unit {
-        buffer.append(c)
-
-        lastChar = c
     }
 }

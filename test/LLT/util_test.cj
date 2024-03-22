@@ -49,7 +49,7 @@ public class Tester {
     @TestCase
     public func testState(): Unit {
         let parser: LinkReferenceDefinitionParser = LinkReferenceDefinitionParser()
-        parser.parse("[".toRuneArray())
+        parser.parse("[")
         var state: State = parser.getState()
         @Assert(getStateString(state), "lable")
     }

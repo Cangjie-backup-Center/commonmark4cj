@@ -2,7 +2,7 @@ package table
 
 class TableBlockParser <: AbstractBlockParser {
     private var block: TableBlock = TableBlock()
-    private var bodyLines: ArrayList<CharSequence> = ArrayList<CharSequence>()
+    private var bodyLines: ArrayList<String> = ArrayList<String>()
     private let columns: ArrayList<?Alignment>
     private let headerCells: ArrayList<String>
 
@@ -22,14 +22,14 @@ class TableBlockParser <: AbstractBlockParser {
     }
 
     public func tryContinue(state: ParserState): ?BlockContinue {
-        if (state.getLine().toString().contains("|")) {
+        if (state.getLine().contains("|")) {
             return BlockContinue.atIndex(state.getIndex())
         } else {
             return BlockContinue.none()
         }
     }
 
-    public func addLine(line: CharSequence): Unit {
+    public func addLine(line: String): Unit {
         if (nextIsSeparatorLine) {
             nextIsSeparatorLine = false
         } else {
@@ -89,9 +89,9 @@ class TableBlockParser <: AbstractBlockParser {
         return tableCell
     }
 
-    static func split(input: CharSequence): ArrayList<String> {
-        var line: CharSequence = input.trim()
-        if (line.size > 0 && line[0] == '|') {
+    static func split(input: String): ArrayList<String> {
+        var line: String = input.trimAscii()
+        if (line.size > 0 && line[0] == b'|') {
             line = line[1..]
         }
         var cells: ArrayList<String> = ArrayList<String>()
@@ -101,7 +101,7 @@ class TableBlockParser <: AbstractBlockParser {
         while (i < arr.size) {
             let c = arr[i]
             match (c) {
-                case '\\' => if (i + 1 < arr.size && arr[i + 1] == '|') {
+                case b'\\' => if (i + 1 < arr.size && arr[i + 1] == b'|') {
                     // Pipe is special for table parsing. An escaped pipe doesn't result in a new cell, but is
                     // passed down to inline parsing as an unescaped pipe. Note that that applies even for the `\|`
                     // in an input like `\\|` - in other words, table parsing doesn't support escaping backslashes.
@@ -111,10 +111,14 @@ class TableBlockParser <: AbstractBlockParser {
                     // Preserve backslash before other characters or at end of line.
                     sb.append('\\')
                 }
-                case '|' =>
+                case b'|' =>
                     cells.append(sb.toString())
                     sb.reset()
-                case _ => sb.append(c)
+                case _ =>
+                    let (char, charSize) = Char.fromUtf8(unsafe { line.rawData() }, i)
+                    sb.append(char)
+                    i += charSize
+                    continue
             }
             i++
         }
@@ -132,7 +136,7 @@ class TableBlockParser <: AbstractBlockParser {
     // -|-
     // |-|-|
     // --- | ---
-    public static func parseSeparator(s: CharSequence): ?ArrayList<?Alignment> {
+    public static func parseSeparator(s: String): ?ArrayList<?Alignment> {
         var columns: ArrayList<?Alignment> = ArrayList<?Alignment>()
         var pipes: Int64 = 0
         var valid: Bool = false
@@ -140,7 +144,7 @@ class TableBlockParser <: AbstractBlockParser {
         while (i < s.size) {
             let c = s[i]
             match (c) {
-                case '|' =>
+                case b'|' =>
                     i++
                     pipes++
                     if (pipes > 1) {
@@ -149,19 +153,19 @@ class TableBlockParser <: AbstractBlockParser {
                     }
                     // Need at lest one pipe, even for a one column table
                     valid = true
-                case '-' | ':' =>
+                case b'-' | b':' =>
                     if (pipes == 0 && !columns.isEmpty()) {
                         // Need a pipe after the first column (first column doesn't need to start with one)
                         return None
                     }
                     var left: Bool = false
                     var right: Bool = false
-                    if (c == ':') {
+                    if (c == b':') {
                         left = true
                         i++
                     }
                     var haveDash: Bool = false
-                    while (i < s.size && s[i] == '-') {
+                    while (i < s.size && s[i] == b'-') {
                         i++
                         haveDash = true
                     }
@@ -169,14 +173,14 @@ class TableBlockParser <: AbstractBlockParser {
                         // Need at least one dash
                         return None
                     }
-                    if (i < s.size && s[i] == ':') {
+                    if (i < s.size && s[i] == b':') {
                         right = true
                         i++
                     }
                     columns.append(getAlignment(left, right))
                     // Next, need another pipe
                     pipes = 0
-                case ' ' | '\t' =>
+                case b' ' | b'\t' =>
                     // White space is allowed between pipes and columns
                     i++
                 case _ =>
@@ -205,13 +209,13 @@ class TableBlockParser <: AbstractBlockParser {
 
 class tableBlockFactory <: AbstractBlockParserFactory {
     public func tryStart(state: ParserState, matchedBlockParser: MatchedBlockParser): ?BlockStart {
-        var line: CharSequence = state.getLine()
+        var line: String = state.getLine()
         var paragraph: ?String = matchedBlockParser.getParagraphContent()
-        if (paragraph.isSome() && paragraph().toString().contains("|") && !paragraph().toString().contains("\n")) {
-            var separatorLine: CharSequence = line[state.getIndex()..line.size]
+        if (paragraph.isSome() && paragraph().contains("|") && !paragraph().contains("\n")) {
+            var separatorLine: String = line[state.getIndex()..line.size]
             var columns: ?ArrayList<?Alignment> = TableBlockParser.parseSeparator(separatorLine)
             if (columns.isSome() && !columns().isEmpty()) {
-                var headerCells: ArrayList<String> = TableBlockParser.split(paragraph().toRuneArray())
+                var headerCells: ArrayList<String> = TableBlockParser.split(paragraph())
                 if (columns().size >= headerCells.size) {
                     return BlockStart.of4Cj(TableBlockParser(columns(), headerCells)).atIndex(state.getIndex()).
                         replaceActiveBlockParser()

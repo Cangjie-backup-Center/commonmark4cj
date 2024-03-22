@@ -94,9 +94,9 @@ class StrikethroughTextContentNodeRenderer <: StrikethroughNodeRenderer {
     }
 
     public override func render(node: Node): Unit {
-        textContent.write('/')
+        textContent.write("/")
         renderChildren(node)
-        textContent.write('/')
+        textContent.write("/")
     }
 
     private func renderChildren(parent: Node): Unit {

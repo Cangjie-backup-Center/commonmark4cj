@@ -218,7 +218,7 @@ class TableTextContentNodeRenderer <: TableNodeRenderer {
 
     protected func renderCell(tableCell: TableCell): Unit {
         renderChildren(tableCell)
-        textContentWriter.write('|')
+        textContentWriter.write("|")
         textContentWriter.whitespace()
     }
 

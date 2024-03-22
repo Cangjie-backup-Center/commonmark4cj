@@ -13,7 +13,7 @@ public abstract class AbstractBlockParser <: BlockParser {
         return false
     }
 
-    public open func addLine(_: CharSequence): Unit {}
+    public open func addLine(_: String): Unit {}
 
     public open func closeBlock(): Unit {}
 
@@ -71,7 +71,7 @@ public interface BlockParser {
 
     func tryContinue(parserState: ParserState): Option<BlockContinue>
 
-    func addLine(line: CharSequence): Unit
+    func addLine(line: String): Unit
 
     func closeBlock(): Unit
 
@@ -135,7 +135,7 @@ public interface ParserState {
     /**
      * @return the current line
      */
-    func getLine(): CharSequence
+    func getLine(): String
 
     /**
      * @return the current index within the line (0-based)
@@ -185,7 +185,7 @@ class BlockContent {
         sb = StringBuilder(content)
     }
 
-    public func add(line: CharSequence): Unit {
+    public func add(line: String): Unit {
         if (lineCount != 0) {
             sb.append('\n')
         }
@@ -257,7 +257,7 @@ class BlockQuoteParser <: AbstractBlockParser {
 
     public static func isMarker(state: ParserState, index: Int64): Bool {
         var line = state.getLine()
-        return state.getIndent() < Parsing.CODE_BLOCK_INDENT && index < line.size && line[index] == '>'
+        return state.getIndent() < Parsing.CODE_BLOCK_INDENT && index < line.size && line[index] == b'>'
     }
 }
 
@@ -338,14 +338,14 @@ class DocumentBlockParser <: AbstractBlockParser {
         return BlockContinue.atIndex(state.getIndex())
     }
 
-    public func addLine(_: CharSequence): Unit {}
+    public func addLine(_: String): Unit {}
 }
 
 class FencedCodeBlockParser <: AbstractBlockParser {
     public var block: FencedCodeBlock = FencedCodeBlock()
 
-    private var firstLine: ?CharSequence = None
-    private var otherLines: StringBuilder = StringBuilder()
+    private var firstLine: ?String = None
+    private var otherLines: StringBuilder = StringBuilder(STRINGBUILDER_CAPACITY)
 
     public init(fenceChar: Char, fenceLength: Int64, fenceIndent: Int64) {
         block.setFenceChar(fenceChar)
@@ -369,7 +369,7 @@ class FencedCodeBlockParser <: AbstractBlockParser {
             // skip optional spaces of fence indent
             var i: Int64 = block.getFenceIndent()
             var length: Int64 = line.size
-            while (i > 0 && newIndex < length && line[newIndex] == ' ') {
+            while (i > 0 && newIndex < length && line[newIndex] == b' ') {
                 newIndex++
                 i--
             }
@@ -377,7 +377,7 @@ class FencedCodeBlockParser <: AbstractBlockParser {
         return BlockContinue.atIndex(newIndex)
     }
 
-    public func addLine(line: CharSequence): Unit {
+    public func addLine(line: String): Unit {
         if (firstLine.isNone()) {
             firstLine = line
         } else {
@@ -388,29 +388,30 @@ class FencedCodeBlockParser <: AbstractBlockParser {
 
     public func closeBlock(): Unit {
         // first line becomes info string
-        block.setInfo(Escaping.unescapeString(String(firstLine().trim())))
+        block.setInfo(Escaping.unescapeString(firstLine().trimAscii()))
         block.setLiteral(otherLines.toString())
     }
 
     // spec: A code fence is a sequence of at least three consecutive backtick characters (`) or tildes (~). (Tildes and
     // backticks cannot be mixed.)
-    public static func checkOpener(line: CharSequence, index: Int64, indent: Int64): Option<FencedCodeBlockParser> {
+    public static func checkOpener(line: String, index: Int64, indent: Int64): Option<FencedCodeBlockParser> {
         var backticks: Int64 = 0
         var tildes: Int64 = 0
         var length: Int64 = line.size
 
         for (i in index..length) {
-            if (line[i] == '`') {
+            if (line[i] == b'`') {
                 backticks++
-            } else if (line[i] == '~') {
+            } else if (line[i] == b'~') {
                 tildes++
             } else {
                 break
             }
         }
         if (backticks >= 3 && tildes == 0) {
+            var c: Byte = UInt8(UInt32('`'))
             // spec: If the info string comes after a backtick fence, it may not contain any backtick characters.
-            if (Parsing.find('`', line, index + backticks) != -1) {
+            if (Parsing.find(c, line, index + backticks) != -1) {
                 return None
             }
             return FencedCodeBlockParser('`', backticks, indent)
@@ -425,8 +426,8 @@ class FencedCodeBlockParser <: AbstractBlockParser {
     // spec: The content of the code block consists of all subsequent lines, until a closing code fence of the same type
     // as the code block began with (backticks or tildes), and with at least as many backticks or tildes as the opening
     // code fence.
-    private func isClosing(line: CharSequence, index: Int64): Bool {
-        var fenceChar: Char = block.getFenceChar()
+    private func isClosing(line: String, index: Int64): Bool {
+        var fenceChar: Byte = UInt8(UInt32(block.getFenceChar()))
         var fenceLength: Int64 = block.getFenceLength()
         var fences: Int64 = Parsing.skip(fenceChar, line, index, line.size) - index
         if (fences < fenceLength) {
@@ -482,8 +483,8 @@ class HeadingParser <: AbstractBlockParser {
     // 1–6 unescaped # characters and an optional closing sequence of any number of unescaped # characters. The opening
     // sequence of # characters must be followed by a space or by the end of line. The optional closing sequence of #s
     // must be preceded by a space and may be followed by spaces only.
-    public static func getAtxHeading(line: CharSequence, index: Int64): Option<HeadingParser> {
-        var level: Int64 = Parsing.skip('#', line, index, line.size) - index
+    public static func getAtxHeading(line: String, index: Int64): Option<HeadingParser> {
+        var level: Int64 = Parsing.skip(b'#', line, index, line.size) - index
 
         if (level == 0 || level > 6) {
             return None
@@ -492,40 +493,42 @@ class HeadingParser <: AbstractBlockParser {
         var start: Int64 = index + level
         if (start >= line.size) {
             // End of line after markers is an empty heading
-            return HeadingParser(level, "")
+            return HeadingParser(level, EMPTY_STRING)
         }
 
         var next = line[start]
-        if (!(next == ' ' || next == '\t')) {
+        if (!(next == b' ' || next == b'\t')) {
             return None
         }
 
         var beforeSpace: Int64 = Parsing.skipSpaceTabBackwards(line, line.size - 1, start)
-        var beforeHash: Int64 = Parsing.skipBackwards('#', line, beforeSpace, start)
+        var beforeHash: Int64 = Parsing.skipBackwards(b'#', line, beforeSpace, start)
         var beforeTrailer: Int64 = Parsing.skipSpaceTabBackwards(line, beforeHash, start)
+        var lines: String
         if (beforeTrailer != beforeHash) {
-            return HeadingParser(level, String(line[start..beforeTrailer + 1]))
+            lines = line[start..beforeTrailer + 1]
+            return HeadingParser(level, lines)
         } else {
-            return HeadingParser(level, String(line[start..beforeSpace + 1]))
+            lines = line[start..beforeSpace + 1]
+            return HeadingParser(level, lines)
         }
     }
 
     // spec: A setext heading underline is a sequence of = characters or a sequence of - characters, with no more than
     // 3 spaces indentation and any number of trailing spaces.
-    public static func getSetextHeadingLevel(line: CharSequence, index: Int64): Int64 {
+    public static func getSetextHeadingLevel(line: String, index: Int64): Int64 {
         match (line[index]) {
-            case '=' => if (isSetextHeadingRest(line, index + 1, '=')) {
+            case b'=' => if (isSetextHeadingRest(line, index + 1, b'=')) {
                 return 1
             }
-            case '-' => if (isSetextHeadingRest(line, index + 1, '-')) {
+            case b'-' => if (isSetextHeadingRest(line, index + 1, b'-')) {
                 return 2
             }
             case _ => return 0
         }
         return 0
     }
-
-    private static func isSetextHeadingRest(line: CharSequence, index: Int64, marker: Rune): Bool {
+    private static func isSetextHeadingRest(line: String, index: Int64, marker: Byte): Bool {
         var afterMarker: Int64 = Parsing.skip(marker, line, index, line.size)
         var afterSpace: Int64 = Parsing.skipSpaceTab(line, afterMarker, line.size)
         return afterSpace >= line.size
@@ -538,7 +541,7 @@ public class HeadingParserFactory <: BlockParserFactory {
             return BlockStart.none()
         }
 
-        var line: CharSequence = state.getLine()
+        var line: String = state.getLine()
         var nextNonSpace: Int64 = state.getNextNonSpaceIndex()
         var atxHeading: Option<HeadingParser> = HeadingParser.getAtxHeading(line, nextNonSpace)
         if (atxHeading.isSome()) {
@@ -549,7 +552,7 @@ public class HeadingParserFactory <: BlockParserFactory {
         if (setextHeadingLevel > 0) {
             var paragraph: ?String = matchedBlockParser.getParagraphContent()
             if (paragraph.isSome()) {
-                var content: String = paragraph.getOrThrow()
+                var content: String = paragraph()
                 return BlockStart.of4Cj(HeadingParser(setextHeadingLevel, content)).atIndex(line.size).
                     replaceActiveBlockParser()
             }
@@ -630,10 +633,10 @@ class HtmlBlockParser <: AbstractBlockParser {
         }
     }
 
-    public func addLine(line: CharSequence): Unit {
+    public func addLine(line: String): Unit {
         content.add(line)
 
-        if (closingPattern.isSome() && closingPattern.getOrThrow().matcher(String(line)).find().isSome()) {
+        if (closingPattern.isSome() && closingPattern.getOrThrow().matcher(line).find().isSome()) {
             finished = true
         }
     }
@@ -649,7 +652,7 @@ public class HtmlBlockParserFactory <: BlockParserFactory {
         var nextNonSpace: Int64 = state.getNextNonSpaceIndex()
         var line = state.getLine()
 
-        if (state.getIndent() < 4 && line[nextNonSpace] == '<') {
+        if (state.getIndent() < 4 && line[nextNonSpace] == b'<') {
             for (blockType in 1..8) {
                 // Type 7 can not interrupt a paragraph
                 if (blockType == 7 && matchedBlockParser.getMatchedBlockParser().getBlock() is Paragraph) {
@@ -657,7 +660,7 @@ public class HtmlBlockParserFactory <: BlockParserFactory {
                 }
                 var opener: Regex = HtmlBlockParser.BLOCK_PATTERNS[blockType][0]
                 var closer: Regex = HtmlBlockParser.BLOCK_PATTERNS[blockType][1]
-                var matches: Bool = opener.matcher(String(line[nextNonSpace..line.size])).find().isSome()
+                var matches: Bool = opener.matcher(line[nextNonSpace..line.size]).find().isSome()
                 if (matches) {
                     return BlockStart.of4Cj(HtmlBlockParser(closer)).atIndex(state.getIndex())
                 }
@@ -669,7 +672,7 @@ public class HtmlBlockParserFactory <: BlockParserFactory {
 
 class IndentedCodeBlockParser <: AbstractBlockParser {
     private var block: IndentedCodeBlock = IndentedCodeBlock()
-    private var lines: ArrayList<CharSequence> = ArrayList<CharSequence>()
+    private var lines: ArrayList<String> = ArrayList<String>()
 
     public func getBlock(): Block {
         return block
@@ -685,7 +688,7 @@ class IndentedCodeBlockParser <: AbstractBlockParser {
         }
     }
 
-    public func addLine(line: CharSequence): Unit {
+    public func addLine(line: String): Unit {
         lines.append(line)
     }
 
@@ -743,7 +746,7 @@ public enum State {
 public class LinkReferenceDefinitionParser {
     private var state: State = State.START_DEFINITION
 
-    private var paragraph: StringBuilder = StringBuilder()
+    private var paragraph: StringBuilder = StringBuilder(STRINGBUILDER_CAPACITY)
     private var definitions: ArrayList<LinkReferenceDefinition> = ArrayList<LinkReferenceDefinition>()
 
     private var label: StringBuilder = StringBuilder()
@@ -753,9 +756,9 @@ public class LinkReferenceDefinitionParser {
     private var title: StringBuilder = StringBuilder()
     private var referenceValid: Bool = false
 
-    public func parse(line: CharSequence): Unit {
+    public func parse(line: String): Unit {
         if (paragraph.size != 0) {
-            paragraph.append('\n')
+            paragraph.append("\n")
         }
         paragraph.append(line)
 
@@ -793,14 +796,13 @@ public class LinkReferenceDefinitionParser {
         return state
     }
 
-    private func startDefinition(line: CharSequence, i: Int64): Int64 {
+    private func startDefinition(line: String, i: Int64): Int64 {
         var index = Parsing.skipSpaceTab(line, i, line.size)
-        if (index >= line.size || line[index] != '[') {
+        if (index >= line.size || line[index] != b'[') {
             return -1
         }
 
         state = State.LABEL
-        // label = StringBuilder()
 
         var labelStart: Int64 = index + 1
         if (labelStart >= line.size) {
@@ -810,7 +812,7 @@ public class LinkReferenceDefinitionParser {
         return labelStart
     }
 
-    private func labelFunc(line: CharSequence, i: Int64): Int64 {
+    private func labelFunc(line: String, i: Int64): Int64 {
         var afterLabel: Int64 = LinkScanner.scanLinkLabelContent(line, i)
         if (afterLabel == -1) {
             return -1
@@ -822,10 +824,10 @@ public class LinkReferenceDefinitionParser {
             // label might continue on next line
             label.append('\n')
             return afterLabel
-        } else if (line[afterLabel] == ']') {
+        } else if (line[afterLabel] == b']') {
             var colon: Int64 = afterLabel + 1
             // end of label
-            if (colon >= line.size || line[colon] != ':') {
+            if (colon >= line.size || line[colon] != b':') {
                 return -1
             }
 
@@ -833,12 +835,10 @@ public class LinkReferenceDefinitionParser {
             if (label.size > 999) {
                 return -1
             }
-
             var normalizedLabel: String = Escaping.normalizeLabelContent(label.toString())
             if (normalizedLabel.isEmpty()) {
                 return -1
             }
-
             this.normalizedLabel = normalizedLabel
             state = State.DESTINATION
 
@@ -848,17 +848,17 @@ public class LinkReferenceDefinitionParser {
         }
     }
 
-    private func destinationFunc(line: CharSequence, i: Int64): Int64 {
+    private func destinationFunc(line: String, i: Int64): Int64 {
         var index = Parsing.skipSpaceTab(line, i, line.size)
         var afterDestination: Int64 = LinkScanner.scanLinkDestination(line, i)
         if (afterDestination == -1) {
             return -1
         }
 
-        if (line[index] == '<') {
-            destination = String(line[i + 1..afterDestination - 1])
+        if (line[index] == b'<') {
+            destination = line[i + 1..afterDestination - 1]
         } else {
-            destination = String(line[i..afterDestination])
+            destination = line[i..afterDestination]
         }
 
         var afterSpace: Int64 = Parsing.skipSpaceTab(line, afterDestination, line.size)
@@ -866,7 +866,7 @@ public class LinkReferenceDefinitionParser {
             // Destination was at end of line, so this is a valid reference for sure (and maybe a title).
             // If not at end of line, wait for title to be valid first.
             referenceValid = true
-            paragraph.reset()
+            paragraph.reset(capacity: STRINGBUILDER_CAPACITY)
         } else if (afterSpace == afterDestination) {
             // spec: The title must be separated from the link destination by whitespace
             return -1
@@ -876,7 +876,7 @@ public class LinkReferenceDefinitionParser {
         return afterSpace
     }
 
-    private func startTitle(line: CharSequence, i: Int64): Int64 {
+    private func startTitle(line: String, i: Int64): Int64 {
         var index = Parsing.skipSpaceTab(line, i, line.size)
         if (index >= line.size) {
             state = State.START_DEFINITION
@@ -884,10 +884,10 @@ public class LinkReferenceDefinitionParser {
         }
 
         titleDelimiter = '\0'
-        var c: Rune = line[i]
-        if (c == '"' || c == '\'') {
-            titleDelimiter = c
-        } else if (c == '(') {
+        var c: Byte = line[i]
+        if (c == b'"' || c == b'\'') {
+            titleDelimiter = Char(c)
+        } else if (c == b'(') {
             titleDelimiter = ')'
         }
 
@@ -906,8 +906,8 @@ public class LinkReferenceDefinitionParser {
         return index
     }
 
-    private func titleFunc(line: CharSequence, i: Int64): Int64 {
-        var afterTitle: Int64 = LinkScanner.scanLinkTitleContent(line, i, titleDelimiter)
+    private func titleFunc(line: String, i: Int64): Int64 {
+        var afterTitle: Int64 = LinkScanner.scanLinkTitleContent(line, i, UInt8(UInt32(titleDelimiter)))
         if (afterTitle == -1) {
             // Invalid title, stop
             return -1
@@ -929,7 +929,7 @@ public class LinkReferenceDefinitionParser {
         }
         referenceValid = true
         finishReference()
-        paragraph.reset()
+        paragraph.reset(capacity: STRINGBUILDER_CAPACITY)
 
         // See if there's another definition.
         state = State.START_DEFINITION
@@ -1007,7 +1007,7 @@ class ListBlockParser <: AbstractBlockParser {
      * Parse a list marker and return data on the marker or null.
      */
     public static func parseList(
-        line: CharSequence,
+        line: String,
         markerIndex: Int64,
         markerColumn: Int64,
         inParagraph: Bool
@@ -1030,9 +1030,9 @@ class ListBlockParser <: AbstractBlockParser {
         var length: Int64 = line.size
         for (i in indexAfterMarker..length) {
             var c = line[i]
-            if (c == '\t') {
+            if (c == b'\t') {
                 contentColumn += Parsing.columnsToNextTabStop(contentColumn)
-            } else if (c == ' ') {
+            } else if (c == b' ') {
                 contentColumn++
             } else {
                 hasContent = true
@@ -1059,12 +1059,12 @@ class ListBlockParser <: AbstractBlockParser {
         return ListData(listBlock, contentColumn)
     }
 
-    private static func parseListMarker(line: CharSequence, index: Int64): Option<ListMarkerData> {
+    private static func parseListMarker(line: String, index: Int64): Option<ListMarkerData> {
         var c = line[index]
         // spec: A bullet list marker is a -, +, or * character.
-        if (c == '-' || c == '+' || c == '*') {
+        if (c == b'-' || c == b'+' || c == b'*') {
             if (isSpaceTabOrEnd(line, index + 1)) {
-                var bulletList: BulletList = BulletList(c)
+                var bulletList: BulletList = BulletList(Char(c))
                 // bulletList.setBulletMarker(c)
                 return ListMarkerData(bulletList, index + 1)
             } else {
@@ -1077,20 +1077,20 @@ class ListBlockParser <: AbstractBlockParser {
 
     // spec: An ordered list marker is a sequence of 1–9 arabic digits (0-9), followed by either a `.` character or a
     // `)` character.
-    private static func parseOrderedList(line: CharSequence, index: Int64): Option<ListMarkerData> {
+    private static func parseOrderedList(line: String, index: Int64): Option<ListMarkerData> {
         var digits: Int64 = 0
         var length: Int64 = line.size
         for (i in index..length) {
-            var c: Rune = line[i]
+            var c: Byte = line[i]
             match (c) {
-                case '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' =>
+                case b'0' | b'1' | b'2' | b'3' | b'4' | b'5' | b'6' | b'7' | b'8' | b'9' =>
                     digits++
                     if (digits > 9) {
                         return None
                     }
-                case '.' | ')' => if (digits >= 1 && isSpaceTabOrEnd(line, i + 1)) {
-                    var number: String = String(line[index..i])
-                    var orderedList: OrderedList = OrderedList(Int64.parse(number), c)
+                case b'.' | b')' => if (digits >= 1 && isSpaceTabOrEnd(line, i + 1)) {
+                    var number: String = line[index..i]
+                    var orderedList: OrderedList = OrderedList(Int64.parse(number), Char(c))
                     return ListMarkerData(orderedList, i + 1)
                 } else {
                     return None
@@ -1101,10 +1101,10 @@ class ListBlockParser <: AbstractBlockParser {
         return None
     }
 
-    private static func isSpaceTabOrEnd(line: CharSequence, index: Int64): Bool {
+    private static func isSpaceTabOrEnd(line: String, index: Int64): Bool {
         if (index < line.size) {
             match (line[index]) {
-                case ' ' | '\t' => return true
+                case b' ' | b'\t' => return true
                 case _ => return false
             }
         } else {
@@ -1273,7 +1273,7 @@ class ParagraphParser <: AbstractBlockParser {
         }
     }
 
-    public func addLine(line: CharSequence): Unit {
+    public func addLine(line: String): Unit {
         linkReferenceDefinitionParser.parse(line)
     }
 
@@ -1290,8 +1290,8 @@ class ParagraphParser <: AbstractBlockParser {
         }
     }
 
-    public func getContentString(): String {
-        return linkReferenceDefinitionParser.getParagraphContent().toString()
+    public func getContentString(): StringBuilder {
+        return linkReferenceDefinitionParser.getParagraphContent()
     }
 
     public func getDefinitions(): ArrayList<LinkReferenceDefinition> {
@@ -1313,17 +1313,17 @@ class ThematicBreakParser <: AbstractBlockParser {
 
     // spec: A line consisting of 0-3 spaces of indentation, followed by a sequence of three or more matching -, _, or *
     // characters, each followed optionally by any number of spaces, forms a thematic break.
-    public static func isThematicBreak(line: CharSequence, index: Int64): Bool {
+    public static func isThematicBreak(line: String, index: Int64): Bool {
         var dashes: Int64 = 0
         var underscores: Int64 = 0
         var asterisks: Int64 = 0
         var length: Int64 = line.size
         for (i in index..length) {
             match (line[i]) {
-                case '-' => dashes++
-                case '_' => underscores++
-                case '*' => asterisks++
-                case ' ' | '\t' =>
+                case b'-' => dashes++
+                case b'_' => underscores++
+                case b'*' => asterisks++
+                case b' ' | b'\t' =>
                     // Allowed, even between markers
                     continue
                 case _ => return false
