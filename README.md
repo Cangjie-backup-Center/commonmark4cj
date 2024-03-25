@@ -56,6 +56,8 @@ flowchart LR
 │   └── feature_api.md     #API接口文档
 ├── src                    #源码目录
 │   └── commonmark         #描述关键代码文件的功能
+│   ├── strikethrough      #删除线功能的插件代码
+│   └── table              #表格功能的插件代码
 └── test                   #测试代码目录
     ├── HLT
     └── LLT
@@ -86,34 +88,51 @@ markdown解析得到的节点树，不同类型节点为不同的Node子类
 
 ```cangjie
 from commonmark4cj import commonmark.*
-    @TestCase
-    func test_Node_appendChild():Unit {
-        var tb = Text("bb") // node子类
-        var ta = Text("aa")
-        ta.appendChild(tb)
-        var firstChild: ?Node = ta.getFirstChild()
-        var lastChild: ?Node = ta.getLastChild()
-        @Assert((firstChild.getOrThrow() as Text).getOrThrow().getLiteral(), "bb")
-        @Assert((lastChild.getOrThrow() as Text).getOrThrow().getLiteral(), "bb")
-        
-        var next: ?Node = firstChild.getOrThrow().getNext()
-        var prev: ?Node = lastChild.getOrThrow().getPrevious()
-        @Assert(next.isNone(),true)
-        @Assert(prev.isNone(),true)
-        var tc = Text("cc")
-        ta.appendChild(tc)
-        lastChild = ta.getLastChild()
-        firstChild = ta.getFirstChild()
-        @Assert((lastChild.getOrThrow() as Text).getOrThrow().getLiteral(), "cc")
-        @Assert((firstChild.getOrThrow() as Text).getOrThrow().getLiteral(), "bb")
-        
-        next = firstChild.getOrThrow().getNext()
-        prev = lastChild.getOrThrow().getPrevious()
-        @Assert(next.isNone(),false)
-        @Assert(prev.isNone(),false)
-        @Assert((next.getOrThrow() as Text).getOrThrow().getLiteral(), "cc")
-        @Assert((prev.getOrThrow() as Text).getOrThrow().getLiteral(), "bb")
-    }
+
+main(): Int64 {
+    var tb = Text("bb") // node子类
+    var ta = Text("aa")
+    ta.appendChild(tb)
+    var firstChild: ?Node = ta.getFirstChild()
+    var lastChild: ?Node = ta.getLastChild()
+    println((firstChild.getOrThrow() as Text).getOrThrow().getLiteral())
+    println((lastChild.getOrThrow() as Text).getOrThrow().getLiteral())
+
+    var next: ?Node = firstChild.getOrThrow().getNext()
+    var prev: ?Node = lastChild.getOrThrow().getPrevious()
+    println(next.isNone())
+    println(prev.isNone())
+    var tc = Text("cc")
+    ta.appendChild(tc)
+    lastChild = ta.getLastChild()
+    firstChild = ta.getFirstChild()
+    println((lastChild.getOrThrow() as Text).getOrThrow().getLiteral())
+    println((firstChild.getOrThrow() as Text).getOrThrow().getLiteral())
+
+    next = firstChild.getOrThrow().getNext()
+    prev = lastChild.getOrThrow().getPrevious()
+    println(next.isNone())
+    println(prev.isNone())
+    println((next.getOrThrow() as Text).getOrThrow().getLiteral())
+    println((prev.getOrThrow() as Text).getOrThrow().getLiteral())
+
+    return 0
+}
+```
+
+ 执行结果如下： 
+
+```
+bb
+bb
+true
+true
+cc
+bb
+false
+false
+cc
+bb
 ```
 
 #### Parse
@@ -124,14 +143,51 @@ from commonmark4cj import commonmark.*
 
 ```cangjie
 from commonmark4cj import commonmark.*
-@TestCase
-public func delimiterProcessorWithInvalidDelimiterUse(): Unit {
-   let parser: Parser =      Parser.builder().customDelimiterProcessor(CustomDelimiterProcessor(':', 0)).
-        customDelimiterProcessor(CustomDelimiterProcessor(';', -1)).build()
 
-    assertEquals("<p>:test:</p>\n", RENDERER.render(parser.parse(":test:")))
-    assertEquals("<p>;test;</p>\n", RENDERER.render(parser.parse(";test;")))
+main(): Int64 {
+    let parser: Parser = Parser.builder().customBlockParserFactory(DashBlockParserFactory()).build()
+
+    let document: Node = parser.parse("hey\n\n---\n")
+
+    println(document.getFirstChild().getOrThrow().toString())
+    println((document.getFirstChild().getOrThrow().getFirstChild().getOrThrow() as Text).getOrThrow().getLiteral())
+    println(document.getLastChild().getOrThrow().toString())
+
+    return 0
 }
+
+class DashBlockParserFactory <: AbstractBlockParserFactory {
+
+    public override func tryStart(state: ParserState, matchedBlockParser: MatchedBlockParser): ?BlockStart {
+        if (String(state.getLine()) == ("---")) {
+            return BlockStart.of4Cj(DashBlockParser())
+        }
+        return BlockStart.none()
+    }
+}
+
+class DashBlock <: CustomBlock {}
+
+class DashBlockParser <: AbstractBlockParser {
+
+    private var dash: DashBlock = DashBlock()
+
+    public override func getBlock(): Block {
+        return dash
+    }
+
+    public override func tryContinue(parserState: ParserState): ?BlockContinue {
+        return BlockContinue.none()
+    }
+}
+```
+
+ 执行结果如下： 
+
+```
+Paragraph{}
+hey
+DashBlock{}
 ```
 
 #### Render
@@ -142,17 +198,31 @@ public func delimiterProcessorWithInvalidDelimiterUse(): Unit {
 
 ```cangjie
 from commonmark4cj import commonmark.*
-@TestCase
-public func delimiterProcessorWithInvalidDelimiterUse(): Unit {
-   let parser: Parser =      Parser.builder().customDelimiterProcessor(CustomDelimiterProcessor(':', 0)).
-        customDelimiterProcessor(CustomDelimiterProcessor(';', -1)).build()
 
-    assertEquals("<p>:test:</p>\n", RENDERER.render(parser.parse(":test:")))
-    assertEquals("<p>;test;</p>\n", RENDERER.render(parser.parse(";test;")))
+main(): Int64 {
+    let rendered: String = htmlAllowingRenderer().render(
+        parse("paragraph with <span id='foo' class=\"bar\">inline &amp; html</span>"))
+    println(rendered)
+    return 0
+}
+
+func htmlAllowingRenderer(): HtmlRenderer {
+    return HtmlRenderer.builder().escapeHtml(false).build()
+}
+
+func parse(source: String): Node {
+    return Parser.builder().build().parse(source)
 }
 ```
 
+执行结果如下： 
+
+```
+<p>paragraph with <span id='foo' class="bar">inline &amp; html</span></p>
+```
+
 ## 约束与限制
+
 描述环境限制，版本限制，依赖版本等
 
 ## 开源协议
