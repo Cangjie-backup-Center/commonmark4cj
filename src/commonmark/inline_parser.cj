@@ -96,7 +96,7 @@ class InlineParserImpl <: InlineParser {
     private var delimiterProcessors: HashMap<Char, DelimiterProcessor>
     private var context: InlineParserContext
 
-    private var input: CharSequence = []
+    private var input: String = ""
     private var index: Int64 = 0
 
     /**
@@ -194,7 +194,8 @@ class InlineParserImpl <: InlineParser {
      * Parse content in block into inline children, using reference map to resolve references.
      */
     public override func parse(content: String, block: Node): Unit {
-        reset(content.trimLeft(" ").trimRight(" "))
+        let c: String = content.trimAscii()
+        reset(c)
         var previous: ?Node = None
         while (true) {
             let node: ?Node = parseInline(previous)
@@ -211,7 +212,7 @@ class InlineParserImpl <: InlineParser {
     }
 
     func reset(content: String): Unit {
-        this.input = content.toRuneArray()
+        this.input = content
         this.index = 0
         this.lastDelimiter = None
         this.lastBracket = None
@@ -274,15 +275,11 @@ class InlineParserImpl <: InlineParser {
         if (index >= size) {
             return Option<String>.None
         }
-        let regInput = String(input[index..])
-
-        var matcher: Matcher = re.matcher(regInput)
+        var matcher: Matcher = re.matcher(input[index..])
         let m = matcher.find()
         match (m) {
             case Some(d) =>
-                let byteIndex = d.matchPosition().end
-                let charSize = regInput[..byteIndex].toRuneArray().size
-                index += charSize
+                index += d.matchPosition().end
                 return d.matchStr()
             case None => return Option<String>.None
         }
@@ -292,9 +289,8 @@ class InlineParserImpl <: InlineParser {
      * Returns the char at the current input index, or {@code '\0'} in case there are no more characters.
      */
     private func peek(): Char {
-        let inputArr: Array<Rune> = input
-        if (index < inputArr.size) {
-            return inputArr.get(index)()
+        if (index < input.size) {
+            return Char.fromUtf8(unsafe { input.rawData() }, index)[0]
         } else {
             return '\0'
         }
@@ -347,13 +343,13 @@ class InlineParserImpl <: InlineParser {
      */
     private func parseBackslash(): Node {
         index++
-        let inputArr: Array<Rune> = input
+        let inputArr: String = input
         var nodes: Node
         if (peek() == '\n') {
             nodes = HardLineBreak()
             index++
-        } else if (index < inputArr.size && ESCAPABLE.matcher(String(inputArr[index..(index + 1)])).find().isSome()) {
-            nodes = text(String(inputArr[index..(index + 1)]))
+        } else if (index < inputArr.size && ESCAPABLE.matcher(inputArr[index..(index + 1)]).find().isSome()) {
+            nodes = text(inputArr[index..(index + 1)])
             index++
         } else {
             nodes = text("\\")
@@ -373,17 +369,16 @@ class InlineParserImpl <: InlineParser {
         let afterOpenTicks: Int64 = index
         while (let Some(matched) <- matchs(TICKS)) {
             if (matched == tick) {
-                var content = input[afterOpenTicks..(index - tick.toRuneArray().size)]
-                content.replace('\n', ' ')
-
+                var content = input[afterOpenTicks..(index - tick.size)]
+                content = content.replace("\n", " ")
                 // spec: If the resulting string both begins and ends with a space character, but does not consist
                 // entirely of space characters, a single space character is removed from the front and back.
-                if (content.size >= 3 && content[0] == ' ' && content[content.size - 1] == ' ' && Parsing.hasNonSpace(
+                if (content.size >= 3 && content[0] == b' ' && content[content.size - 1] == b' ' && Parsing.hasNonSpace(
                     content)) {
                     content = content[1..(content.size - 1)]
                 }
 
-                let nodes: Code = Code(String(content))
+                let nodes: Code = Code(content)
                 return nodes
             }
         }
@@ -404,7 +399,7 @@ class InlineParserImpl <: InlineParser {
         let startIndex: Int64 = index
 
         index += length
-        let node: Text = text(String(input[startIndex..index]))
+        let node: Text = text(input[startIndex..index])
 
         // Add entry to stack for this opener
         lastDelimiter = Delimiter(node, delimiterChar, res().canOpen, res().canClose, lastDelimiter)
@@ -483,12 +478,13 @@ class InlineParserImpl <: InlineParser {
         // Maybe a inline link like `[foo](/uri "titleStr")`
         if (peek() == '(') {
             index++
+            let newIndex: Int64 = index
             spnl()
             dest = parseLinkDestination()
             if (dest.isSome()) {
                 spnl()
                 // titleStr needs a whitespace before
-                if (WHITESPACE.matcher(String(input[(index - 1)..index])).find().isSome()) {
+                if (WHITESPACE.matcher(input[newIndex..index]).find().isSome()) {
                     titleStr = parseLinkTitle()
                     spnl()
                 }
@@ -509,14 +505,14 @@ class InlineParserImpl <: InlineParser {
             parseLinkLabel()
             let labelLength: Int64 = index - beforeLabel
             var ref: ?String = None
-            let inputArr: Array<Rune> = input
+            let inputArr: String = input
             if (labelLength > 2) {
-                ref = String(inputArr[beforeLabel..(beforeLabel + labelLength)])
+                ref = inputArr[beforeLabel..(beforeLabel + labelLength)]
             } else if (!opener().bracketAfter) {
                 // If the second label is empty `[foo][]` or missing `[foo]`, then the first label is the reference.
                 // But it can only be a reference when there's no (unescaped) bracket in it.
                 // If there is, we don't even need to try to look up the reference. This is an optimization.
-                ref = String(inputArr[opener().index..startIndex])
+                ref = inputArr[opener().index..startIndex]
             }
 
             if (ref.isSome()) {
@@ -594,12 +590,12 @@ class InlineParserImpl <: InlineParser {
         }
 
         var dest: ?String = None
-        let inputArr: Array<Rune> = input
+        let inputArr: String = input
         if (peek() == '<') {
             // chop off surrounding <..>:
-            dest = String(inputArr[(index + 1)..(afterDest - 1)])
+            dest = inputArr[(index + 1)..(afterDest - 1)]
         } else {
-            dest = String(inputArr[index..afterDest])
+            dest = inputArr[index..afterDest]
         }
 
         index = afterDest
@@ -616,7 +612,7 @@ class InlineParserImpl <: InlineParser {
         }
 
         // chop off ', " or parens
-        let titleStr: String = String(input[(index + 1)..(afterTitle - 1)])
+        let titleStr: String = input[(index + 1)..(afterTitle - 1)]
         index = afterTitle
         return Escaping.unescapeString(titleStr)
     }
@@ -625,8 +621,8 @@ class InlineParserImpl <: InlineParser {
      * Attempt to parse a link label, returning number of characters parsed.
      */
     func parseLinkLabel(): Int64 {
-        let inputArr: Array<Rune> = input
-        if (index >= inputArr.size || inputArr[index] != '[') {
+        let inputArr: String = input
+        if (index >= inputArr.size || inputArr[index] != b'[') {
             return 0
         }
 
@@ -637,7 +633,7 @@ class InlineParserImpl <: InlineParser {
         if (endContent == -1 || contentLength > 999) {
             return 0
         }
-        if (endContent >= inputArr.size || inputArr[endContent] != ']') {
+        if (endContent >= inputArr.size || inputArr[endContent] != b']') {
             return 0
         }
         index = endContent + 1
@@ -695,14 +691,14 @@ class InlineParserImpl <: InlineParser {
     private func parseString(): ?Node {
         let begin: Int64 = index
         while (index != input.size) {
-            var i = Int64(UInt32(input[index]))
+            var i = Int64(input[index])
             if (specialCharacters.get(i)) {
                 break
             }
             index++
         }
         if (begin != index) {
-            return text(String(input[begin..index]))
+            return text(input[begin..index])
         } else {
             return Option<Node>.None
         }
@@ -720,18 +716,18 @@ class InlineParserImpl <: InlineParser {
         var delimiterCount: Int64 = 0
         while (peek() == delimiterChar) {
             delimiterCount++
-            index++
+            index += Char.utf8Size(delimiterChar)
         }
 
         if (delimiterCount < delimiterProcessor.getMinLength()) {
             index = startIndex
             return Option<DelimiterData>.None
         }
-
         let before: String = if (startIndex == 0) {
             "\n"
         } else {
-            String(input[(startIndex - 1)..(startIndex)])
+            let (c, _) = Char.getPreviousFromUtf8(unsafe { input.rawData() }, startIndex)
+            c.toString()
         }
 
         let charAfter: Char = peek()
@@ -828,10 +824,10 @@ class InlineParserImpl <: InlineParser {
             // Remove number of used delimiters from stack and inline nodes.
             opener().length -= useDelims
             closer().length -= useDelims
-            let openerNodeGetLiteralArr: Array<Rune> = openerNode.getLiteral().toRuneArray()
-            let closerNodeGetLiteralArr: Array<Rune> = closerNode.getLiteral().toRuneArray()
-            openerNode.setLiteral(String(openerNodeGetLiteralArr[0..(openerNodeGetLiteralArr.size - useDelims)]))
-            closerNode.setLiteral(String(closerNodeGetLiteralArr[0..(closerNodeGetLiteralArr.size - useDelims)]))
+            let openerNodeGetLiteralArr: String = openerNode.getLiteral()
+            let closerNodeGetLiteralArr: String = closerNode.getLiteral()
+            openerNode.setLiteral((openerNodeGetLiteralArr[0..(openerNodeGetLiteralArr.size - useDelims)]))
+            closerNode.setLiteral(closerNodeGetLiteralArr[0..(closerNodeGetLiteralArr.size - useDelims)])
 
             removeDelimitersBetween(opener(), closer())
             // The delimiter processor can re-parent the nodes between opener and closer,

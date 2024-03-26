@@ -229,8 +229,7 @@ public class HtmlWriter {
     private static let NO_ATTRIBUTES: Map<String, String> = EMPTY_MAP
 
     private let buffer: StringBuilder
-    private var lastChar: Char = NULL_CHAR
-
+    private var lastChar: Byte = 0 // 只关注[\x0\n]所以用Byte类型
     public init(out: StringBuilder) {
         this.buffer = out
     }
@@ -270,7 +269,7 @@ public class HtmlWriter {
     }
 
     public func line(): Unit {
-        if (lastChar != NULL_CHAR && lastChar != '\n') {
+        if (lastChar != 0 && lastChar != b'\n') {
             append("\n")
         }
     }
@@ -279,8 +278,7 @@ public class HtmlWriter {
         buffer.append(s)
         let length = s.size
         if (length != 0) {
-            let runes = s.toRuneArray()
-            lastChar = runes[runes.size - 1]
+            lastChar = s[length - 1]
         }
     }
 }

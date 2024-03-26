@@ -22,30 +22,33 @@ public class Escaping {
 
     public static func escapeHtml(input: String): String {
         // Avoid building a new string in the majority of cases (nothing to escape)
-        let runesArray: Array<Rune> = input.toRuneArray()
-        var sb: ?ArrayList<Rune> = None
-        for (i in 0..runesArray.size) {
+        var sb: ?StringBuilder = None
+        var i: Int64 = 0
+        while (i < input.size) {
             var replacement: String = ""
-            match (runesArray[i]) {
-                case '&' => replacement = "&amp;"
-                case '<' => replacement = "&lt;"
-                case '>' => replacement = "&gt;"
-                case '\"' => replacement = "&quot;"
+            match (input[i]) {
+                case b'&' => replacement = "&amp;"
+                case b'<' => replacement = "&lt;"
+                case b'>' => replacement = "&gt;"
+                case b'\"' => replacement = "&quot;"
                 case _ =>
                     if (let Some(s) <- sb) {
-                        s.append(runesArray[i])
+                        let (char, charSize) = Char.fromUtf8(unsafe { input.rawData() }, i)
+                        s.append(char)
+                        i += charSize
+                    } else {
+                        i++
                     }
                     continue
             }
             if (sb.isNone()) {
-                sb = ArrayList<Rune>(i)
-                sb().appendAll(runesArray[..i])
+                sb = StringBuilder(input[..i])
             }
-            sb().appendAll(replacement.toRuneArray())
+            sb?.append(replacement)
+            i++
         }
         if (let Some(s) <- sb) {
-            let size: Int64 = s.size
-            return String(unsafe { s.getRawArray()[0..size] })
+            return s.toString()
         } else {
             return input
         }
@@ -64,7 +67,7 @@ public class Escaping {
     public static func percentEncodeUrl(s: String): String {
         let str = s |> map<Byte, ToString> {
             b => if (b < 128) {
-                String(Char(UInt32(b)))
+                String(Char(b))
             } else {
                 "%${b.format("X")}"
             }
@@ -91,30 +94,30 @@ public class Escaping {
             return s
         }
 
-        var sb: ArrayList<Rune> = ArrayList<Rune>(s.size + 16)
+        var sb: StringBuilder = StringBuilder(s.size + 16)
         var lastEnd: Int64 = 0
 
         var pos: Position
         while (let Some(md: MatchData) <- matcher.find()) {
             pos = md.matchPosition()
-            sb.appendAll(s[lastEnd..pos.start].toRuneArray())
+            sb.append(s[lastEnd..pos.start])
             replacer.replace(md.matchStr(), sb)
             lastEnd = pos.end
         }
 
         if (lastEnd != s.size) {
-            sb.appendAll(s[lastEnd..].toRuneArray())
+            sb.append(s[lastEnd..])
         }
-        return String(unsafe { sb.getRawArray()[0..sb.size] })
+        return sb.toString()
     }
 }
 
 class UnescapeReplacer <: Replacer {
-    public func replace(input: String, sb: ArrayList<Rune>): Unit {
+    public func replace(input: String, sb: StringBuilder): Unit {
         if (input[0] == b'\\') {
-            sb.appendAll(input[1..].toRuneArray())
+            sb.append(input[1..])
         } else {
-            sb.appendAll(Html5Entities.entityToString(input).toRuneArray())
+            sb.append(Html5Entities.entityToString(input))
         }
     }
 }
@@ -123,19 +126,18 @@ class UriReplacer <: Replacer {
     private static let HEX_DIGITS: Array<Rune> = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D',
     'E', 'F']
 
-    public func replace(input: String, sb: ArrayList<Rune>): Unit {
+    public func replace(input: String, sb: StringBuilder): Unit {
         if (input[0] == b'%') {
             if (input.size == 3) {
                 // Already percent-encoded, preserve
-                sb.appendAll(input.toRuneArray())
+                sb.append(input)
             } else {
                 // %25 is the percent-encoding for %
-                sb.appendAll("%25".toRuneArray())
-                sb.appendAll(input[1..].toRuneArray())
+                sb.append("%25")
+                sb.append(input[1..])
             }
         } else {
-            let bytes: Array<UInt8> = input.toArray()
-            for (b in bytes) {
+            for (b in input) {
                 sb.append('%')
                 sb.append(HEX_DIGITS[Int64((b >> 4) & 0xF)])
                 sb.append(HEX_DIGITS[Int64(b & 0xF)])
@@ -145,7 +147,7 @@ class UriReplacer <: Replacer {
 }
 
 public interface Replacer {
-    func replace(input: String, sb: ArrayList<Rune>): Unit
+    func replace(input: String, sb: StringBuilder): Unit
 }
 
 public class Html5Entities {
@@ -191,16 +193,16 @@ class LinkScanner {
      * -1. The returned position can either be the closing {@code ]}, or the end of the line if the label continues on
      * the next line.
      */
-    public static func scanLinkLabelContent(input: CharSequence, start: Int64): Int64 {
+    public static func scanLinkLabelContent(input: String, start: Int64): Int64 {
         var i: Int64 = start
         while (i < input.size) {
             let c = input[i]
             match (c) {
-                case '\\' => if (Parsing.isEscapable(input, i + 1)) {
+                case b'\\' => if (Parsing.isEscapable(input, i + 1)) {
                     i++
                 }
-                case ']' => return i
-                case '[' =>
+                case b']' => return i
+                case b'[' =>
                     // spec: Unescaped square bracket characters are not allowed inside the opening and closing
                     // square brackets of link labels.
                     return -1
@@ -214,20 +216,20 @@ class LinkScanner {
     /**
      * Attempt to scan a link destination, returning the position after the destination or -1.
      */
-    public static func scanLinkDestination(input: Array<Rune>, start: Int64): Int64 {
+    public static func scanLinkDestination(input: String, start: Int64): Int64 {
         if (start >= input.size) {
             return -1
         }
-        if (input[start] == '<') {
+        if (input[start] == b'<') {
             var i: Int64 = start + 1
             while (i < input.size) {
                 let c = input[i]
                 match (c) {
-                    case '\\' => if (Parsing.isEscapable(input, i + 1)) {
+                    case b'\\' => if (Parsing.isEscapable(input, i + 1)) {
                         i++
                     }
-                    case '\n' | '<' => return -1
-                    case '>' => return i + 1
+                    case b'\n' | b'<' => return -1
+                    case b'>' => return i + 1
                     case _ => ()
                 }
                 i++
@@ -238,25 +240,24 @@ class LinkScanner {
         }
     }
 
-    public static func scanLinkTitle(input: CharSequence, start: Int64): Int64 {
+    public static func scanLinkTitle(input: String, start: Int64): Int64 {
         if (start >= input.size) {
             return -1
         }
 
-        var endDelimiter: Rune
+        var endDelimiterByte: Byte
         match (input[start]) {
-            case '"' => endDelimiter = '"'
-            case '\'' => endDelimiter = '\''
-            case '(' => endDelimiter = ')'
+            case b'"' => endDelimiterByte = b'"'
+            case b'\'' => endDelimiterByte = b'\''
+            case b'(' => endDelimiterByte = b')'
             case _ => return -1
-        }
-
-        let afterContent: Int64 = scanLinkTitleContent(input, start + 1, endDelimiter)
+        } 
+        let afterContent: Int64 = scanLinkTitleContent(input, start + 1, endDelimiterByte)
         if (afterContent == -1) {
             return -1
         }
 
-        if (afterContent >= input.size || input[afterContent] != endDelimiter) {
+        if (afterContent >= input.size || input[afterContent] != endDelimiterByte) {
             // missing or wrong end delimiter
             return -1
         }
@@ -267,15 +268,15 @@ class LinkScanner {
     /*
      * simple bitmap
      */
-    public static func scanLinkTitleContent(input: CharSequence, start: Int64, endDelimiter: Rune): Int64 {
+    public static func scanLinkTitleContent(input: String, start: Int64, endDelimiter: Byte): Int64 {
         var i: Int64 = start
         while (i < input.size) {
             let c = input[i]
-            if (c == '\\' && Parsing.isEscapable(input, i + 1)) {
+            if (c == b'\\' && Parsing.isEscapable(input, i + 1)) {
                 i++
             } else if (c == endDelimiter) {
                 return i
-            } else if (endDelimiter == ')' && c == '(') {
+            } else if (endDelimiter == b')' && c == b'(') {
                 // unescaped '(' in title within parens is invalid
                 return -1
             }
@@ -287,49 +288,50 @@ class LinkScanner {
     // spec: a nonempty sequence of characters that does not start with <, does not include ASCII space or control
     // characters, and includes parentheses only if (a) they are backslash-escaped or (b) they are part of a balanced
     // pair of unescaped parentheses
-    private static func scanLinkDestinationWithBalancedParens(input: CharSequence, start: Int64): Int64 {
+    private static func scanLinkDestinationWithBalancedParens(input: String, start: Int64): Int64 {
         var parens: Int64 = 0
         var i: Int64 = start
         while (i < input.size) {
             let c = input[i]
             match (c) {
-                case '\0' | ' ' => if (i != start) {
+                case b'\0' | b' ' => if (i != start) {
                     return i
                 } else {
                     return -1
                 }
-                case '\\' => if (Parsing.isEscapable(input, i + 1)) {
+                case b'\\' => if (Parsing.isEscapable(input, i + 1)) {
                     i++
                 }
-                case '(' =>
+                case b'(' =>
                     parens++
                     // Limit to 32 nested parens for pathological cases
                     if (parens > 32) {
                         return -1
                     }
-                case ')' => if (parens == 0) {
+                case b')' => if (parens == 0) {
                     return i
                 } else {
                     parens--
                 }
                 case _ =>
+                    let (char, charSize) = Char.fromUtf8(unsafe { input.rawData() }, i)
                     // or control character
-                    if (isISOControl(c)) {
-                    if (i != start) {
-                        return i
+                    if (charSize == 1 && isISOControl(char)) {
+                        if (i != start) {
+                            return i
+                        } else {
+                            return -1
+                        }
                     } else {
-                        return -1
+                        i += charSize
+                        continue
                     }
-                } else {
-                    i += 1
-                    continue
-                }
             }
             i++
         }
         return input.size
     }
-    private static func isISOControl(codePoint: Rune): Bool {
+    private static func isISOControl(codePoint: Char): Bool {
         let u32 = UInt32(codePoint)
         return u32 <= 0x9F && (u32 >= 0x7F || (u32 >> 5 == 0x00))
     }
@@ -362,7 +364,7 @@ class Parsing {
     /**
      * Byte is ascii
      */
-    public static func find(c: Rune, s: CharSequence, startIndex: Int64): Int64 {
+    public static func find(c: Byte, s: String, startIndex: Int64): Int64 {
         let length: Int64 = s.size
         for (i in startIndex..length) {
             if (s[i] == c) {
@@ -372,73 +374,53 @@ class Parsing {
         return -1
     }
 
-    public static func findLineBreak(s: CharSequence, startIndex: Int64): Int64 {
+    public static func findLineBreak(s: String, startIndex: Int64): Int64 {
         let length: Int64 = s.size
-        for (i in startIndex..length) {
+        var i = startIndex
+        while (i < length) {
             match (s[i]) {
-                case '\n' | '\r' => return i
+                case b'\n' | b'\r' => return i
                 case _ => ()
             }
+            i++
         }
         return -1
     }
 
-    public static func isBlank(s: CharSequence): Bool {
+    public static func isBlank(s: String): Bool {
         return findNonSpace(s, 0) == -1
     }
 
-    public static func hasNonSpace(s: CharSequence): Bool {
+    public static func hasNonSpace(s: String): Bool {
         let length: Int64 = s.size
-        let skipped: Int64 = skip(' ', s, 0, length)
+        let skipped: Int64 = skip(b' ', s, 0, length)
         return skipped != length
     }
 
-    public static func isLetter(s: CharSequence, index: Int64): Bool {
-        return s[index].isLetter()
+    public static func isLetter(s: String, index: Int64): Bool {
+        return s[index].isAsciiLetter()
     }
 
-    public static func isSpaceOrTab(s: CharSequence, index: Int64): Bool {
+    public static func isSpaceOrTab(s: String, index: Int64): Bool {
         if (index < s.size) {
             match (s[index]) {
-                case ' ' | '\t' => return true
+                case b' ' | b'\t' => return true
                 case _ => ()
             }
         }
         return false
     }
 
-    // public static func isEscapable(s: String, index: Int64): Bool {
-    //     if (index < s.size) {
-    //         if (bytes.contains(s[index])) {
-    //             return true
-    //         }
-    //     }
-    //     return false
-    // }
-
-    public static func isEscapable(s: CharSequence, index: Int64): Bool {
+    public static func isEscapable(s: String, index: Int64): Bool {
         if (index < s.size) {
-            if (bytes.contains(UInt8(UInt32(s[index])) & 0xff)) {
+            if (bytes.contains(s[index])) {
                 return true
             }
         }
         return false
     }
 
-    /**
-     * Prepares the input line replacing {@code \0}
-     */
-    public static func prepareLine(line: CharSequence): CharSequence {
-        // Avoid building a new string in the majority of cases (no \0)
-        for (i in 0..line.size) {
-            if (line[i] == '\0') {
-                line[i] = '\u{FFFD}'
-            }
-        }
-        return line
-    }
-
-    public static func skip(skip: Rune, s: CharSequence, startIndex: Int64, endIndex: Int64): Int64 {
+    public static func skip(skip: Byte, s: String, startIndex: Int64, endIndex: Int64): Int64 {
         for (i in startIndex..endIndex) {
             if (s[i] != skip) {
                 return i
@@ -447,7 +429,7 @@ class Parsing {
         return endIndex
     }
 
-    public static func skipBackwards(skip: Rune, s: CharSequence, startIndex: Int64, lastIndex: Int64): Int64 {
+    public static func skipBackwards(skip: Byte, s: String, startIndex: Int64, lastIndex: Int64): Int64 {
         for (i in startIndex..lastIndex : -1) {
             if (s[i] != skip) {
                 return i
@@ -456,31 +438,31 @@ class Parsing {
         return lastIndex - 1
     }
 
-    public static func skipSpaceTab(s: CharSequence, startIndex: Int64, endIndex: Int64): Int64 {
+    public static func skipSpaceTab(s: String, startIndex: Int64, endIndex: Int64): Int64 {
         for (i in startIndex..endIndex) {
             match (s[i]) {
-                case ' ' | '\t' => continue
+                case b' ' | b'\t' => continue
                 case _ => return i
             }
         }
         return endIndex
     }
 
-    public static func skipSpaceTabBackwards(s: CharSequence, startIndex: Int64, lastIndex: Int64): Int64 {
+    public static func skipSpaceTabBackwards(s: String, startIndex: Int64, lastIndex: Int64): Int64 {
         for (i in startIndex..lastIndex : -1) {
             match (s[i]) {
-                case ' ' | '\t' => continue
+                case b' ' | b'\t' => continue
                 case _ => return i
             }
         }
         return lastIndex - 1
     }
 
-    private static func findNonSpace(s: CharSequence, startIndex: Int64): Int64 {
+    private static func findNonSpace(s: String, startIndex: Int64): Int64 {
         let length: Int64 = s.size
         for (i in startIndex..length) {
             match (s[i]) {
-                case ' ' | '\t' | '\n' | '\u{0B}' | '\f' | '\r' => continue
+                case b' ' | b'\t' | b'\n' | b'\u{0B}' | b'\f' | b'\r' => continue
                 case _ => return i
             }
         }

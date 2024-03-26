@@ -36,7 +36,7 @@ extend Option<T> where T <: Equatable<T> {
 let NULL_CHAR: Rune = '\u{0}'
 let EMPTY_STRING: String = ""
 let EMPTY_MAP: Map<String, String> = HashMap()
-
+let STRINGBUILDER_CAPACITY: Int64 = 256
 public type CharSequence = Array<Rune>
 
 extend Array<T> where T <: Rune {

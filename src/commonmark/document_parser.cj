@@ -25,7 +25,7 @@ class DocumentParser <: ParserState {
         ]
     )
 
-    private var line: CharSequence = []
+    private var line: String = ""
 
     /**
      * current index (offset) in input line (0-based)
@@ -92,13 +92,14 @@ class DocumentParser <: ParserState {
      * The main parsing function. Returns a parsed document AST.
      */
     public func parse(inputStr: String): Document {
-        let input = inputStr.toRuneArray()
+        let input = inputStr.replace("\0", "\u{FFFD}")
         var lineStart: Int64 = 0
         var lineBreak: Int64 = Parsing.findLineBreak(input, lineStart)
+
         while (lineBreak != -1) {
             var line = input[lineStart..lineBreak]
             incorporateLine(line)
-            if (lineBreak + 1 < input.size && input[lineBreak] == '\r' && input[lineBreak + 1] == '\n') {
+            if (lineBreak + 1 < input.size && input[lineBreak] == b'\r' && input[lineBreak + 1] == b'\n') {
                 lineStart = lineBreak + 2
             } else {
                 lineStart = lineBreak + 1
@@ -116,7 +117,7 @@ class DocumentParser <: ParserState {
     public func parse(input: StringReader<InputStream>): Document { // throws IOException
         var bufferedReader: StringReader<InputStream> = input
         while (true) {
-            if (let Some(line) <- bufferedReader.readln()?.toRuneArray()) {
+            if (let Some(line) <- bufferedReader.readln()) {
                 incorporateLine(line)
             } else {
                 break
@@ -126,7 +127,7 @@ class DocumentParser <: ParserState {
         return finalizeAndProcess()
     }
 
-    public func getLine(): CharSequence {
+    public func getLine(): String {
         return line
     }
 
@@ -158,8 +159,8 @@ class DocumentParser <: ParserState {
      * Analyze a line of text and update the document appropriately. We parse markdown text by calling this on each
      * line of input, then finalizing the document.
      */
-    private func incorporateLine(ln: CharSequence): Unit {
-        line = Parsing.prepareLine(ln)
+    private func incorporateLine(ln: String): Unit {
+        line = ln
         index = 0
         column = 0
         columnIsInTab = false
@@ -169,10 +170,12 @@ class DocumentParser <: ParserState {
         // Set all_matched to false if not all containers match.
         // The document will always match, can be skipped
         var matches: Int64 = 1
-        if (activeBlockParsers.size > 1) {
-            for (blockParser in activeBlockParsers[1..activeBlockParsers.size]) {
+        let activeBlockParsersSize: Int64 = activeBlockParsers.size
+        if (activeBlockParsersSize > 1) {
+            for (index in 1..activeBlockParsersSize) {
+                let blockParser = activeBlockParsers[index]
                 findNextNonSpace()
-
+                
                 var result: ?BlockContinue = blockParser.tryContinue(this)
                 if (result.isSome() && result() is BlockContinueImpl) {
                     var blockContinueImpl: BlockContinueImpl = (result() as BlockContinueImpl).getOrThrow()
@@ -194,8 +197,8 @@ class DocumentParser <: ParserState {
         }
 
         var unmatchedBlockParser: ArrayList<AbstractBlockParser> = ArrayList<AbstractBlockParser>()
-        if (matches < activeBlockParsers.size) {
-            unmatchedBlockParser = activeBlockParsers[matches..activeBlockParsers.size]
+        if (matches < activeBlockParsersSize) {
+            unmatchedBlockParser = activeBlockParsers[matches..activeBlockParsersSize]
         }
         var lastMatchedBlockParser: AbstractBlockParser = activeBlockParsers[matches - 1]
         var blockParser: AbstractBlockParser = lastMatchedBlockParser
@@ -272,11 +275,11 @@ class DocumentParser <: ParserState {
         var length: Int64 = line.size
         while (i < length) {
             var c = line[i]
-            if (c == ' ') {
+            if (c == b' ') {
                 i++
                 colsNum++
                 continue
-            } else if (c == '\t') {
+            } else if (c == b'\t') {
                 i++
                 colsNum += (4 - (colsNum % 4))
                 continue
@@ -326,7 +329,7 @@ class DocumentParser <: ParserState {
 
     private func advance(): Unit {
         var char = line[index]
-        if (char == '\t') {
+        if (char == b'\t') {
             index++
             column += Parsing.columnsToNextTabStop(column)
         } else {
@@ -340,7 +343,7 @@ class DocumentParser <: ParserState {
      * calling this.
      */
     private func addLine(): Unit {
-        var content: CharSequence
+        var content: String
         if (columnIsInTab) {
             // Our column is in a partially consumed tab. Expand the remaining columns (to the next tab stop) to spaces.
             var afterTab: Int64 = index + 1
@@ -349,7 +352,7 @@ class DocumentParser <: ParserState {
             var sb: StringBuilder = StringBuilder(spaces + rest.size)
             sb.append(" " * spaces)
             sb.append(rest)
-            content = sb.toString().toRuneArray()
+            content = sb.toString()
         } else {
             content = line[index..line.size]
         }
@@ -487,7 +490,7 @@ class MatchedBlockParserImpl <: MatchedBlockParser {
     public func getParagraphContent(): ?String {
         if (matchedBlockParser is ParagraphParser) {
             var paragraphParser: ParagraphParser = (matchedBlockParser as ParagraphParser).getOrThrow()
-            var content: String = paragraphParser.getContentString()
+            var content: String = paragraphParser.getContentString().toString()
             if (content.size == 0) {
                 return None
             }
