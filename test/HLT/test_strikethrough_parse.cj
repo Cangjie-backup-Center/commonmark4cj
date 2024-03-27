@@ -1,4 +1,4 @@
-// 3rd_party_lib:commonMark4cj/build/release/commonmark4cj
+// 3rd_party_lib:commonmark4cj/build/release/commonmark4cj
 // 3rd_party_lib_ohos:commonmark4cj/build/aarch64-linux-ohos/commonmark4cj
 
 from commonmark4cj import commonmark.*
@@ -13,46 +13,45 @@ from std import unicode.*
 from std import fs.*
 
 @Test
-public class TestStrikethroughParser{
-
+public class TestStrikethroughParser {
     @TestCase
-    func test_strikethrough_parser():Unit {
+    func test_strikethrough_parser(): Unit {
         let text = htmlRender("~foo~")
         @Assert("<p>~foo~</p>\n", text)
     }
 
     @TestCase
-    func test_strikethrough_parser2():Unit {
+    func test_strikethrough_parser2(): Unit {
         let text = textContentRender("~~foo~~")
         @Assert("/foo/", text)
     }
 
     @TestCase
-    func test_strikethrough_parser3():Unit {
+    func test_strikethrough_parser3(): Unit {
         let text = htmlRender("")
         @Assert("", text)
     }
 
     @TestCase
-    func test_strikethrough_parser4():Unit {
+    func test_strikethrough_parser4(): Unit {
         let text = htmlRender(" ")
         @Assert("", text)
     }
 
     @TestCase
-    func test_strikethrough_parser5():Unit {
+    func test_strikethrough_parser5(): Unit {
         let text = textContentRender("")
         @Assert("", text)
     }
 
     @TestCase
-    func test_strikethrough_parser6():Unit {
+    func test_strikethrough_parser6(): Unit {
         let text = textContentRender(" ")
         @Assert("", text)
     }
 
     @TestCase
-    func test_strikethrough_init1():Unit {
+    func test_strikethrough_init1(): Unit {
         var strikethrough = Strikethrough()
         @Assert(strikethrough.getOpeningDelimiter().getOrThrow(),"~~")
         @Assert(strikethrough.getClosingDelimiter().getOrThrow(),"~~")
@@ -70,7 +69,7 @@ func htmlRender(source: String): String {
 func textContentRender(source: String): String {
     let EXTENSIONS: Iterable<Extension> = ArrayList<Extension>(StrikethroughExtension.create())
     let PARSER: Parser = Parser.builder().extensions(EXTENSIONS).build()
-    let CONTENT_RENDERER: TextContentRenderer  = TextContentRenderer.builder().extensions(EXTENSIONS).build()
+    let CONTENT_RENDERER: TextContentRenderer = TextContentRenderer.builder().extensions(EXTENSIONS).build()
 
     return CONTENT_RENDERER.render(PARSER.parse(source))
 }

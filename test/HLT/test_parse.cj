@@ -1,4 +1,4 @@
-// 3rd_party_lib:commonMark4cj/build/release/commonmark4cj
+// 3rd_party_lib:commonmark4cj/build/release/commonmark4cj
 // 3rd_party_lib_ohos:commonmark4cj/build/aarch64-linux-ohos/commonmark4cj
 // RESOURCES: spec.txt
 
@@ -13,9 +13,9 @@ from std import unicode.*
 from std import fs.*
 
 @Test
-public class TestParser{
+public class TestParser {
     @TestCase
-    func test_parser_builder():Unit {
+    func test_parser_builder(): Unit {
         var headersOnly: HashSet<TypeInfo> = HashSet<TypeInfo>()
         headersOnly.put(TypeInfo.of<Heading>())
         var parserBuilder: ParserBuilder = Parser.builder()
@@ -24,7 +24,7 @@ public class TestParser{
 
         var parserBuilder2: ParserBuilder = Parser.builder()
         @Assert(parserBuilder2.getEnabledBlockTypes().size, 7)
-    
+
         var headersOnly2: HashSet<TypeInfo> = HashSet<TypeInfo>()
         var parserBuilder3: ParserBuilder = Parser.builder()
         parserBuilder3.enabledBlockTypes(headersOnly2)
@@ -32,7 +32,7 @@ public class TestParser{
     }
 
     @TestCase
-    func test_parser_parse():Unit {
+    func test_parser_parse(): Unit {
         let given: String = "# heading 1\n\nnot a heading"
         let given2: String = ""
         var parser: Parser = Parser.builder().build()
@@ -45,9 +45,9 @@ public class TestParser{
 }
 
 @Test
-public class TestParserBuilder{
+public class TestParserBuilder {
     @TestCase
-    func test_parser_builder():Unit {
+    func test_parser_builder(): Unit {
         let source = "Abc|Def"
         let source2 = ""
         let tt: TablesTest = TablesTest()
@@ -59,7 +59,7 @@ public class TestParserBuilder{
     }
 
     @TestCase
-    func test_parser_extensions():Unit {
+    func test_parser_extensions(): Unit {
         let source = "Abc|Def\n-|-"
         let tablesTest: TablesTest = TablesTest()
         let tablesTest_noExtension: TablesTest_noExtension = TablesTest_noExtension()
@@ -78,7 +78,7 @@ public class TestParserBuilder{
     }
 
     @TestCase
-    func test_parser_extensions2():Unit {
+    func test_parser_extensions2(): Unit {
         let source = "Abc|Def\n-|-"
         let tablesTest: TablesTest = TablesTest()
         let tablesTest_noExtension2: TablesTest_noExtension2 = TablesTest_noExtension2()
@@ -97,7 +97,7 @@ public class TestParserBuilder{
     }
 
     @TestCase
-    func test_parser_customBlockParserFactory():Unit {
+    func test_parser_customBlockParserFactory(): Unit {
         let parser: Parser = Parser.builder().customBlockParserFactory(DashBlockParserFactory()).build()
 
         let document: Node = parser.parse("hey\n\n---\n")
@@ -108,7 +108,7 @@ public class TestParserBuilder{
     }
 
     @TestCase
-    func test_parser_customDelimiterProcessor():Unit {
+    func test_parser_customDelimiterProcessor(): Unit {
         let input = "+one+ ++two++"
         var s = defaultRenderer().render(parse(input))
         @Assert("<p>+one+ ++two++</p>\n", s)
@@ -137,7 +137,7 @@ public class TestParserBuilder{
 
         @Assert(parser.parse(input).getFirstChild().getOrThrow().getFirstChild().getOrThrow().toString(), "ThematicBreak{}")
         @Assert(true, builder.getInlineParserFactory() is fakeInlineParserFactory)
-        
+
         var builder2: ParserBuilder = Parser.builder()
 
         @Assert(false, builder2.getInlineParserFactory() is fakeInlineParserFactory)
@@ -145,14 +145,13 @@ public class TestParserBuilder{
 }
 
 class fakeInlineParser <: InlineParser {
-    public override func parse(input: String, node: Node): Unit {
+    public override func parse(_: String, node: Node): Unit {
         node.appendChild(ThematicBreak())
     }
 }
 
 class fakeInlineParserFactory <: InlineParserFactory {
-
-    public override func create(inlineParserContext: InlineParserContext): InlineParser {
+    public override func create(_: InlineParserContext): InlineParser {
         return fakeInlineParser()
     }
 }
@@ -178,19 +177,18 @@ class OneDelimiterProcessor <: DelimiterProcessor {
         return 1
     }
 
-    public override func getDelimiterUse(opener: DelimiterRun, closer: DelimiterRun): Int64 {
+    public override func getDelimiterUse(_: DelimiterRun, _: DelimiterRun): Int64 {
         return 1
     }
 
-    public override func process(opener: Text, closer: Text, delimiterUse: Int64): Unit {
+    public override func process(opener: Text, closer: Text, _: Int64): Unit {
         opener.insertAfter(Text("(1)"))
         closer.insertBefore(Text("(/1)"))
     }
 }
 
 class DashBlockParserFactory <: AbstractBlockParserFactory {
-
-    public override func tryStart(state: ParserState, matchedBlockParser: MatchedBlockParser): ?BlockStart {
+    public override func tryStart(state: ParserState, _: MatchedBlockParser): ?BlockStart {
         if (state.getLine() == ("---")) {
             return BlockStart.of4Cj(DashBlockParser())
         }
@@ -199,14 +197,13 @@ class DashBlockParserFactory <: AbstractBlockParserFactory {
 }
 
 class DashBlockParser <: AbstractBlockParser {
-
     private var dash: DashBlock = DashBlock()
 
     public override func getBlock(): Block {
         return dash
     }
 
-    public override func tryContinue(parserState: ParserState): ?BlockContinue {
+    public override func tryContinue(_: ParserState): ?BlockContinue {
         return BlockContinue.none()
     }
 }

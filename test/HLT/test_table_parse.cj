@@ -1,4 +1,4 @@
-// 3rd_party_lib:commonMark4cj/build/release/commonmark4cj
+// 3rd_party_lib:commonmark4cj/build/release/commonmark4cj
 // 3rd_party_lib_ohos:commonmark4cj/build/aarch64-linux-ohos/commonmark4cj
 
 from commonmark4cj import commonmark.*
@@ -13,28 +13,27 @@ from std import unicode.*
 from std import fs.*
 
 @Test
-public class TestTableParser{
-
+public class TestTableParser {
     @TestCase
-    func test_table_parser():Unit {
+    func test_table_parser(): Unit {
         let text = htmlRender("Abc|Def")
         @Assert("<p>Abc|Def</p>\n", text)
     }
 
     @TestCase
-    func test_table_parser2():Unit {
+    func test_table_parser2(): Unit {
         let text = textContentRender("Abc|Def\n---|---")
         @Assert("Abc| Def\n", text)
     }
 
     @TestCase
-    func test_table_parser3():Unit {
+    func test_table_parser3(): Unit {
         let text = htmlRender("")
         @Assert("", text)
     }
 
     @TestCase
-    func test_table_parser4():Unit {
+    func test_table_parser4(): Unit {
         let text = htmlRender(" ")
         @Assert("", text)
     }
@@ -48,19 +47,19 @@ public class TestTableParser{
     }
 
     @TestCase
-    func test_table_parser5():Unit {
+    func test_table_parser5(): Unit {
         let text = textContentRender("")
         @Assert("", text)
     }
 
     @TestCase
-    func test_table_parser6():Unit {
+    func test_table_parser6(): Unit {
         let text = textContentRender(" ")
         @Assert("", text)
     }
 
     @TestCase
-    func test_strikethrough_init1():Unit {
+    func test_strikethrough_init1(): Unit {
         var tableCell = TableCell()
         @Assert(tableCell.isHeader().isNone(), true)
         tableCell.setHeader(false)
