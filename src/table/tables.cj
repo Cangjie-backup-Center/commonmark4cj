@@ -1,10 +1,14 @@
 package table
 
+let TableBlockType: TypeInfo = TypeInfo.of<TableBlock>()
+let TableBodyType: TypeInfo = TypeInfo.of<TableBody>()
+let TableCellType: TypeInfo = TypeInfo.of<TableCell>()
+let TableHeadType: TypeInfo = TypeInfo.of<TableHead>()
+let TableRowType: TypeInfo = TypeInfo.of<TableRow>()
+
 public abstract class TableNodeRenderer <: NodeRenderer {
     public override func getNodeTypes(): HashSet<TypeInfo> {
-        return HashSet<TypeInfo>(
-            [TypeInfo.of<TableBlock>(), TypeInfo.of<TableHead>(), TypeInfo.of<TableBody>(), TypeInfo.of<TableRow>(),
-        TypeInfo.of<TableCell>()])
+        return HashSet<TypeInfo>([TableBlockType, TableHeadType, TableBodyType, TableRowType, TableCellType])
     }
 
     public override func render(node: Node): Unit {
@@ -32,9 +36,17 @@ public abstract class TableNodeRenderer <: NodeRenderer {
     protected func renderCell(node: TableCell): Unit
 }
 
-public class TableBlock <: CustomBlock {}
+public class TableBlock <: CustomBlock {
+    public override func getNodeType(): TypeInfo {
+        return TableBlockType
+    }
+}
 
-public class TableBody <: CustomNode {}
+public class TableBody <: CustomNode {
+    public override func getNodeType(): TypeInfo {
+        return TableBodyType
+    }
+}
 
 public class TableCell <: CustomNode {
     private var header: ?Bool = None
@@ -61,6 +73,9 @@ public class TableCell <: CustomNode {
     public func setAlignment(alignment: Alignment): Unit {
         this.alignment = alignment
     }
+    public override func getNodeType(): TypeInfo {
+        return TableCellType
+    }
 }
 
 /**
@@ -72,9 +87,17 @@ public enum Alignment {
     | RIGHT
 }
 
-public class TableHead <: CustomNode {}
+public class TableHead <: CustomNode {
+    public override func getNodeType(): TypeInfo {
+        return TableHeadType
+    }
+}
 
-public class TableRow <: CustomNode {}
+public class TableRow <: CustomNode {
+    public override func getNodeType(): TypeInfo {
+        return TableRowType
+    }
+}
 
 public class TablesExtension <: ParserExtension & HtmlRendererExtension & TextContentRendererExtension {
     private init() {

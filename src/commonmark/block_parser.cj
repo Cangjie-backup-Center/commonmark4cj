@@ -398,16 +398,16 @@ class FencedCodeBlockParser <: AbstractBlockParser {
         var backticks: Int64 = 0
         var tildes: Int64 = 0
         var length: Int64 = line.size
-
-        for (i in index..length) {
-            if (line[i] == b'`') {
-                backticks++
-            } else if (line[i] == b'~') {
-                tildes++
-            } else {
-                break
+        var i: Int64 = index
+        while(i < length) {
+            match(line[i]) {
+                case b'`' => backticks++
+                case b'~' => tildes++
+                case _ => break
             }
+            i++
         }
+
         if (backticks >= 3 && tildes == 0) {
             var c: Byte = UInt8(UInt32('`'))
             // spec: If the info string comes after a backtick fence, it may not contain any backtick characters.
@@ -449,10 +449,9 @@ public class FencedCodeBlockParserFactory <: BlockParserFactory {
         var nextNonSpace: Int64 = state.getNextNonSpaceIndex()
         var blockParser: ?FencedCodeBlockParser = FencedCodeBlockParser.checkOpener(state.getLine(), nextNonSpace,
             indent)
-        if (let Some(value) <- blockParser) {
-            return BlockStart.of4Cj(value).atIndex(nextNonSpace + value.block.getFenceLength())
-        } else {
-            return BlockStart.none()
+        match (blockParser) {
+            case Some(value) => return BlockStart.of4Cj(value).atIndex(nextNonSpace + value.block.getFenceLength())
+            case _ => return BlockStart.none()
         }
     }
 }

@@ -21,6 +21,10 @@ public class BlockQuote <: Block {
     public func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
+
+    public override func getNodeType(): TypeInfo {
+        return BlockQuoteType
+    }
 }
 
 public class HtmlBlock <: Block {
@@ -37,6 +41,10 @@ public class HtmlBlock <: Block {
     public func setLiteral(literal: String): Unit {
         this.literal = literal
     }
+
+    public override func getNodeType(): TypeInfo {
+        return HtmlBlockType
+    }
 }
 
 public abstract class CustomBlock <: Block {
@@ -49,17 +57,29 @@ public class ThematicBreak <: Block {
     public func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
+
+    public override func getNodeType(): TypeInfo {
+        return ThematicBreakType
+    }
 }
 
 public class Document <: Block {
     public func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
+
+    public override func getNodeType(): TypeInfo {
+        return DocumentType
+    }
 }
 
 public class Paragraph <: Block {
     public func accept(visitor: Visitor): Unit {
         visitor.visit(this)
+    }
+
+    public override func getNodeType(): TypeInfo {
+        return ParagraphType
     }
 }
 
@@ -76,6 +96,10 @@ public class IndentedCodeBlock <: Block {
 
     public func setLiteral(literal: String): Unit {
         this.literal = literal
+    }
+
+    public override func getNodeType(): TypeInfo {
+        return IndentedCodeBlockType
     }
 }
 
@@ -130,11 +154,19 @@ public class FencedCodeBlock <: Block {
     public func setLiteral(literal: String): Unit {
         this.literal = literal
     }
+
+    public override func getNodeType(): TypeInfo {
+        return FencedCodeBlockType
+    }
 }
 
 public class ListItem <: Block {
     public func accept(visitor: Visitor): Unit {
         visitor.visit(this)
+    }
+
+    public override func getNodeType(): TypeInfo {
+        return ListItemType
     }
 }
 
@@ -151,6 +183,10 @@ public class Heading <: Block {
 
     public func setLevel(level: Int64): Unit {
         this.level = level
+    }
+
+    public override func getNodeType(): TypeInfo {
+        return HeadingType
     }
 }
 
@@ -184,6 +220,10 @@ public class BulletList <: ListBlock {
     public func setBulletMarker(bulletMarker: Char): Unit {
         this.bulletMarker = bulletMarker
     }
+
+    public override func getNodeType(): TypeInfo {
+        return BulletListType
+    }
 }
 
 public class OrderedList <: ListBlock {
@@ -213,5 +253,9 @@ public class OrderedList <: ListBlock {
 
     public func setDelimiter(delimiter: Char): Unit {
         this.delimiter = delimiter
+    }
+
+    public override func getNodeType(): TypeInfo {
+        return OrderedListType
     }
 }

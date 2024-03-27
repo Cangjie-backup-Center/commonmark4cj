@@ -145,26 +145,26 @@ class CoreTextContentNodeRenderer <: AbstractVisitor & NodeRenderer {
     public override func getNodeTypes(): HashSet<TypeInfo> {
         return HashSet<TypeInfo>(
             [
-                TypeInfo.of<Document>(),
-                TypeInfo.of<Heading>(),
-                TypeInfo.of<Paragraph>(),
-                TypeInfo.of<BlockQuote>(),
-                TypeInfo.of<BulletList>(),
-                TypeInfo.of<FencedCodeBlock>(),
-                TypeInfo.of<HtmlBlock>(),
-                TypeInfo.of<ThematicBreak>(),
-                TypeInfo.of<IndentedCodeBlock>(),
-                TypeInfo.of<Link>(),
-                TypeInfo.of<ListItem>(),
-                TypeInfo.of<OrderedList>(),
-                TypeInfo.of<Image>(),
-                TypeInfo.of<Emphasis>(),
-                TypeInfo.of<StrongEmphasis>(),
-                TypeInfo.of<Text>(),
-                TypeInfo.of<Code>(),
-                TypeInfo.of<HtmlInline>(),
-                TypeInfo.of<SoftLineBreak>(),
-                TypeInfo.of<HardLineBreak>()
+                DocumentType,
+                HeadingType,
+                ParagraphType,
+                BlockQuoteType,
+                BulletListType,
+                FencedCodeBlockType,
+                HtmlBlockType,
+                ThematicBreakType,
+                IndentedCodeBlockType,
+                LinkType,
+                ListItemType,
+                OrderedListType,
+                ImageType,
+                EmphasisType,
+                StrongEmphasisType,
+                TextType,
+                CodeType,
+                HtmlInlineType,
+                SoftLineBreakType,
+                HardLineBreakType
             ]
         )
     }
