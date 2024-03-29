@@ -206,16 +206,13 @@ class DocumentParser <: ParserState {
 
         // Unless last matched container is a code block, try container starts,
         // adding children to the last matched container:
-        var tryBlockStarts: Bool = blockParser.getBlock() is Paragraph || blockParser.isContainer()
-        while (tryBlockStarts) {
+        var tryBlockBool: Bool = blockParser.getBlock() is Paragraph || blockParser.isContainer()
+        while (tryBlockBool) {
             findNextNonSpace()
-
-            // this is a little performance optimization:
             if (isBlank() || (indent < Parsing.CODE_BLOCK_INDENT && Parsing.isLetter(line, nextNonSpace))) {
                 setNewIndex(nextNonSpace)
                 break
             }
-
             var blockStartOption: ?BlockStart = findBlockStart(blockParser)
             if (blockStartOption.isNone()) {
                 setNewIndex(nextNonSpace)
@@ -226,20 +223,19 @@ class DocumentParser <: ParserState {
                 finalizeBlocks(unmatchedBlockParser)
                 allClosed = true
             }
-            var blockStart = (blockStartOption.getOrThrow() as BlockStartImpl).getOrThrow()
-            if (blockStart.getNewIndex() != -1) {
-                setNewIndex(blockStart.getNewIndex())
-            } else if (blockStart.getNewColumn() != -1) {
-                setNewColumn(blockStart.getNewColumn())
+            var blockStartImpl = (blockStartOption.getOrThrow() as BlockStartImpl).getOrThrow()
+            if (blockStartImpl.getNewIndex() != -1) {
+                setNewIndex(blockStartImpl.getNewIndex())
+            } else if (blockStartImpl.getNewColumn() != -1) {
+                setNewColumn(blockStartImpl.getNewColumn())
             }
-
-            if (blockStart.isReplaceActiveBlockParser()) {
+            if (blockStartImpl.isReplaceActiveBlockParser()) {
                 prepareActiveBlockParserForReplacement()
             }
 
-            for (newBlockParser in blockStart.getBlockParsers()) {
+            for (newBlockParser in blockStartImpl.getBlockParsers()) {
                 blockParser = addChild(newBlockParser)
-                tryBlockStarts = newBlockParser.isContainer()
+                tryBlockBool = newBlockParser.isContainer()
             }
         }
 
@@ -327,25 +323,12 @@ class DocumentParser <: ParserState {
         }
     }
 
-    private func advance(): Unit {
-        var char = line[index]
-        if (char == b'\t') {
-            index++
-            column += Parsing.columnsToNextTabStop(column)
-        } else {
-            index++
-            column++
-        }
-    }
-
     /**
-     * Add line content to the active block parser. We assume it can accept lines -- that check should be done before
-     * calling this.
+     * append contents
      */
     private func addLine(): Unit {
         var content: String
         if (columnIsInTab) {
-            // Our column is in a partially consumed tab. Expand the remaining columns (to the next tab stop) to spaces.
             var afterTab: Int64 = index + 1
             var rest = line[afterTab..line.size]
             var spaces: Int64 = Parsing.columnsToNextTabStop(column)
@@ -357,6 +340,17 @@ class DocumentParser <: ParserState {
             content = line[index..line.size]
         }
         getActiveBlockParser().addLine(content)
+    }
+
+    private func advance(): Unit {
+        var lineChar = line[index]
+        if (lineChar == b'\t') {
+            index++
+            column = Parsing.columnsToNextTabStop(column) + column
+        } else {
+            index++
+            column++
+        }
     }
 
     private func findBlockStart(blockParser: AbstractBlockParser): Option<BlockStart> {
@@ -437,29 +431,24 @@ class DocumentParser <: ParserState {
     }
 
     private func prepareActiveBlockParserForReplacement(): Unit {
-        let old: AbstractBlockParser = getActiveBlockParser()
+        let oldParser: AbstractBlockParser = getActiveBlockParser()
         deactivateBlockParser()
         for (i in 0..allBlockParsers.size) {
-            if (refEq(allBlockParsers[i], old)) {
+            if (refEq(allBlockParsers[i], oldParser)) {
                 allBlockParsers.remove(i)
             }
         }
 
-        if (old is ParagraphParser) {
-            var paragraphParser: ParagraphParser = (old as ParagraphParser).getOrThrow()
-            // Collect any link reference definitions. Note that replacing the active block parser is done after a
-            // block parser got the current paragraph content using MatchedBlockParser#getContentString. In case the
-            // paragraph started with link reference definitions, we parse and strip them before the block parser gets
-            // the content. We want to keep them.
-            // If no replacement happens, we collect the definitions as part of finalizing paragraph blocks.
+        if (oldParser is ParagraphParser) {
+            var paragraphParser: ParagraphParser = (oldParser as ParagraphParser).getOrThrow()
             addDefinitionsFrom(paragraphParser)
         }
 
-        old.getBlock().unlink()
+        oldParser.getBlock().unlink()
     }
 
     /**
-     * Finalize blocks of previous line. Returns true.
+     * blocks Finalize
      */
     private func finalizeBlocks(blockParsers: ArrayList<AbstractBlockParser>): Unit {
         // for (Int64 i = blockParsers.size() - 1; i >= 0; i--) {

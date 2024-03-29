@@ -261,7 +261,7 @@ public class LinkReferenceDefinition <: Node {
      * 添加操作行为
      * 参数 String - 链接引用的标签
      * 参数 String - 目标地址
-     * 参数 String - 标题吗
+     * 参数 String - 标题
      */
     public init(label: String, destination: String, title: String)
 	/*
@@ -1388,13 +1388,42 @@ public class ThematicBreakParserFactory <: BlockParserFactory {
 ##### 2.2.2 示例
 
 ```cangjie
-    @TestCase
-    func parse_test():Unit {
-        let given: String = "# heading 1\n\nnot a heading"
-        var parser: Parser = Parser.builder().build()
-        var document: Node = parser.parse(given)
-        assertEquals("Heading{}", document.getFirstChild()().toString())
+main(): Int64 {
+    let parser: Parser = Parser.builder().customBlockParserFactory(DashBlockParserFactory()).build()
+
+    let document: Node = parser.parse("hey\n\n---\n")
+
+    println(document.getFirstChild().getOrThrow().toString())
+    println((document.getFirstChild().getOrThrow().getFirstChild().getOrThrow() as Text).getOrThrow().getLiteral())
+    println(document.getLastChild().getOrThrow().toString())
+
+    return 0
+}
+
+class DashBlockParserFactory <: AbstractBlockParserFactory {
+
+    public override func tryStart(state: ParserState, matchedBlockParser: MatchedBlockParser): ?BlockStart {
+        if (state.getLine() == ("---")) {
+            return BlockStart.of4Cj(DashBlockParser())
+        }
+        return BlockStart.none()
     }
+}
+
+class DashBlock <: CustomBlock {}
+
+class DashBlockParser <: AbstractBlockParser {
+
+    private var dash: DashBlock = DashBlock()
+
+    public override func getBlock(): Block {
+        return dash
+    }
+
+    public override func tryContinue(parserState: ParserState): ?BlockContinue {
+        return BlockContinue.none()
+    }
+}
 ```
 
 #### 2.3 InlineParser
@@ -1538,12 +1567,24 @@ public interface DelimiterRun {
 
 ```cangjie
     @TestCase
-    func parse_test():Unit {
-        let given: String = "# heading 1\n\nnot a heading"
-        var parser: Parser = Parser.builder().build()
-        var document: Node = parser.parse(given)
-        assertEquals("Heading{}", document.getFirstChild()().toString())
+    public func inlineParser(): Unit {
+        let parser: Parser = Parser.builder().inlineParserFactory(fakeInlineParserFactory()).build()
+        let input: String = "**bold** **bold** ~~strikethrough~~"
+
+        assertEquals(parser.parse(input).getFirstChild()().getFirstChild()().toString(), "ThematicBreak{}")
     }
+class fakeInlineParser <: InlineParser {
+    public override func parse(input: String, node: Node): Unit {
+        node.appendChild(ThematicBreak())
+    }
+}
+
+class fakeInlineParserFactory <: InlineParserFactory {
+
+    public override func create(inlineParserContext: InlineParserContext): InlineParser {
+        return fakeInlineParser()
+    }
+}
 ```
 
 #### 2.4 Strikethrough
@@ -1605,13 +1646,34 @@ public class StrikethroughExtension <: ParserExtension & HtmlRendererExtension &
 ##### 2.4.2 示例
 
 ```cangjie
+@TestCase
+public class StrikethroughTest {
+    private static let EXTENSIONS: Iterable<Extension> = ArrayList<Extension>(StrikethroughExtension.create())
+    private static let PARSER: Parser = Parser.builder().extensions(EXTENSIONS).build()
+    private static let HTML_RENDERER: HtmlRenderer = HtmlRenderer.builder().extensions(EXTENSIONS).build()
+    private static let CONTENT_RENDERER: TextContentRenderer  = TextContentRenderer.builder()
+            .extensions(EXTENSIONS).build()
+
     @TestCase
-    func parse_test():Unit {
-        let given: String = "# heading 1\n\nnot a heading"
-        var parser: Parser = Parser.builder().build()
-        var document: Node = parser.parse(given)
-        assertEquals("Heading{}", document.getFirstChild()().toString())
+    public func oneTildeIsNotEnough(): Unit {
+        assertRendering("~foo~", "<p>~foo~</p>\n")
     }
+
+    func render(source: String): String {
+        return HTML_RENDERER.render(PARSER.parse(source))
+    }
+
+    func assertRendering(source: String, expectedResult: String): Unit {
+        let renderedContent: String = render(source)
+        let expected: String = showTabs(expectedResult + "\n\n" + source)
+        let actual: String = showTabs(renderedContent + "\n\n" + source)
+        assertEquals(expected, actual)
+    }
+
+    func showTabs(s: String): String {
+        return s.replace("\t", "\u{2192}")
+    }
+}
 ```
 
 #### 2.5 Table
@@ -1701,13 +1763,43 @@ public class TablesExtension <: ParserExtension & HtmlRendererExtension & TextCo
 ##### 2.5.2 示例
 
 ```cangjie
+
+@Test
+public class TableTT {
     @TestCase
-    func parse_test():Unit {
-        let given: String = "# heading 1\n\nnot a heading"
-        var parser: Parser = Parser.builder().build()
-        var document: Node = parser.parse(given)
-        assertEquals("Heading{}", document.getFirstChild()().toString())
+    func mustHaveHeaderAndSeparator(): Unit {
+        let tt: TablesTest = TablesTest()
+        @PowerAssert(tt.assertRendering("Abc|Def", "<p>Abc|Def</p>\n") == true)
+        @PowerAssert(tt.assertRendering("Abc | Def", "<p>Abc | Def</p>\n") == true)
     }
+}
+
+public abstract class RenderingTestCase {
+    protected func render(source: String): String
+
+    public func assertRendering(source: String, expectedResult: String): Bool {
+        let renderedContent: String = render(source)
+        // include source for better assertion errors
+        let expected: String = showTabs(expectedResult + "\n\n" + source)
+        let actual: String = showTabs(renderedContent + "\n\n" + source)
+        return expected.toString() == actual.toString()
+    }
+
+    private static func showTabs(s: String): String {
+        // Tabs are shown as "rightwards arrow" for easier comparison
+        return s.replace("\t", "\u{2192}")
+    }
+}
+
+public class TablesTest <: RenderingTestCase {
+    private static let EXTENSIONS: Array<Extension> = Array<Extension>([TablesExtension.create()])
+    private static let PARSER: Parser = Parser.builder().extensions(EXTENSIONS).build()
+    private static let RENDERER: HtmlRenderer = HtmlRenderer.builder().extensions(EXTENSIONS).build()
+
+    protected override func render(source: String): String {
+        return RENDERER.render(PARSER.parse(source))
+    }
+}
 ```
 
 ### 3 Render

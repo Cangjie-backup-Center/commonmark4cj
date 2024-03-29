@@ -11,6 +11,7 @@ from std import collection.*
 main(): Int64 {
     let tester = TextContentRendererTest()
     tester.textContentText()
+    tester.textContentRULTest()
     tester.textContentEmphasis()
     tester.textContentQuotes()
     tester.textContentLinks()
@@ -39,6 +40,14 @@ public class TextContentRendererTest {
         assertEquals("foo foo\nbar\nbar", rendered)
         rendered = strippedRenderer().render(parse(source))
         assertEquals("foo foo bar bar", rendered)
+    }
+
+    @TestCase
+    func textContentRULTest(): Unit {
+        var source: String = "<https://markdown.com.cn>"
+        var rendered = defaultRenderer().render(parse(source))
+        println(rendered)
+        assertEquals("\"https://markdown.com.cn\" (https://markdown.com.cn)", rendered)
     }
 
     @TestCase
