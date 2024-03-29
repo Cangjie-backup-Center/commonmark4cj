@@ -46,7 +46,7 @@ class NodeRendererMap {
     }
 
     public func render(node: Node): Unit {
-        let nodeRenderer: ?NodeRenderer = renderers.get(TypeInfo.of(node))
+        let nodeRenderer: ?NodeRenderer = renderers.get(node.getNodeType())
         if (nodeRenderer.isSome()) {
             nodeRenderer?.render(node)
         }

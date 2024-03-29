@@ -3,25 +3,25 @@ package commonmark
 class DocumentParser <: ParserState {
     private static var CORE_FACTORY_TYPES: HashSet<TypeInfo> = HashSet<TypeInfo>(
         [
-            TypeInfo.of<BlockQuote>(),
-            TypeInfo.of<Heading>(),
-            TypeInfo.of<FencedCodeBlock>(),
-            TypeInfo.of<HtmlBlock>(),
-            TypeInfo.of<ThematicBreak>(),
-            TypeInfo.of<ListBlock>(),
-            TypeInfo.of<IndentedCodeBlock>()
+            BlockQuoteType,
+            HeadingType,
+            FencedCodeBlockType,
+            HtmlBlockType,
+            ThematicBreakType,
+            ListBlockType,
+            IndentedCodeBlockType
         ]
     )
 
     private static var NODES_TO_CORE_FACTORIES: HashMap<TypeInfo, BlockParserFactory> = HashMap<TypeInfo, BlockParserFactory>(
         [
-            (TypeInfo.of<BlockQuote>(), BlockQuoteParserFactory()),
-            (TypeInfo.of<Heading>(), HeadingParserFactory()),
-            (TypeInfo.of<FencedCodeBlock>(), FencedCodeBlockParserFactory()),
-            (TypeInfo.of<HtmlBlock>(), HtmlBlockParserFactory()),
-            (TypeInfo.of<ThematicBreak>(), ThematicBreakParserFactory()),
-            (TypeInfo.of<ListBlock>(), ListBlockParserFactory()),
-            (TypeInfo.of<IndentedCodeBlock>(), IndentedCodeBlockParserFactory())
+            (BlockQuoteType, BlockQuoteParserFactory()),
+            (HeadingType, HeadingParserFactory()),
+            (FencedCodeBlockType, FencedCodeBlockParserFactory()),
+            (HtmlBlockType, HtmlBlockParserFactory()),
+            (ThematicBreakType, ThematicBreakParserFactory()),
+            (ListBlockType, ListBlockParserFactory()),
+            (IndentedCodeBlockType, IndentedCodeBlockParserFactory())
         ]
     )
 
@@ -175,7 +175,7 @@ class DocumentParser <: ParserState {
             for (index in 1..activeBlockParsersSize) {
                 let blockParser = activeBlockParsers[index]
                 findNextNonSpace()
-                
+
                 var result: ?BlockContinue = blockParser.tryContinue(this)
                 if (result.isSome() && result() is BlockContinueImpl) {
                     var blockContinueImpl: BlockContinueImpl = (result() as BlockContinueImpl).getOrThrow()
@@ -196,13 +196,11 @@ class DocumentParser <: ParserState {
             }
         }
 
-        var unmatchedBlockParser: ArrayList<AbstractBlockParser> = ArrayList<AbstractBlockParser>()
-        if (matches < activeBlockParsersSize) {
-            unmatchedBlockParser = activeBlockParsers[matches..activeBlockParsersSize]
-        }
+        var matchesEnd: Int64 = activeBlockParsers.size - 1
+        var unmatchedBlockParser = activeBlockParsers
         var lastMatchedBlockParser: AbstractBlockParser = activeBlockParsers[matches - 1]
         var blockParser: AbstractBlockParser = lastMatchedBlockParser
-        var allClosed: Bool = unmatchedBlockParser.isEmpty()
+        var allClosed: Bool = matches > activeBlockParsers.size
 
         // Unless last matched container is a code block, try container starts,
         // adding children to the last matched container:
@@ -223,7 +221,7 @@ class DocumentParser <: ParserState {
             }
 
             if (!allClosed) {
-                finalizeBlocks(unmatchedBlockParser)
+                finalizeBlocks(unmatchedBlockParser, matches, matchesEnd)
                 allClosed = true
             }
             var blockStart = (blockStartOption.getOrThrow() as BlockStartImpl).getOrThrow()
@@ -254,7 +252,7 @@ class DocumentParser <: ParserState {
 
             // finalize any blocks not matched
             if (!allClosed) {
-                finalizeBlocks(unmatchedBlockParser)
+                finalizeBlocks(unmatchedBlockParser, matches, matchesEnd)
             }
 
             if (!blockParser.isContainer()) {
@@ -464,6 +462,13 @@ class DocumentParser <: ParserState {
     private func finalizeBlocks(blockParsers: ArrayList<AbstractBlockParser>): Unit {
         // for (Int64 i = blockParsers.size() - 1; i >= 0; i--) {
         for (i in blockParsers.size - 1..=0 : -1) {
+            var blockParser: AbstractBlockParser = blockParsers[i]
+            finalize(blockParser)
+        }
+    }
+
+    private func finalizeBlocks(blockParsers: ArrayList<AbstractBlockParser>, start: Int64, end: Int64): Unit {
+        for (i in end..=start : -1) {
             var blockParser: AbstractBlockParser = blockParsers[i]
             finalize(blockParser)
         }

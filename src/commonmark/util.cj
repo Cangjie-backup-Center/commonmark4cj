@@ -20,35 +20,38 @@ public class Escaping {
 
     private static let WHITESPACE = Regex("[ \t\r\n]+")
 
+    static let amp: Array<Byte> = b"&amp;"
+    static let lt: Array<Byte> = b"&lt;"
+    static let gt: Array<Byte> = b"&gt;"
+    static let quot: Array<Byte> = b"&quot;"
+
     public static func escapeHtml(input: String): String {
         // Avoid building a new string in the majority of cases (nothing to escape)
-        var sb: ?StringBuilder = None
+        let arr: Array<Byte> = unsafe { input.rawData() }
+        var sb: ?ArrayList<Byte> = None
         var i: Int64 = 0
-        while (i < input.size) {
-            var replacement: String = ""
-            match (input[i]) {
-                case b'&' => replacement = "&amp;"
-                case b'<' => replacement = "&lt;"
-                case b'>' => replacement = "&gt;"
-                case b'\"' => replacement = "&quot;"
-                case _ =>
+        while (i < arr.size) {
+            let replacement: Array<Byte> = match (arr[i]) {
+                case b'&' => amp
+                case b'<' => lt
+                case b'>' => gt
+                case b'\"' => quot
+                case byte =>
                     if (let Some(s) <- sb) {
-                        let (char, charSize) = Char.fromUtf8(unsafe { input.rawData() }, i)
-                        s.append(char)
-                        i += charSize
-                    } else {
-                        i++
+                        s.append(byte)
                     }
+                    i++
                     continue
             }
             if (sb.isNone()) {
-                sb = StringBuilder(input[..i])
+                sb = ArrayList<Byte>(arr.size + 16)
+                sb?.appendAll(arr[..i])
             }
-            sb?.append(replacement)
+            sb?.appendAll(replacement)
             i++
         }
         if (let Some(s) <- sb) {
-            return s.toString()
+            return unsafe { String.fromUtf8Unchecked(s.getRawArray()[..s.size]) }
         } else {
             return input
         }
@@ -251,7 +254,7 @@ class LinkScanner {
             case b'\'' => endDelimiterByte = b'\''
             case b'(' => endDelimiterByte = b')'
             case _ => return -1
-        } 
+        }
         let afterContent: Int64 = scanLinkTitleContent(input, start + 1, endDelimiterByte)
         if (afterContent == -1) {
             return -1

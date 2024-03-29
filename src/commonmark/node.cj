@@ -104,7 +104,7 @@ public abstract class Node <: Context & ToString & Equatable<Node> & Hashable {
     }
 
     public open func toString(): String {
-        return TypeInfo.of(this).name + "{" + toStringAttributes() + "}"
+        return this.getNodeType().name + "{" + toStringAttributes() + "}"
     }
 
     protected open func toStringAttributes(): String {
@@ -121,6 +121,10 @@ public abstract class Node <: Context & ToString & Equatable<Node> & Hashable {
 
     public func hashCode(): Int {
         return "${this}${getParent()}${getPrevious()}${getNext()}${getFirstChild()}${getLastChild()}".hashCode()
+    }
+
+    public open func getNodeType(): TypeInfo {
+        return TypeInfo.of(this)
     }
 }
 
@@ -154,6 +158,10 @@ public class Text <: Node & Equatable<Text> {
     public operator func !=(other: Text): Bool {
         !(refEq(this, other))
     }
+
+    public override func getNodeType(): TypeInfo {
+        return TextType
+    }
 }
 
 public class HtmlInline <: Node {
@@ -173,6 +181,10 @@ public class HtmlInline <: Node {
 
     public func setLiteral(literal: String): Unit {
         this.literal = literal
+    }
+
+    public override func getNodeType(): TypeInfo {
+        return HtmlInlineType
     }
 }
 
@@ -214,6 +226,10 @@ public class Image <: Node {
     protected override func toStringAttributes(): String {
         return "destination=${destination}, title=${title}"
     }
+
+    public override func getNodeType(): TypeInfo {
+        return ImageType
+    }
 }
 
 public class Code <: Node {
@@ -234,17 +250,29 @@ public class Code <: Node {
     public func setLiteral(literal: String): Unit {
         this.literal = literal
     }
+
+    public override func getNodeType(): TypeInfo {
+        return CodeType
+    }
 }
 
 public class HardLineBreak <: Node {
     public override func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
+
+    public override func getNodeType(): TypeInfo {
+        return HardLineBreakType
+    }
 }
 
 public class SoftLineBreak <: Node {
     public override func accept(visitor: Visitor): Unit {
         visitor.visit(this)
+    }
+
+    public override func getNodeType(): TypeInfo {
+        return SoftLineBreakType
     }
 }
 
@@ -288,6 +316,10 @@ public class LinkReferenceDefinition <: Node {
     public override func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
+
+    public override func getNodeType(): TypeInfo {
+        return LinkReferenceDefinitionType
+    }
 }
 
 public class Link <: Node {
@@ -321,6 +353,10 @@ public class Link <: Node {
 
     protected override func toStringAttributes(): String {
         return "destination=${destination}, title=${title}"
+    }
+
+    public override func getNodeType(): TypeInfo {
+        return LinkType
     }
 }
 
@@ -357,6 +393,10 @@ public class StrongEmphasis <: Node & Delimited {
     public override func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
+
+    public override func getNodeType(): TypeInfo {
+        return StrongEmphasisType
+    }
 }
 
 public class Emphasis <: Node & Delimited {
@@ -382,6 +422,10 @@ public class Emphasis <: Node & Delimited {
 
     public override func accept(visitor: Visitor): Unit {
         visitor.visit(this)
+    }
+
+    public override func getNodeType(): TypeInfo {
+        return EmphasisType
     }
 }
 
