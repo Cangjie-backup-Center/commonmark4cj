@@ -1,4 +1,4 @@
-// 3rd_party_lib:commonMark4cj/build/release/commonmark4cj
+// 3rd_party_lib:commonmark4cj/build/release/commonmark4cj
 // 3rd_party_lib_ohos:commonmark4cj/build/aarch64-linux-ohos/commonmark4cj
 
 from commonmark4cj import commonmark.*
@@ -16,38 +16,32 @@ public class TestBlockParser{
     @TestCase
     func test_block_parser():Unit {
         var dashBlockParser: DashBlockParser = DashBlockParser("dashInfo")
-
         @Assert(false, dashBlockParser.isContainer())
         @Assert(false, dashBlockParser.canHaveLazyContinuationLines())
         @Assert(false, dashBlockParser.canContain(HtmlBlock()))
         var dash: Block = dashBlockParser.getBlock()
         @Assert(true, dash is DashBlock)
         @Assert("dashInfo", (dash as DashBlock).getOrThrow().getInfo())
-
         dashBlockParser.addLine("dash")
         @Assert("dash", dashBlockParser.getLine())
-
         dashBlockParser.closeBlock()
-        var dash2: Block = dashBlockParser.getBlock()
+        dashBlockParser.getBlock()
         @Assert("close", (dash as DashBlock).getOrThrow().getInfo())
     }
 
     @TestCase
     func test_block_parser2():Unit {
         var dashBlockParser: DashBlockParser = DashBlockParser("")
-
         @Assert(false, dashBlockParser.isContainer())
         @Assert(false, dashBlockParser.canHaveLazyContinuationLines())
         @Assert(false, dashBlockParser.canContain(HtmlBlock()))
         var dash: Block = dashBlockParser.getBlock()
         @Assert(true, dash is DashBlock)
         @Assert("", (dash as DashBlock).getOrThrow().getInfo())
-
         dashBlockParser.addLine("dash")
         @Assert("dash", dashBlockParser.getLine())
-
         dashBlockParser.closeBlock()
-        var dash2: Block = dashBlockParser.getBlock()
+        dashBlockParser.getBlock()
         @Assert("close", (dash as DashBlock).getOrThrow().getInfo())
     }
 
@@ -70,7 +64,6 @@ public class TestBlockParser{
     @TestCase
     func test_block_parser_BlockStart():Unit {
         let arr: Array<AbstractBlockParser> = [DashBlockParser("dashInfo")]
-
         var blockStartImpl2: BlockStartImpl2 = BlockStartImpl2(arr)
         @Assert(-1, blockStartImpl2.getNewIndex())
         @Assert(-1, blockStartImpl2.getNewColumn())
@@ -81,13 +74,10 @@ public class TestBlockParser{
     func test_block_parser_BlockStart2():Unit {
         let arr: Array<AbstractBlockParser> = [DashBlockParser("dashInfo")]
         var blockStartImpl2: BlockStartImpl2 = BlockStartImpl2(arr)
-
         var blockStart = blockStartImpl2.atIndex(1)
         @Assert(1, (blockStart as BlockStartImpl2).getOrThrow().getNewIndex())
-        
         var blockStart2 = blockStart.atColumn(2)
         @Assert(2, (blockStart2 as BlockStartImpl2).getOrThrow().getNewColumn())
-        
         var blockStart3 = blockStart2.replaceActiveBlockParser()
         @Assert(true, (blockStart3 as BlockStartImpl2).getOrThrow().isReplaceActiveBlockParser())
     }
@@ -96,9 +86,7 @@ public class TestBlockParser{
     func test_block_parser_BlockStart3():Unit {
         let arr: Array<AbstractBlockParser> = [DashBlockParser("dashInfo")]
         var blockStartImpl2: BlockStartImpl2 = BlockStartImpl2(arr)
-
         var dashBlockParser: DashBlockParser = (blockStartImpl2.getBlockParsers()[0] as DashBlockParser).getOrThrow()
-
         @Assert(false, dashBlockParser.isContainer())
         @Assert(false, dashBlockParser.canHaveLazyContinuationLines())
         @Assert(false, dashBlockParser.canContain(HtmlBlock()))
@@ -254,7 +242,7 @@ class ParagraphParser <: AbstractBlockParser {
         return Paragraph()
     }
 
-    public override func tryContinue(parserState: ParserState): ?BlockContinue {
+    public override func tryContinue(_: ParserState): ?BlockContinue {
         return BlockContinue.none()
     }
 }
@@ -288,7 +276,7 @@ class DashBlockParser <: AbstractBlockParser {
         dash.setInfo("close")
     }
 
-    public override func tryContinue(parserState: ParserState): ?BlockContinue {
+    public override func tryContinue(_: ParserState): ?BlockContinue {
         return BlockContinue.none()
     }
 }

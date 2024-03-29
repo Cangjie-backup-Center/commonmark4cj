@@ -1,4 +1,4 @@
-// 3rd_party_lib:commonMark4cj/build/release/commonmark4cj
+// 3rd_party_lib:commonmark4cj/build/release/commonmark4cj
 // 3rd_party_lib_ohos:commonmark4cj/build/aarch64-linux-ohos/commonmark4cj
 
 from commonmark4cj import commonmark.*

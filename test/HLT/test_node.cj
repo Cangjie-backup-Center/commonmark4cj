@@ -1,14 +1,13 @@
-// 3rd_party_lib:commonMark4cj/build/release/commonmark4cj
+// 3rd_party_lib:commonmark4cj/build/release/commonmark4cj
 // 3rd_party_lib_ohos:commonmark4cj/build/aarch64-linux-ohos/commonmark4cj
-
 
 from commonmark4cj import commonmark.*
 from commonmark4cj import table.*
 
-@Test        /****Test+库名+类名***/
-public class TestCommarkNode{
+@Test /****Test+库名+类名***/
+public class TestCommarkNode {
     @TestCase
-    func test_Node_appendChild():Unit {
+    func test_Node_appendChild(): Unit {
         var tb = Text("bb") // node比较简单的子类
         var ta = Text("aa")
         ta.appendChild(tb)
@@ -16,7 +15,6 @@ public class TestCommarkNode{
         var lastChild: ?Node = ta.getLastChild()
         @Assert((firstChild.getOrThrow() as Text).getOrThrow().getLiteral(), "bb")
         @Assert((lastChild.getOrThrow() as Text).getOrThrow().getLiteral(), "bb")
-        
         var next: ?Node = firstChild.getOrThrow().getNext()
         var prev: ?Node = lastChild.getOrThrow().getPrevious()
         @Assert(next.isNone(),true)
@@ -27,7 +25,7 @@ public class TestCommarkNode{
         firstChild = ta.getFirstChild()
         @Assert((lastChild.getOrThrow() as Text).getOrThrow().getLiteral(), "cc")
         @Assert((firstChild.getOrThrow() as Text).getOrThrow().getLiteral(), "bb")
-        
+
         next = firstChild.getOrThrow().getNext()
         prev = lastChild.getOrThrow().getPrevious()
         @Assert(next.isNone(),false)
@@ -37,7 +35,7 @@ public class TestCommarkNode{
     }
 
     @TestCase
-    func test_Node_prependChild():Unit {
+    func test_Node_prependChild(): Unit {
         var tb = Text("bb") // node比较简单的子类
         var ta = Text("aa")
         ta.prependChild(tb)
@@ -45,7 +43,6 @@ public class TestCommarkNode{
         var lastChild: ?Node = ta.getLastChild()
         @Assert((firstChild.getOrThrow() as Text).getOrThrow().getLiteral(), "bb")
         @Assert((lastChild.getOrThrow() as Text).getOrThrow().getLiteral(), "bb")
-        
         var next: ?Node = firstChild.getOrThrow().getNext()
         var prev: ?Node = lastChild.getOrThrow().getPrevious()
         @Assert(next.isNone(),true)
@@ -56,7 +53,6 @@ public class TestCommarkNode{
         firstChild = ta.getFirstChild()
         @Assert((lastChild.getOrThrow() as Text).getOrThrow().getLiteral(), "bb")
         @Assert((firstChild.getOrThrow() as Text).getOrThrow().getLiteral(), "cc")
-        
         next = firstChild.getOrThrow().getNext()
         prev = lastChild.getOrThrow().getPrevious()
         @Assert(next.isNone(),false)
@@ -66,23 +62,21 @@ public class TestCommarkNode{
     }
 
     @TestCase
-    func test_Node_unlink():Unit {
+    func test_Node_unlink(): Unit {
         var tb = Text("bb") // node比较简单的子类
         var ta = Text("aa")
         var tc = Text("cc")
         ta.appendChild(tb)
         ta.appendChild(tc)
-
         var parent: ?Node = tb.getParent()
         var next: ?Node = tb.getNext()
         var prev: ?Node = tb.getPrevious()
         @Assert((parent.getOrThrow() as Text).getOrThrow().getLiteral(), "aa")
         @Assert((next.getOrThrow() as Text).getOrThrow().getLiteral(), "cc")
         @Assert(prev.isNone(), true)
-        
         tb.unlink()
         parent = tb.getParent()
-        next= tb.getNext()
+        next = tb.getNext()
         prev = tb.getPrevious()
         @Assert(parent.isNone(), true)
         @Assert(next.isNone(), true)
@@ -90,7 +84,7 @@ public class TestCommarkNode{
     }
 
     @TestCase
-    func test_Node_insertAfter():Unit {
+    func test_Node_insertAfter(): Unit {
         var tb = Text("bb") // node比较简单的子类
         var ta = Text("aa")
         ta.appendChild(tb)
@@ -98,19 +92,17 @@ public class TestCommarkNode{
         var lastChild: ?Node = ta.getLastChild()
         @Assert((firstChild.getOrThrow() as Text).getOrThrow().getLiteral(), "bb")
         @Assert((lastChild.getOrThrow() as Text).getOrThrow().getLiteral(), "bb")
-        
         var next: ?Node = firstChild.getOrThrow().getNext()
         var prev: ?Node = lastChild.getOrThrow().getPrevious()
         @Assert(next.isNone(),true)
         @Assert(prev.isNone(),true)
         var tc = Text("cc")
         tb.insertAfter(tc)
-        
         lastChild = ta.getLastChild()
         firstChild = ta.getFirstChild()
         @Assert((lastChild.getOrThrow() as Text).getOrThrow().getLiteral(), "cc")
         @Assert((firstChild.getOrThrow() as Text).getOrThrow().getLiteral(), "bb")
-        
+
         next = firstChild.getOrThrow().getNext()
         prev = lastChild.getOrThrow().getPrevious()
         @Assert(next.isNone(),false)
@@ -120,7 +112,7 @@ public class TestCommarkNode{
     }
 
     @TestCase
-    func test_Node_insertBefore():Unit {
+    func test_Node_insertBefore(): Unit {
         var tb = Text("bb") // node比较简单的子类
         var ta = Text("aa")
         ta.appendChild(tb)
@@ -128,19 +120,16 @@ public class TestCommarkNode{
         var lastChild: ?Node = ta.getLastChild()
         @Assert((firstChild.getOrThrow() as Text).getOrThrow().getLiteral(), "bb")
         @Assert((lastChild.getOrThrow() as Text).getOrThrow().getLiteral(), "bb")
-        
         var next: ?Node = firstChild.getOrThrow().getNext()
         var prev: ?Node = lastChild.getOrThrow().getPrevious()
         @Assert(next.isNone(),true)
         @Assert(prev.isNone(),true)
         var tc = Text("cc")
         tb.insertBefore(tc)
-        
         lastChild = ta.getLastChild()
         firstChild = ta.getFirstChild()
         @Assert((lastChild.getOrThrow() as Text).getOrThrow().getLiteral(), "bb")
         @Assert((firstChild.getOrThrow() as Text).getOrThrow().getLiteral(), "cc")
-        
         next = firstChild.getOrThrow().getNext()
         prev = lastChild.getOrThrow().getPrevious()
         @Assert(next.isNone(),false)
@@ -150,7 +139,7 @@ public class TestCommarkNode{
     }
 
     @TestCase
-    func test_Node_equal():Unit {
+    func test_Node_equal(): Unit {
         var tb = Text("bb") // node比较简单的子类
         var ta = Text("aa")
         ta.appendChild(tb)
@@ -158,44 +147,42 @@ public class TestCommarkNode{
         var lastChild: ?Node = ta.getLastChild()
         @Assert((firstChild.getOrThrow() as Text).getOrThrow().getLiteral(), "bb")
         @Assert((lastChild.getOrThrow() as Text).getOrThrow().getLiteral(), "bb")
-        
         @Assert(firstChild.getOrThrow() == lastChild.getOrThrow(), true)
-
         var tc = Text("bb")
         @Assert(firstChild.getOrThrow() != tc, true)
     }
 }
 
-@Test        /****Test+库名+类名***/
-public class TestCommarkText{
+@Test /****Test+库名+类名***/
+public class TestCommarkText {
     @TestCase
-    func test_Text_init1():Unit {
+    func test_Text_init1(): Unit {
         var text = Text("tt")
         @Assert(text.getLiteral(),"tt")
     }
 
     @TestCase
-    func test_Text_init2():Unit {
+    func test_Text_init2(): Unit {
         var text = Text("")
         @Assert(text.getLiteral(),"")
     }
 
     @TestCase
-    func test_Text_setLiteral1():Unit {
+    func test_Text_setLiteral1(): Unit {
         var text = Text("")
         text.setLiteral("tt")
         @Assert(text.getLiteral(),"tt")
     }
 
     @TestCase
-    func test_Text_setLiteral2():Unit {
+    func test_Text_setLiteral2(): Unit {
         var text = Text("tt")
         text.setLiteral("")
         @Assert(text.getLiteral(),"")
     }
 
     @TestCase
-    func test_Text_accept():Unit {
+    func test_Text_accept(): Unit {
         var text = Text("aa")
         text.appendChild(Text("bb"))
         text.accept(AbstractVisitorImpl())
@@ -207,36 +194,36 @@ public class TestCommarkText{
     }
 }
 
-@Test        /****Test+库名+类名***/
-public class TestCommarkHtmlInline{
+@Test /****Test+库名+类名***/
+public class TestCommarkHtmlInline {
     @TestCase
-    func test_HtmlInline_init1():Unit {
+    func test_HtmlInline_init1(): Unit {
         var html = HtmlInline("tt")
         @Assert(html.getLiteral(),"tt")
     }
 
     @TestCase
-    func test_HtmlInline_init2():Unit {
+    func test_HtmlInline_init2(): Unit {
         var html = HtmlInline("")
         @Assert(html.getLiteral(),"")
     }
 
     @TestCase
-    func test_HtmlInline_setLiteral1():Unit {
+    func test_HtmlInline_setLiteral1(): Unit {
         var html = HtmlInline("")
         html.setLiteral("tt")
         @Assert(html.getLiteral(),"tt")
     }
 
     @TestCase
-    func test_HtmlInline_setLiteral2():Unit {
+    func test_HtmlInline_setLiteral2(): Unit {
         var html = HtmlInline("tt")
         html.setLiteral("")
         @Assert(html.getLiteral(),"")
     }
 
     @TestCase
-    func test_Text_accept():Unit {
+    func test_Text_accept(): Unit {
         var html = HtmlInline("aa")
         html.appendChild(Text("bb"))
         html.accept(AbstractVisitorImpl())
@@ -248,11 +235,10 @@ public class TestCommarkHtmlInline{
     }
 }
 
-@Test        /****Test+库名+类名***/
-public class TestCommarkCustomNode{
+@Test /****Test+库名+类名***/
+public class TestCommarkCustomNode {
     @TestCase
-    func test_Text_accept():Unit {
-        
+    func test_Text_accept(): Unit {
         var custom = CustomNodeImpl()
         custom.appendChild(Text("bb"))
         custom.accept(AbstractVisitorImpl())
@@ -263,26 +249,24 @@ public class TestCommarkCustomNode{
     }
 }
 
-
-
-@Test        /****Test+库名+类名***/
-public class TestCommarkImage{
+@Test /****Test+库名+类名***/
+public class TestCommarkImage {
     @TestCase
-    func test_Image_init1():Unit {
+    func test_Image_init1(): Unit {
         var iamge = Image("https://example.com/beautiful-garden.jpg", "我的美丽花园")
         @Assert(iamge.getDestination(),"https://example.com/beautiful-garden.jpg")
         @Assert(iamge.getTitle(),"我的美丽花园")
     }
 
     @TestCase
-    func test_Image_init2():Unit {
+    func test_Image_init2(): Unit {
         var iamge = Image("", "")
         @Assert(iamge.getDestination(),"")
         @Assert(iamge.getTitle(),"")
     }
 
     @TestCase
-    func test_Image_set():Unit {
+    func test_Image_set(): Unit {
         var iamge = Image("", "")
         iamge.setDestination("https://example.com/beautiful-garden.jpg")
         iamge.setTitle("我的美丽花园")
@@ -291,7 +275,7 @@ public class TestCommarkImage{
     }
 
     @TestCase
-    func test_Image_setLiteral2():Unit {
+    func test_Image_setLiteral2(): Unit {
         var iamge = Image("https://example.com/beautiful-garden.jpg", "我的美丽花园")
         iamge.setDestination("")
         iamge.setTitle("")
@@ -300,7 +284,7 @@ public class TestCommarkImage{
     }
 
     @TestCase
-    func test_Image_accept():Unit {
+    func test_Image_accept(): Unit {
         var iamge = Image("https://example.com/beautiful-garden.jpg", "我的美丽花园")
         iamge.appendChild(Text("bb"))
         iamge.accept(AbstractVisitorImpl())
@@ -312,36 +296,36 @@ public class TestCommarkImage{
     }
 }
 
-@Test        /****Test+库名+类名***/
-public class TestCommarkCode{
+@Test /****Test+库名+类名***/
+public class TestCommarkCode {
     @TestCase
-    func test_Code_init1():Unit {
+    func test_Code_init1(): Unit {
         var code = Code("tt")
         @Assert(code.getLiteral(),"tt")
     }
 
     @TestCase
-    func test_Code_init2():Unit {
+    func test_Code_init2(): Unit {
         var code = Code("")
         @Assert(code.getLiteral(),"")
     }
 
     @TestCase
-    func test_Code_setLiteral1():Unit {
+    func test_Code_setLiteral1(): Unit {
         var code = Code("")
         code.setLiteral("tt")
         @Assert(code.getLiteral(),"tt")
     }
 
     @TestCase
-    func test_Code_setLiteral2():Unit {
+    func test_Code_setLiteral2(): Unit {
         var code = Code("tt")
         code.setLiteral("")
         @Assert(code.getLiteral(),"")
     }
 
     @TestCase
-    func test_Code_accept():Unit {
+    func test_Code_accept(): Unit {
         var code = Code("aa")
         code.appendChild(Text("bb"))
         code.accept(AbstractVisitorImpl())
@@ -353,10 +337,10 @@ public class TestCommarkCode{
     }
 }
 
-@Test        /****Test+库名+类名***/
-public class TestCommarkHardLineBreak{
+@Test /****Test+库名+类名***/
+public class TestCommarkHardLineBreak {
     @TestCase
-    func test_HardLineBreak_accept():Unit {
+    func test_HardLineBreak_accept(): Unit {
         var hardLine = HardLineBreak()
         hardLine.appendChild(Text("bb"))
         hardLine.accept(AbstractVisitorImpl())
@@ -367,10 +351,10 @@ public class TestCommarkHardLineBreak{
     }
 }
 
-@Test        /****Test+库名+类名***/
-public class TestCommarkSoftLineBreak{
+@Test /****Test+库名+类名***/
+public class TestCommarkSoftLineBreak {
     @TestCase
-    func test_SoftLineBreak_accept():Unit {
+    func test_SoftLineBreak_accept(): Unit {
         var softLine = SoftLineBreak()
         softLine.appendChild(Text("bb"))
         softLine.accept(AbstractVisitorImpl())
@@ -381,11 +365,10 @@ public class TestCommarkSoftLineBreak{
     }
 }
 
-
-@Test        /****Test+库名+类名***/
-public class TestCommarkLinkReferenceDefinition{
+@Test /****Test+库名+类名***/
+public class TestCommarkLinkReferenceDefinition {
     @TestCase
-    func test_LinkReferenceDefinition_init1():Unit {
+    func test_LinkReferenceDefinition_init1(): Unit {
         var iamge = LinkReferenceDefinition("example", "https://example.com/beautiful-garden.jpg", "我的美丽花园")
         @Assert(iamge.getDestination(),"https://example.com/beautiful-garden.jpg")
         @Assert(iamge.getTitle(),"我的美丽花园")
@@ -393,7 +376,7 @@ public class TestCommarkLinkReferenceDefinition{
     }
 
     @TestCase
-    func test_LinkReferenceDefinition_init2():Unit {
+    func test_LinkReferenceDefinition_init2(): Unit {
         var link = LinkReferenceDefinition("", "", "")
         @Assert(link.getDestination(),"")
         @Assert(link.getTitle(),"")
@@ -401,7 +384,7 @@ public class TestCommarkLinkReferenceDefinition{
     }
 
     @TestCase
-    func test_LinkReferenceDefinition_set():Unit {
+    func test_LinkReferenceDefinition_set(): Unit {
         var link = LinkReferenceDefinition("", "", "")
         link.setDestination("https://example.com/beautiful-garden.jpg")
         link.setTitle("我的美丽花园")
@@ -412,7 +395,7 @@ public class TestCommarkLinkReferenceDefinition{
     }
 
     @TestCase
-    func test_LinkReferenceDefinition_setLiteral2():Unit {
+    func test_LinkReferenceDefinition_setLiteral2(): Unit {
         var link = LinkReferenceDefinition("example", "https://example.com/beautiful-garden.jpg", "我的美丽花园")
         link.setDestination("")
         link.setTitle("")
@@ -423,7 +406,7 @@ public class TestCommarkLinkReferenceDefinition{
     }
 
     @TestCase
-    func test_LinkReferenceDefinition_accept():Unit {
+    func test_LinkReferenceDefinition_accept(): Unit {
         var link = LinkReferenceDefinition("example", "https://example.com/beautiful-garden.jpg", "我的美丽花园")
         link.appendChild(Text("bb"))
         link.accept(AbstractVisitorImpl())
@@ -435,24 +418,24 @@ public class TestCommarkLinkReferenceDefinition{
     }
 }
 
-@Test        /****Test+库名+类名***/
-public class TestCommarkLink{
+@Test /****Test+库名+类名***/
+public class TestCommarkLink {
     @TestCase
-    func test_Link_init1():Unit {
+    func test_Link_init1(): Unit {
         var iamge = Link("https://example.com/beautiful-garden.jpg", "我的美丽花园")
         @Assert(iamge.getDestination(),"https://example.com/beautiful-garden.jpg")
         @Assert(iamge.getTitle(),"我的美丽花园")
     }
 
     @TestCase
-    func test_Link_init2():Unit {
+    func test_Link_init2(): Unit {
         var link = Link("", "")
         @Assert(link.getDestination(),"")
         @Assert(link.getTitle(),"")
     }
 
     @TestCase
-    func test_Link_set():Unit {
+    func test_Link_set(): Unit {
         var link = Link("", "")
         link.setDestination("https://example.com/beautiful-garden.jpg")
         link.setTitle("我的美丽花园")
@@ -461,7 +444,7 @@ public class TestCommarkLink{
     }
 
     @TestCase
-    func test_Link_setLiteral2():Unit {
+    func test_Link_setLiteral2(): Unit {
         var link = Link("https://example.com/beautiful-garden.jpg", "我的美丽花园")
         link.setDestination("")
         link.setTitle("")
@@ -470,7 +453,7 @@ public class TestCommarkLink{
     }
 
     @TestCase
-    func test_Link_accept():Unit {
+    func test_Link_accept(): Unit {
         var link = Link("https://example.com/beautiful-garden.jpg", "我的美丽花园")
         link.appendChild(Text("bb"))
         link.accept(AbstractVisitorImpl())
@@ -482,24 +465,24 @@ public class TestCommarkLink{
     }
 }
 
-@Test        /****Test+库名+类名***/
-public class TestCommarkStrongEmphasis{
+@Test /****Test+库名+类名***/
+public class TestCommarkStrongEmphasis {
     @TestCase
-    func test_StrongEmphasis_init1():Unit {
+    func test_StrongEmphasis_init1(): Unit {
         var strong = StrongEmphasis("我的美丽花园")
         @Assert(strong.getOpeningDelimiter(),"我的美丽花园")
         @Assert(strong.getClosingDelimiter(),"我的美丽花园")
     }
 
     @TestCase
-    func test_StrongEmphasis_init2():Unit {
+    func test_StrongEmphasis_init2(): Unit {
         var strong = StrongEmphasis("")
         @Assert(strong.getOpeningDelimiter(),"")
         @Assert(strong.getClosingDelimiter(),"")
     }
 
     @TestCase
-    func test_StrongEmphasis_set():Unit {
+    func test_StrongEmphasis_set(): Unit {
         var strong = StrongEmphasis("")
         strong.setDelimiter("我的美丽花园")
         @Assert(strong.getOpeningDelimiter(),"我的美丽花园")
@@ -507,7 +490,7 @@ public class TestCommarkStrongEmphasis{
     }
 
     @TestCase
-    func test_StrongEmphasis_setLiteral2():Unit {
+    func test_StrongEmphasis_setLiteral2(): Unit {
         var strong = StrongEmphasis("我的美丽花园")
         strong.setDelimiter("")
         @Assert(strong.getOpeningDelimiter(),"")
@@ -515,7 +498,7 @@ public class TestCommarkStrongEmphasis{
     }
 
     @TestCase
-    func test_StrongEmphasis_accept():Unit {
+    func test_StrongEmphasis_accept(): Unit {
         var strong = StrongEmphasis("我的美丽花园")
         strong.appendChild(Text("bb"))
         strong.accept(AbstractVisitorImpl())
@@ -527,24 +510,24 @@ public class TestCommarkStrongEmphasis{
     }
 }
 
-@Test        /****Test+库名+类名***/
-public class TestCommarkEmphasis{
+@Test /****Test+库名+类名***/
+public class TestCommarkEmphasis {
     @TestCase
-    func test_Emphasis_init1():Unit {
+    func test_Emphasis_init1(): Unit {
         var emphasis = Emphasis("我的美丽花园")
         @Assert(emphasis.getOpeningDelimiter(),"我的美丽花园")
         @Assert(emphasis.getClosingDelimiter(),"我的美丽花园")
     }
 
     @TestCase
-    func test_Emphasis_init2():Unit {
+    func test_Emphasis_init2(): Unit {
         var emphasis = Emphasis("")
         @Assert(emphasis.getOpeningDelimiter(),"")
         @Assert(emphasis.getClosingDelimiter(),"")
     }
 
     @TestCase
-    func test_Emphasis_set():Unit {
+    func test_Emphasis_set(): Unit {
         var emphasis = Emphasis("")
         emphasis.setDelimiter("我的美丽花园")
         @Assert(emphasis.getOpeningDelimiter(),"我的美丽花园")
@@ -552,7 +535,7 @@ public class TestCommarkEmphasis{
     }
 
     @TestCase
-    func test_Emphasis_setLiteral2():Unit {
+    func test_Emphasis_setLiteral2(): Unit {
         var emphasis = Emphasis("我的美丽花园")
         emphasis.setDelimiter("")
         @Assert(emphasis.getOpeningDelimiter(),"")
@@ -560,7 +543,7 @@ public class TestCommarkEmphasis{
     }
 
     @TestCase
-    func test_Emphasis_accept():Unit {
+    func test_Emphasis_accept(): Unit {
         var emphasis = Emphasis("我的美丽花园")
         emphasis.appendChild(Text("bb"))
         emphasis.accept(AbstractVisitorImpl())

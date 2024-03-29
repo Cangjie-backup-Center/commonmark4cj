@@ -18,7 +18,7 @@ main(): Int64 {
 class DashBlockParserFactory <: AbstractBlockParserFactory {
 
     public override func tryStart(state: ParserState, matchedBlockParser: MatchedBlockParser): ?BlockStart {
-        if (String(state.getLine()) == ("---")) {
+        if (state.getLine() == ("---")) {
             return BlockStart.of4Cj(DashBlockParser())
         }
         return BlockStart.none()
