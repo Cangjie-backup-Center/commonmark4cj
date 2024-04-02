@@ -235,12 +235,12 @@ class InlineParserImpl <: InlineParser {
 
         var node: ?Node = Option<Node>.None
         match (c) {
-            case '\n' => node = parseNewline(previous)
-            case '\\' => node = parseBackslash()
+            case '\n' => return parseNewline(previous)
+            case '\\' => return parseBackslash()
             case '`' => node = parseBackticks()
-            case '[' => node = parseOpenBracket()
-            case '!' => node = parseBang()
-            case ']' => node = parseCloseBracket()
+            case '[' => return parseOpenBracket()
+            case '!' => return parseBang()
+            case ']' => return parseCloseBracket()
             case '<' =>
                 node = parseAutolink()
                 if (node.isNone()) {
@@ -452,7 +452,7 @@ class InlineParserImpl <: InlineParser {
      * Try to match close bracket against an opening in the delimiter stack. Return either a link or image, or a
      * plain [ character. If there is a matching delimiter, remove it from the delimiter stack.
      */
-    private func parseCloseBracket(): ?Node {
+    private func parseCloseBracket(): Node {
         index++
         let startIndex: Int64 = index
 
