@@ -81,7 +81,7 @@ class InlineParserImpl <: InlineParser {
         "^<([a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*)>"
     )
 
-    private static let AUTOLINK: Regex = Regex("^[a-zA-Z][a-zA-Z0-9.+-]{1,31}:[^<>\u{0001}-\u{0020}]*")
+    private static let AUTOLINK: Regex = Regex("^<[a-zA-Z][a-zA-Z0-9.+-]{1,31}:[^<>\u{0001}-\u{0020}]*>")
 
     private static let SPNL: Regex = Regex("^ *(?:\n *)?")
 

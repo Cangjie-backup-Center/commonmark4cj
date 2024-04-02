@@ -20,6 +20,13 @@ public class HtmlRendererTest {
     }
 
     @TestCase
+    public func htmlRULTest(): Unit {
+        let rendered: String = htmlAllowingRenderer().render(
+            parse("<https://markdown.com.cn>"))
+        assertEquals("<p><a href=\"https://markdown.com.cn\">https://markdown.com.cn</a></p>\n", rendered)
+    }
+
+    @TestCase
     public func htmlAllowingShouldNotEscapeBlockHtml(): Unit {
         let rendered: String = htmlAllowingRenderer().render(parse("<div id='foo' class=\"bar\">block &amp;</div>"))
         assertEquals("<div id='foo' class=\"bar\">block &amp;</div>\n", rendered)
