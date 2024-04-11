@@ -128,7 +128,7 @@ public abstract class Node <: Context & ToString & Equatable<Node> & Hashable {
     }
 }
 
-public class Text <: Node & Equatable<Text> {
+public open class Text <: Node & Equatable<Text> {
     private var literal: String
 
     public init(literal: String) {
@@ -164,7 +164,7 @@ public class Text <: Node & Equatable<Text> {
     }
 }
 
-public class HtmlInline <: Node {
+public open class HtmlInline <: Node {
     private var literal: String
 
     public init(literal: String) {
@@ -194,7 +194,7 @@ public abstract class CustomNode <: Node {
     }
 }
 
-public class Image <: Node {
+public open class Image <: Node {
     private var destination: String
     private var title: ?String
 
@@ -232,7 +232,7 @@ public class Image <: Node {
     }
 }
 
-public class Code <: Node {
+public open class Code <: Node {
     private var literal: String
 
     public init(literal: String) {
@@ -256,7 +256,7 @@ public class Code <: Node {
     }
 }
 
-public class HardLineBreak <: Node {
+public open class HardLineBreak <: Node {
     public override func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
@@ -266,7 +266,7 @@ public class HardLineBreak <: Node {
     }
 }
 
-public class SoftLineBreak <: Node {
+public open class SoftLineBreak <: Node {
     public override func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
@@ -276,7 +276,7 @@ public class SoftLineBreak <: Node {
     }
 }
 
-public class LinkReferenceDefinition <: Node {
+public open class LinkReferenceDefinition <: Node {
     private var label: ?String = None
     private var destination: String = EMPTY_STRING
     private var title: ?String = None
@@ -322,7 +322,7 @@ public class LinkReferenceDefinition <: Node {
     }
 }
 
-public class Link <: Node {
+public open class Link <: Node {
     private var destination: String
     private var title: ?String
 
@@ -369,7 +369,7 @@ public interface Delimited {
     func getClosingDelimiter(): ?String
 }
 
-public class StrongEmphasis <: Node & Delimited {
+public open class StrongEmphasis <: Node & Delimited {
     private var delimiter: ?String = None
 
     public init() {}
@@ -399,7 +399,7 @@ public class StrongEmphasis <: Node & Delimited {
     }
 }
 
-public class Emphasis <: Node & Delimited {
+public open class Emphasis <: Node & Delimited {
     private var delimiter: ?String = None
 
     public init() {}

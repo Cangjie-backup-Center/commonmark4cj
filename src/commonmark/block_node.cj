@@ -17,7 +17,7 @@ public abstract class Block <: Node {
     }
 }
 
-public class BlockQuote <: Block {
+public open class BlockQuote <: Block {
     public func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
@@ -27,7 +27,7 @@ public class BlockQuote <: Block {
     }
 }
 
-public class HtmlBlock <: Block {
+public open class HtmlBlock <: Block {
     private var literal: String = EMPTY_STRING
 
     public func accept(visitor: Visitor): Unit {
@@ -53,7 +53,7 @@ public abstract class CustomBlock <: Block {
     }
 }
 
-public class ThematicBreak <: Block {
+public open class ThematicBreak <: Block {
     public func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
@@ -63,7 +63,7 @@ public class ThematicBreak <: Block {
     }
 }
 
-public class Document <: Block {
+public open class Document <: Block {
     public func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
@@ -73,7 +73,7 @@ public class Document <: Block {
     }
 }
 
-public class Paragraph <: Block {
+public open class Paragraph <: Block {
     public func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
@@ -83,7 +83,7 @@ public class Paragraph <: Block {
     }
 }
 
-public class IndentedCodeBlock <: Block {
+public open class IndentedCodeBlock <: Block {
     private var literal: String = EMPTY_STRING
 
     public func accept(visitor: Visitor): Unit {
@@ -103,7 +103,7 @@ public class IndentedCodeBlock <: Block {
     }
 }
 
-public class FencedCodeBlock <: Block {
+public open class FencedCodeBlock <: Block {
     private var fenceChar: Char = NULL_CHAR
     private var fenceLength: Int64 = 0
     private var fenceIndent: Int64 = 0
@@ -160,7 +160,7 @@ public class FencedCodeBlock <: Block {
     }
 }
 
-public class ListItem <: Block {
+public open class ListItem <: Block {
     public func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
@@ -170,7 +170,7 @@ public class ListItem <: Block {
     }
 }
 
-public class Heading <: Block {
+public open class Heading <: Block {
     private var level: Int64 = 0
 
     public func accept(visitor: Visitor): Unit {
@@ -202,7 +202,7 @@ public abstract class ListBlock <: Block {
     }
 }
 
-public class BulletList <: ListBlock {
+public open class BulletList <: ListBlock {
     private var bulletMarker: Char
 
     public init(bulletMarker: Char) {
@@ -226,7 +226,7 @@ public class BulletList <: ListBlock {
     }
 }
 
-public class OrderedList <: ListBlock {
+public open class OrderedList <: ListBlock {
     private var startNumber: Int64
     private var delimiter: Char
 
