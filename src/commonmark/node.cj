@@ -9,19 +9,19 @@ public abstract class Node <: Context & ToString & Equatable<Node> & Hashable {
 
     public open func accept(visitor: Visitor): Unit
 
-    public func getNext(): ?Node {
+    public open func getNext(): ?Node {
         return next
     }
 
-    public func getPrevious(): ?Node {
+    public open func getPrevious(): ?Node {
         return prev
     }
 
-    public func getFirstChild(): ?Node {
+    public open func getFirstChild(): ?Node {
         return firstChild
     }
 
-    public func getLastChild(): ?Node {
+    public open func getLastChild(): ?Node {
         return lastChild
     }
 
@@ -29,11 +29,27 @@ public abstract class Node <: Context & ToString & Equatable<Node> & Hashable {
         return parent
     }
 
-    protected open func setParent(parent: Node): Unit {
+    protected open func setParent(parent: ?Node): Unit {
         this.parent = parent
     }
 
-    public func appendChild(child: Node): Unit {
+    protected open func setPrevious(prev: ?Node): Unit {
+        this.prev = prev
+    }
+
+    protected open func setNext(next: ?Node): Unit {
+        this.next = next
+    }
+
+    protected open func setFirstChild(firstChild: ?Node): Unit {
+        this.firstChild = firstChild
+    }
+
+    protected open func setLastChild(lastChild: ?Node): Unit {
+        this.lastChild = lastChild
+    }
+
+    public open func appendChild(child: Node): Unit {
         child.unlink()
         child.setParent(this)
         if (this.lastChild.isSome()) {
@@ -46,7 +62,7 @@ public abstract class Node <: Context & ToString & Equatable<Node> & Hashable {
         }
     }
 
-    public func prependChild(child: Node): Unit {
+    public open func prependChild(child: Node): Unit {
         child.unlink()
         child.setParent(this)
         if (this.firstChild.isSome()) {
@@ -59,7 +75,7 @@ public abstract class Node <: Context & ToString & Equatable<Node> & Hashable {
         }
     }
 
-    public func unlink(): Unit {
+    public open func unlink(): Unit {
         if (this.prev.isSome()) {
             this.prev.getOrThrow().next = this.next
         } else if (this.parent.isSome()) {
@@ -75,7 +91,7 @@ public abstract class Node <: Context & ToString & Equatable<Node> & Hashable {
         this.prev = Option<Node>.None
     }
 
-    public func insertAfter(sibling: Node): Unit {
+    public open func insertAfter(sibling: Node): Unit {
         sibling.unlink()
         sibling.next = this.next
         if (sibling.next.isSome()) {
@@ -89,7 +105,7 @@ public abstract class Node <: Context & ToString & Equatable<Node> & Hashable {
         }
     }
 
-    public func insertBefore(sibling: Node): Unit {
+    public open func insertBefore(sibling: Node): Unit {
         sibling.unlink()
         sibling.prev = this.prev
         if (sibling.prev.isSome()) {
@@ -119,7 +135,7 @@ public abstract class Node <: Context & ToString & Equatable<Node> & Hashable {
         return !refEq(this, other)
     }
 
-    public func hashCode(): Int {
+    public open func hashCode(): Int {
         return "${this}${getParent()}${getPrevious()}${getNext()}${getFirstChild()}${getLastChild()}".hashCode()
     }
 
@@ -135,15 +151,15 @@ public open class Text <: Node & Equatable<Text> {
         this.literal = literal
     }
 
-    public override func accept(visitor: Visitor): Unit {
+    public open func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
 
-    public func getLiteral(): String {
+    public open func getLiteral(): String {
         return literal
     }
 
-    public func setLiteral(literal: String): Unit {
+    public open func setLiteral(literal: String): Unit {
         this.literal = literal
     }
 
@@ -159,7 +175,7 @@ public open class Text <: Node & Equatable<Text> {
         !(refEq(this, other))
     }
 
-    public override func getNodeType(): TypeInfo {
+    public open func getNodeType(): TypeInfo {
         return TextType
     }
 }
@@ -171,25 +187,25 @@ public open class HtmlInline <: Node {
         this.literal = literal
     }
 
-    public override func accept(visitor: Visitor): Unit {
+    public open func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
 
-    public func getLiteral(): String {
+    public open func getLiteral(): String {
         return literal
     }
 
-    public func setLiteral(literal: String): Unit {
+    public open func setLiteral(literal: String): Unit {
         this.literal = literal
     }
 
-    public override func getNodeType(): TypeInfo {
+    public open func getNodeType(): TypeInfo {
         return HtmlInlineType
     }
 }
 
 public abstract class CustomNode <: Node {
-    public override func accept(visitor: Visitor): Unit {
+    public open func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
 }
@@ -203,31 +219,31 @@ public open class Image <: Node {
         this.title = title
     }
 
-    public override func accept(visitor: Visitor): Unit {
+    public open func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
 
-    public func getDestination(): String {
+    public open func getDestination(): String {
         return destination
     }
 
-    public func setDestination(destination: String): Unit {
+    public open func setDestination(destination: String): Unit {
         this.destination = destination
     }
 
-    public func getTitle(): ?String {
+    public open func getTitle(): ?String {
         return title
     }
 
-    public func setTitle(title: String): Unit {
+    public open func setTitle(title: String): Unit {
         this.title = title
     }
 
-    protected override func toStringAttributes(): String {
+    protected open func toStringAttributes(): String {
         return "destination=${destination}, title=${title}"
     }
 
-    public override func getNodeType(): TypeInfo {
+    public open func getNodeType(): TypeInfo {
         return ImageType
     }
 }
@@ -239,39 +255,39 @@ public open class Code <: Node {
         this.literal = literal
     }
 
-    public override func accept(visitor: Visitor): Unit {
+    public open func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
 
-    public func getLiteral(): String {
+    public open func getLiteral(): String {
         return literal
     }
 
-    public func setLiteral(literal: String): Unit {
+    public open func setLiteral(literal: String): Unit {
         this.literal = literal
     }
 
-    public override func getNodeType(): TypeInfo {
+    public open func getNodeType(): TypeInfo {
         return CodeType
     }
 }
 
 public open class HardLineBreak <: Node {
-    public override func accept(visitor: Visitor): Unit {
+    public open func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
 
-    public override func getNodeType(): TypeInfo {
+    public open func getNodeType(): TypeInfo {
         return HardLineBreakType
     }
 }
 
 public open class SoftLineBreak <: Node {
-    public override func accept(visitor: Visitor): Unit {
+    public open func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
 
-    public override func getNodeType(): TypeInfo {
+    public open func getNodeType(): TypeInfo {
         return SoftLineBreakType
     }
 }
@@ -289,35 +305,35 @@ public open class LinkReferenceDefinition <: Node {
         this.title = title
     }
 
-    public func getLabel(): ?String {
+    public open func getLabel(): ?String {
         return label
     }
 
-    public func setLabel(label: String): Unit {
+    public open func setLabel(label: String): Unit {
         this.label = label
     }
 
-    public func getDestination(): String {
+    public open func getDestination(): String {
         return destination
     }
 
-    public func setDestination(destination: String): Unit {
+    public open func setDestination(destination: String): Unit {
         this.destination = destination
     }
 
-    public func getTitle(): ?String {
+    public open func getTitle(): ?String {
         return title
     }
 
-    public func setTitle(title: String): Unit {
+    public open func setTitle(title: String): Unit {
         this.title = title
     }
 
-    public override func accept(visitor: Visitor): Unit {
+    public open func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
 
-    public override func getNodeType(): TypeInfo {
+    public open func getNodeType(): TypeInfo {
         return LinkReferenceDefinitionType
     }
 }
@@ -331,31 +347,31 @@ public open class Link <: Node {
         this.title = title
     }
 
-    public override func accept(visitor: Visitor): Unit {
+    public open func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
 
-    public func getDestination(): String {
+    public open func getDestination(): String {
         return destination
     }
 
-    public func setDestination(destination: String): Unit {
+    public open func setDestination(destination: String): Unit {
         this.destination = destination
     }
 
-    public func getTitle(): ?String {
+    public open func getTitle(): ?String {
         return title
     }
 
-    public func setTitle(title: String): Unit {
+    public open func setTitle(title: String): Unit {
         this.title = title
     }
 
-    protected override func toStringAttributes(): String {
+    protected open func toStringAttributes(): String {
         return "destination=${destination}, title=${title}"
     }
 
-    public override func getNodeType(): TypeInfo {
+    public open func getNodeType(): TypeInfo {
         return LinkType
     }
 }
@@ -378,23 +394,23 @@ public open class StrongEmphasis <: Node & Delimited {
         this.delimiter = delimiter
     }
 
-    public func setDelimiter(delimiter: String): Unit {
+    public open func setDelimiter(delimiter: String): Unit {
         this.delimiter = delimiter
     }
 
-    public func getOpeningDelimiter(): ?String {
+    public open func getOpeningDelimiter(): ?String {
         return delimiter
     }
 
-    public func getClosingDelimiter(): ?String {
+    public open func getClosingDelimiter(): ?String {
         return delimiter
     }
 
-    public override func accept(visitor: Visitor): Unit {
+    public open func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
 
-    public override func getNodeType(): TypeInfo {
+    public open func getNodeType(): TypeInfo {
         return StrongEmphasisType
     }
 }
@@ -408,23 +424,23 @@ public open class Emphasis <: Node & Delimited {
         this.delimiter = delimiter
     }
 
-    public func setDelimiter(delimiter: String): Unit {
+    public open func setDelimiter(delimiter: String): Unit {
         this.delimiter = delimiter
     }
 
-    public func getOpeningDelimiter(): ?String {
+    public open func getOpeningDelimiter(): ?String {
         return delimiter
     }
 
-    public func getClosingDelimiter(): ?String {
+    public open func getClosingDelimiter(): ?String {
         return delimiter
     }
 
-    public override func accept(visitor: Visitor): Unit {
+    public open func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
 
-    public override func getNodeType(): TypeInfo {
+    public open func getNodeType(): TypeInfo {
         return EmphasisType
     }
 }
