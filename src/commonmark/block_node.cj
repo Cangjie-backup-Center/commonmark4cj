@@ -1,7 +1,7 @@
 package commonmark
 
 public abstract class Block <: Node {
-    public func getParent(): ?Node {
+    public open func getParent(): ?Node {
         let parent: ?Node = super.getParent()
         return match (parent) {
             case Some(v: Block) => v
@@ -9,7 +9,7 @@ public abstract class Block <: Node {
         }
     }
 
-    protected override func setParent(parent: Node): Unit {
+    protected open func setParent(parent: Node): Unit {
         if (!(parent is Block)) {
             throw IllegalArgumentException("Parent of block must also be block (can not be inline)")
         }
@@ -18,11 +18,11 @@ public abstract class Block <: Node {
 }
 
 public open class BlockQuote <: Block {
-    public func accept(visitor: Visitor): Unit {
+    public open func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
 
-    public override func getNodeType(): TypeInfo {
+    public open func getNodeType(): TypeInfo {
         return BlockQuoteType
     }
 }
@@ -30,55 +30,55 @@ public open class BlockQuote <: Block {
 public open class HtmlBlock <: Block {
     private var literal: String = EMPTY_STRING
 
-    public func accept(visitor: Visitor): Unit {
+    public open func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
 
-    public func getLiteral(): String {
+    public open func getLiteral(): String {
         return literal
     }
 
-    public func setLiteral(literal: String): Unit {
+    public open func setLiteral(literal: String): Unit {
         this.literal = literal
     }
 
-    public override func getNodeType(): TypeInfo {
+    public open func getNodeType(): TypeInfo {
         return HtmlBlockType
     }
 }
 
 public abstract class CustomBlock <: Block {
-    public func accept(visitor: Visitor): Unit {
+    public open func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
 }
 
 public open class ThematicBreak <: Block {
-    public func accept(visitor: Visitor): Unit {
+    public open func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
 
-    public override func getNodeType(): TypeInfo {
+    public open func getNodeType(): TypeInfo {
         return ThematicBreakType
     }
 }
 
 public open class Document <: Block {
-    public func accept(visitor: Visitor): Unit {
+    public open func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
 
-    public override func getNodeType(): TypeInfo {
+    public open func getNodeType(): TypeInfo {
         return DocumentType
     }
 }
 
 public open class Paragraph <: Block {
-    public func accept(visitor: Visitor): Unit {
+    public open func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
 
-    public override func getNodeType(): TypeInfo {
+    public open func getNodeType(): TypeInfo {
         return ParagraphType
     }
 }
@@ -86,19 +86,19 @@ public open class Paragraph <: Block {
 public open class IndentedCodeBlock <: Block {
     private var literal: String = EMPTY_STRING
 
-    public func accept(visitor: Visitor): Unit {
+    public open func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
 
-    public func getLiteral(): String {
+    public open func getLiteral(): String {
         return literal
     }
 
-    public func setLiteral(literal: String): Unit {
+    public open func setLiteral(literal: String): Unit {
         this.literal = literal
     }
 
-    public override func getNodeType(): TypeInfo {
+    public open func getNodeType(): TypeInfo {
         return IndentedCodeBlockType
     }
 }
@@ -111,61 +111,61 @@ public open class FencedCodeBlock <: Block {
     private var info: String = EMPTY_STRING
     private var literal: String = EMPTY_STRING
 
-    public func accept(visitor: Visitor): Unit {
+    public open func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
 
-    public func getFenceChar(): Char {
+    public open func getFenceChar(): Char {
         return fenceChar
     }
 
-    public func setFenceChar(fenceChar: Char): Unit {
+    public open func setFenceChar(fenceChar: Char): Unit {
         this.fenceChar = fenceChar
     }
 
-    public func getFenceLength(): Int64 {
+    public open func getFenceLength(): Int64 {
         return fenceLength
     }
 
-    public func setFenceLength(fenceLength: Int64): Unit {
+    public open func setFenceLength(fenceLength: Int64): Unit {
         this.fenceLength = fenceLength
     }
 
-    public func getFenceIndent(): Int64 {
+    public open func getFenceIndent(): Int64 {
         return fenceIndent
     }
 
-    public func setFenceIndent(fenceIndent: Int64): Unit {
+    public open func setFenceIndent(fenceIndent: Int64): Unit {
         this.fenceIndent = fenceIndent
     }
 
-    public func getInfo(): String {
+    public open func getInfo(): String {
         return info
     }
 
-    public func setInfo(info: String): Unit {
+    public open func setInfo(info: String): Unit {
         this.info = info
     }
 
-    public func getLiteral(): String {
+    public open func getLiteral(): String {
         return literal
     }
 
-    public func setLiteral(literal: String): Unit {
+    public open func setLiteral(literal: String): Unit {
         this.literal = literal
     }
 
-    public override func getNodeType(): TypeInfo {
+    public open func getNodeType(): TypeInfo {
         return FencedCodeBlockType
     }
 }
 
 public open class ListItem <: Block {
-    public func accept(visitor: Visitor): Unit {
+    public open func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
 
-    public override func getNodeType(): TypeInfo {
+    public open func getNodeType(): TypeInfo {
         return ListItemType
     }
 }
@@ -173,19 +173,19 @@ public open class ListItem <: Block {
 public open class Heading <: Block {
     private var level: Int64 = 0
 
-    public func accept(visitor: Visitor): Unit {
+    public open func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
 
-    public func getLevel(): Int64 {
+    public open func getLevel(): Int64 {
         return level
     }
 
-    public func setLevel(level: Int64): Unit {
+    public open func setLevel(level: Int64): Unit {
         this.level = level
     }
 
-    public override func getNodeType(): TypeInfo {
+    public open func getNodeType(): TypeInfo {
         return HeadingType
     }
 }
@@ -193,11 +193,11 @@ public open class Heading <: Block {
 public abstract class ListBlock <: Block {
     private var tight: Bool = false
 
-    public func isTight(): Bool {
+    public open func isTight(): Bool {
         return tight
     }
 
-    public func setTight(tight: Bool) {
+    public open func setTight(tight: Bool) {
         this.tight = tight
     }
 }
@@ -209,19 +209,19 @@ public open class BulletList <: ListBlock {
         this.bulletMarker = bulletMarker
     }
 
-    public func accept(visitor: Visitor): Unit {
+    public open func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
 
-    public func getBulletMarker(): Char {
+    public open func getBulletMarker(): Char {
         return bulletMarker
     }
 
-    public func setBulletMarker(bulletMarker: Char): Unit {
+    public open func setBulletMarker(bulletMarker: Char): Unit {
         this.bulletMarker = bulletMarker
     }
 
-    public override func getNodeType(): TypeInfo {
+    public open func getNodeType(): TypeInfo {
         return BulletListType
     }
 }
@@ -235,27 +235,27 @@ public open class OrderedList <: ListBlock {
         this.delimiter = delimiter
     }
 
-    public func accept(visitor: Visitor): Unit {
+    public open func accept(visitor: Visitor): Unit {
         visitor.visit(this)
     }
 
-    public func getStartNumber(): Int64 {
+    public open func getStartNumber(): Int64 {
         return startNumber
     }
 
-    public func setStartNumber(startNumber: Int64): Unit {
+    public open func setStartNumber(startNumber: Int64): Unit {
         this.startNumber = startNumber
     }
 
-    public func getDelimiter(): Char {
+    public open func getDelimiter(): Char {
         return delimiter
     }
 
-    public func setDelimiter(delimiter: Char): Unit {
+    public open func setDelimiter(delimiter: Char): Unit {
         this.delimiter = delimiter
     }
 
-    public override func getNodeType(): TypeInfo {
+    public open func getNodeType(): TypeInfo {
         return OrderedListType
     }
 }
