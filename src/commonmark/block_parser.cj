@@ -409,9 +409,8 @@ class FencedCodeBlockParser <: AbstractBlockParser {
         }
 
         if (backticks >= 3 && tildes == 0) {
-            var c: Byte = UInt8(UInt32('`'))
             // spec: If the info string comes after a backtick fence, it may not contain any backtick characters.
-            if (Parsing.find(c, line, index + backticks) != -1) {
+            if (Parsing.find(b'`', line, index + backticks) != -1) {
                 return None
             }
             return FencedCodeBlockParser('`', backticks, indent)
