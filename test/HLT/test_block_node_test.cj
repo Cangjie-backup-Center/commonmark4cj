@@ -97,4 +97,109 @@ public class BlockNodeTest {
         assertEquals(2, orderedList.getStartNumber())
         assertEquals(',', orderedList.getDelimiter())
     }
+
+    @TestCase
+    func fencedCodeBlockTest1(): Unit {
+        var fencedCodeBlock = FencedCodeBlock()
+        fencedCodeBlock.setFenceLength(-9223372036854775808)
+        fencedCodeBlock.setFenceIndent(-9223372036854775808)
+        @Assert(fencedCodeBlock.getFenceLength(),-9223372036854775808)
+        @Assert(fencedCodeBlock.getFenceIndent(),-9223372036854775808)
+    }
+
+
+    @TestCase
+    func fencedCodeBlockTest2(): Unit {
+        var fencedCodeBlock = FencedCodeBlock()
+        fencedCodeBlock.setFenceLength(9223372036854775807)
+        fencedCodeBlock.setFenceIndent(9223372036854775807)
+        @Assert(fencedCodeBlock.getFenceLength(),9223372036854775807)
+        @Assert(fencedCodeBlock.getFenceIndent(),9223372036854775807)
+    }
+
+    @TestCase
+    func fencedCodeBlockTest3(): Unit {
+        var fencedCodeBlock = FencedCodeBlock()
+        fencedCodeBlock.setFenceLength(0)
+        fencedCodeBlock.setFenceIndent(0)
+        @Assert(fencedCodeBlock.getFenceLength(),0)
+        @Assert(fencedCodeBlock.getFenceIndent(),0)
+    }
+
+
+    @TestCase
+    func headingTest1(): Unit {
+        var Heading = Heading ()
+        Heading.setLevel(-9223372036854775808)
+        @Assert(-9223372036854775808, Heading.getLevel())
+    }
+
+    @TestCase
+    func headingTest2(): Unit {
+        var Heading = Heading ()
+        Heading.setLevel(9223372036854775807)
+        @Assert(9223372036854775807, Heading.getLevel())
+    }
+
+
+    @TestCase
+    func orderedListTest1(): Unit {
+        var orderedList = OrderedList(9223372036854775807, '.')
+        @Assert(9223372036854775807, orderedList.getStartNumber())
+        @Assert('.', orderedList.getDelimiter())
+        orderedList.setStartNumber(9223372036854775807)
+        orderedList.setDelimiter('，')
+        @Assert(9223372036854775807, orderedList.getStartNumber())
+        @Assert('，', orderedList.getDelimiter())
+    }
+
+    @TestCase
+    func orderedListTest2(): Unit {
+        var orderedList = OrderedList(0, '.')
+        @Assert(0, orderedList.getStartNumber())
+        @Assert('.', orderedList.getDelimiter())
+        orderedList.setStartNumber(-9223372036854775808)
+        orderedList.setDelimiter('↗')
+        @Assert(-9223372036854775808, orderedList.getStartNumber())
+        @Assert('↗', orderedList.getDelimiter())
+    }
+
+    @TestCase
+    func orderedListTest3(): Unit {
+        var orderedList = OrderedList(0, '.')
+        @Assert(0, orderedList.getStartNumber())
+        @Assert('.', orderedList.getDelimiter())
+        orderedList.setStartNumber(0)
+        orderedList.setDelimiter('仓')
+        @Assert(0, orderedList.getStartNumber())
+        @Assert('仓', orderedList.getDelimiter())
+    }
+
+    @TestCase
+    func orderedListTest4(): Unit {
+        var orderedList = OrderedList(0, '.')
+        @Assert(0, orderedList.getStartNumber())
+        @Assert('.', orderedList.getDelimiter())
+        orderedList.setStartNumber(0)
+        orderedList.setDelimiter('③')
+        @Assert(0, orderedList.getStartNumber())
+        @Assert('③', orderedList.getDelimiter())
+    }
+
+
+    
+    @TestCase
+    func orderedListTest5(): Unit {
+        var a=0
+        try{
+            BlockContinue.atIndex(-9223372036854775808)
+            BlockContinue.atColumn(-9223372036854775808)
+            BlockContinue.atIndex(9223372036854775807)
+            BlockContinue.atColumn(9223372036854775807)
+        } catch (e: Exception) {
+            a++
+        }
+        @Assert(a ,0)
+    }
+
 }
