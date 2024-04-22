@@ -61,11 +61,11 @@ public class TestTableParser {
     @TestCase
     func test_strikethrough_init1(): Unit {
         var tableCell = TableCell()
-        @Assert(tableCell.isHeader().isNone(), true)
+        @Assert(tableCell.isHeader(), false)
         tableCell.setHeader(false)
-        @Assert(tableCell.isHeader().getOrThrow(), false)
+        @Assert(tableCell.isHeader(), false)
         tableCell.setHeader(true)
-        @Assert(tableCell.isHeader().getOrThrow(), true)
+        @Assert(tableCell.isHeader(), true)
 
         @Assert(tableCell.getAlignment().isNone(), true)
         tableCell.setAlignment(Alignment.LEFT)

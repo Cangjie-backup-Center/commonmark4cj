@@ -10,7 +10,7 @@ from std import unicode.*
 from std import reflect.{TypeInfo}
 
 @Test
-public class ListTightLooseTest <: CoreRenderingTestCase {
+public class ListTightLooseTest {
     private static let PARSER: Parser = Parser.builder().build()
     private static let RENDERER: HtmlRenderer = HtmlRenderer.builder().build()
 

@@ -49,13 +49,13 @@ public class TableBody <: CustomNode {
 }
 
 public class TableCell <: CustomNode {
-    private var header: ?Bool = None
+    private var header: Bool = false
     private var alignment: ?Alignment = None
 
     /**
      * @return whether the cell is a header or not
      */
-    public func isHeader(): ?Bool {
+    public func isHeader(): Bool {
         return header
     }
 
@@ -167,7 +167,7 @@ class TableHtmlNodeRenderer <: TableNodeRenderer {
 
     protected func renderCell(tableCell: TableCell): Unit {
         var tagName: String = "td"
-        if (tableCell.isHeader().isSome() && tableCell.isHeader()()) {
+        if (tableCell.isHeader()) {
             tagName = "th"
         }
         htmlWriter.line()
