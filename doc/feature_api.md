@@ -1703,9 +1703,9 @@ public class TableCell <: CustomNode {
 
 	/*
      * 是不是表头
-     * 返回值 ?Bool - ?Bool
+     * 返回值 Bool - Bool
      */
-    public func isHeader(): ?Bool
+    public func isHeader(): Bool
 
 	/*
      * 设置该行是表头
@@ -2188,7 +2188,7 @@ public type HtmlNodeRendererFactory = (context: HtmlNodeRendererContext) -> Node
 可靠性：NA
 
 #### 4.1 util
-
+# asdasd   
 ##### 4.1.1 主要接口
 
 ```
