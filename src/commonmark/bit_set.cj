@@ -3,13 +3,13 @@ package commonmark
 /*
  * simple bitmap
  */
-class BitSet {
+public class BitSet {
     static let ARRSIZE = 16
     var maxIndex: Int64
     let words: Array<UInt64> = Array(ARRSIZE, item: 0)
     let wordsMap: HashMap<Int64, UInt64> = HashMap()
 
-    init(size: Int64) {
+    public init(size: Int64) {
         if (size < 0) {
             throw NegativeArraySizeException("size < 0: ${size}")
         }
@@ -51,7 +51,7 @@ class BitSet {
     /*
      * get index value
      */
-    func get(index: Int64): Bool {
+    public func get(index: Int64): Bool {
         let (wordIndex, wordBitIndex) = calcIndex(index)
         let word = getWord(wordIndex)
         if (word == 0) {
@@ -63,7 +63,7 @@ class BitSet {
     /*
      * set index to true
      */
-    func set(index: Int64): Unit {
+    public func set(index: Int64): Unit {
         this.autoGrow(index)
         let (wordIndex, wordBitIndex) = calcIndex(index)
         let word = getWord(wordIndex) | (1 << wordBitIndex)

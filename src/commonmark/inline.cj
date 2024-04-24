@@ -54,13 +54,13 @@ public abstract class EmphasisDelimiterProcessor <: DelimiterProcessor {
     }
 }
 
-class UnderscoreDelimiterProcessor <: EmphasisDelimiterProcessor {
+public class UnderscoreDelimiterProcessor <: EmphasisDelimiterProcessor {
     public init() {
         super('_')
     }
 }
 
-class AsteriskDelimiterProcessor <: EmphasisDelimiterProcessor {
+public class AsteriskDelimiterProcessor <: EmphasisDelimiterProcessor {
     public init() {
         super('*')
     }
