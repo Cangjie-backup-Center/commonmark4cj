@@ -7,9 +7,13 @@ from std import unittest.*
 from std import unittest.testmacro.*
 from std import io.*
 from std import collection.*
+from std import regex.{Regex, Matcher, MatchData, RegexOption, Position}
 
 main(): Int64 {
     let tester = TextContentRendererTest()
+    tester.textTest()
+    tester.regexTest1()
+    tester.regexTest2()
     tester.textContentText()
     tester.textContentRULTest()
     tester.textContentEmphasis()
@@ -23,6 +27,7 @@ main(): Int64 {
     tester.textContentHtml()
     0
 }
+
 @Test
 public class TextContentRendererTest {
     @TestCase
@@ -51,10 +56,54 @@ public class TextContentRendererTest {
     }
 
     @TestCase
+    func textTest() {
+        var source: String = "oh my god！何其高竣，何*其峭险！蜀道太难走*呵，_123简直难于上青_天；_传说中蚕丛和鱼凫建立了_ 蜀国，开国的年代实在久远无法详谈"
+        var rendered: String = ""
+
+        rendered = defaultRenderer().render(parse(source))
+        println(rendered)
+        assertEquals(
+            "oh my god！何其高竣，何其峭险！蜀道太难走呵，_123简直难于上青_天；传说中蚕丛和鱼凫建立了 蜀国，开国的年代实在久远无法详谈",
+            rendered
+        )
+    }
+
+    @TestCase
+    func regexTest1() {
+        let ASCII_PUNCTUATION: String = "!\"#\\$%&'\\(\\)\\*\\+,\\-\\./:;<=>\\?@\\[\\\\\\]\\^_`\\{\\|\\}~，！；’‘。"
+        let PUNCTUATION: Regex = Regex("^[${ASCII_PUNCTUATION}]")
+
+        assertEquals(PUNCTUATION.matches(",，").isSome(), false)
+        assertEquals(PUNCTUATION.matcher(",，").find().isSome(), true)
+        assertEquals(PUNCTUATION.matcher("；ssss").find().isSome(), true)
+        assertEquals(PUNCTUATION.matcher("。").find().isSome(), true)
+        assertEquals(PUNCTUATION.matcher("。‘").find().isSome(), true)
+        assertEquals(PUNCTUATION.matcher("！").find().isSome(), true)
+        assertEquals(PUNCTUATION.matcher("#！").find().isSome(), true)
+        assertEquals(PUNCTUATION.matcher("我").find().isSome(), false)
+        assertEquals(PUNCTUATION.matcher("！我的老家在东北").find().isSome(), true)
+    }
+
+    @TestCase
+    func regexTest2() {
+        let ASCII_PUNCTUATION: String = "!\"#\\$%&'\\(\\)\\*\\+,\\-\\./:;<=>\\?@\\[\\\\\\]\\^_`\\{\\|\\}~"
+        let PUNCTUATION: Regex = Regex("^[${ASCII_PUNCTUATION}]")
+
+        assertEquals(PUNCTUATION.matches(",，").isSome(), false)
+        assertEquals(PUNCTUATION.matcher(",，").find().isSome(), true)
+        assertEquals(PUNCTUATION.matcher("；ssss").find().isSome(), false)
+        assertEquals(PUNCTUATION.matcher("。").find().isSome(), false)
+        assertEquals(PUNCTUATION.matcher("。‘").find().isSome(), false)
+        assertEquals(PUNCTUATION.matcher("！").find().isSome(), false)
+        assertEquals(PUNCTUATION.matcher("#！").find().isSome(), true)
+        assertEquals(PUNCTUATION.matcher("我").find().isSome(), false)
+    }
+
+    @TestCase
     func textContentEmphasis(): Unit {
         var source: String = ""
         var rendered: String = ""
-        source =  "***foo***"
+        source = "***foo***"
         rendered = defaultRenderer().render(parse(source))
         assertEquals("foo", rendered)
         rendered = strippedRenderer().render(parse(source))
@@ -87,7 +136,7 @@ public class TextContentRendererTest {
         rendered = strippedRenderer().render(parse(source))
         assertEquals("foo «foo bar» bar", rendered)
     }
-    
+
     @TestCase
     func textContentLinks() {
         var source: String = ""
@@ -210,7 +259,6 @@ public class TextContentRendererTest {
         assertEquals("bar\n1. foo\n   * bar\n   * bar\n2. foo", rendered)
         rendered = strippedRenderer().render(parse(source))
         assertEquals("bar 1. foo bar bar 2. foo", rendered)
-
     }
 
     @TestCase
@@ -276,13 +324,8 @@ public class TextContentRendererTest {
     func textContentHtml() {
         var rendered: String = ""
 
-        var html: String = "<table>\n" +
-                "  <tr>\n" +
-                "    <td>\n" +
-                "           foobar\n" +
-                "    </td>\n" +
-                "  </tr>\n" +
-                "</table>"
+        var html: String = "<table>\n" + "  <tr>\n" + "    <td>\n" + "           foobar\n" + "    </td>\n" + "  </tr>\n" +
+            "</table>"
         rendered = defaultRenderer().render(parse(html))
         assertEquals(html, rendered)
 
@@ -290,7 +333,6 @@ public class TextContentRendererTest {
         rendered = defaultRenderer().render(parse(html))
         assertEquals(html, rendered)
     }
-
 }
 
 func defaultRenderer(): TextContentRenderer {
