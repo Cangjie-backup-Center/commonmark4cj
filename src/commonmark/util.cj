@@ -78,7 +78,7 @@ public class Escaping {
         return replaceAll(ESCAPE_IN_URI, str, UriReplacer())
     }
 
-    protected static func normalizeReference(input: String): String {
+    public static func normalizeReference(input: String): String {
         // Strip '[' and ']'
         let stripped: String = input[1..input.size - 1]
         return normalizeLabelContent(stripped)
@@ -157,7 +157,7 @@ public class Html5Entities {
     private static let NAMED_CHARACTER_REFERENCES: Map<String, String> = readEntities()
     private static let NUMERIC_PATTERN = Regex("^&#[Xx]?")
 
-    protected static func entityToString(input: String): String {
+    public static func entityToString(input: String): String {
         let matcher: Matcher = NUMERIC_PATTERN.matcher(input)
         let md: ?MatchData = matcher.find()
         if (md.isSome()) {
@@ -189,7 +189,7 @@ public class Html5Entities {
     }
 }
 
-class LinkScanner {
+public class LinkScanner {
 
     /**
      * Attempt to scan the contents of a link label (inside the brackets), returning the position after the content or
@@ -340,7 +340,7 @@ class LinkScanner {
     }
 }
 
-class Parsing {
+public class Parsing {
     private static let bytes: Array<Byte> = [b'!', b'"', b'#', b'$', b'%', b'&', b'\'', b'(', b')', b'*', b'+', b',',
     b'-', b'.', b'/', b':', b';', b'<', b'=', b'>', b'?', b'@', b'[', b'\\', b']', b'^', b'_', b'`', b'{', b'|', b'}',
     b'~']

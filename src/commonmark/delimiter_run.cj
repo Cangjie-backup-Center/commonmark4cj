@@ -29,7 +29,7 @@ public interface DelimiterRun {
 /**
  * Delimiter (emphasis, strong emphasis or custom emphasis).
  */
-class Delimiter <: DelimiterRun & Equatable<Delimiter> {
+public class Delimiter <: DelimiterRun & Equatable<Delimiter> {
     public let node: Text
     public let delimiterChar: Char
 
