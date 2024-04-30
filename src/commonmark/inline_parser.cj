@@ -64,7 +64,7 @@ class InlineParserImpl <: InlineParser {
     private static let HTMLTAG: String = "(?:" + Parsing.OPENTAG + "|" + Parsing.CLOSETAG + "|" + HTMLCOMMENT + "|" +
         PROCESSINGINSTRUCTION + "|" + DECLARATION + "|" + CDATA + ")"
 
-    private static let ASCII_PUNCTUATION: String = "!\"#\\$%&'\\(\\)\\*\\+,\\-\\./:;<=>\\?@\\[\\\\\\]\\^_`\\{\\|\\}~"
+    private static let ASCII_PUNCTUATION: String = "!\"#\\$%&'\\(\\)\\*\\+,\\-\\./:;<=>\\?@\\[\\\\\\]\\^_`\\{\\|\\}~，！；’‘。"
     private static let PUNCTUATION: Regex = Regex("^[${ASCII_PUNCTUATION}]")
 
     private static let HTML_TAG: Regex = Regex("^" + HTMLTAG, RegexOption().ignoreCase())
@@ -738,9 +738,9 @@ class InlineParserImpl <: InlineParser {
         }
 
         // We could be more lazy here, in most cases we don't need to do every match case.
-        let beforeIsPunctuation: Bool = PUNCTUATION.matches(before).isSome()
+        let beforeIsPunctuation: Bool = PUNCTUATION.matcher(before).find().isSome()
         let beforeIsWhitespace: Bool = UNICODE_WHITESPACE_CHAR.matches(before).isSome()
-        let afterIsPunctuation: Bool = PUNCTUATION.matches(after).isSome()
+        let afterIsPunctuation: Bool = PUNCTUATION.matcher(after).find().isSome()
         let afterIsWhitespace: Bool = UNICODE_WHITESPACE_CHAR.matches(after).isSome()
 
         let leftFlanking: Bool = !afterIsWhitespace && (!afterIsPunctuation || beforeIsWhitespace || beforeIsPunctuation)
