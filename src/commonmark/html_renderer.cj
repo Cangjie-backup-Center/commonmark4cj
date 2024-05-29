@@ -334,8 +334,8 @@ class CoreHtmlNodeRenderer <: AbstractVisitor & NodeRenderer {
         this.html = context.getWriter()
     }
 
-    public override func getNodeTypes(): HashSet<TypeInfo> {
-        return HashSet<TypeInfo>(
+    public override func getNodeTypes(): HashSet<NodeType> {
+        return HashSet<NodeType>(
             [
                 DocumentType,
                 HeadingType,

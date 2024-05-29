@@ -8,7 +8,6 @@ from std import convert.{Parsable}
 from std import format.{Formatter}
 from std import io.{StringReader, InputStream, IOException}
 from std import os.{getEnv}
-from std import reflect.{TypeInfo}
 from std import regex.{Regex, Matcher, MatchData, RegexOption, Position}
 from std import unicode.{UnicodeExtension}
 

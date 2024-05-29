@@ -1,14 +1,14 @@
 package table
 
-let TableBlockType: TypeInfo = TypeInfo.of<TableBlock>()
-let TableBodyType: TypeInfo = TypeInfo.of<TableBody>()
-let TableCellType: TypeInfo = TypeInfo.of<TableCell>()
-let TableHeadType: TypeInfo = TypeInfo.of<TableHead>()
-let TableRowType: TypeInfo = TypeInfo.of<TableRow>()
+let TableBlockType: NodeType = "TableBlock"
+let TableBodyType: NodeType = "TableBody"
+let TableCellType: NodeType = "TableCell"
+let TableHeadType: NodeType = "TableHead"
+let TableRowType: NodeType = "TableRow"
 
 public abstract class TableNodeRenderer <: NodeRenderer {
-    public override func getNodeTypes(): HashSet<TypeInfo> {
-        return HashSet<TypeInfo>([TableBlockType, TableHeadType, TableBodyType, TableRowType, TableCellType])
+    public override func getNodeTypes(): HashSet<NodeType> {
+        return HashSet<NodeType>([TableBlockType, TableHeadType, TableBodyType, TableRowType, TableCellType])
     }
 
     public override func render(node: Node): Unit {
@@ -37,13 +37,13 @@ public abstract class TableNodeRenderer <: NodeRenderer {
 }
 
 public class TableBlock <: CustomBlock {
-    public override func getNodeType(): TypeInfo {
+    public override func getNodeType(): NodeType {
         return TableBlockType
     }
 }
 
 public class TableBody <: CustomNode {
-    public override func getNodeType(): TypeInfo {
+    public override func getNodeType(): NodeType {
         return TableBodyType
     }
 }
@@ -73,7 +73,7 @@ public class TableCell <: CustomNode {
     public func setAlignment(alignment: Alignment): Unit {
         this.alignment = alignment
     }
-    public override func getNodeType(): TypeInfo {
+    public override func getNodeType(): NodeType {
         return TableCellType
     }
 }
@@ -88,13 +88,13 @@ public enum Alignment {
 }
 
 public class TableHead <: CustomNode {
-    public override func getNodeType(): TypeInfo {
+    public override func getNodeType(): NodeType {
         return TableHeadType
     }
 }
 
 public class TableRow <: CustomNode {
-    public override func getNodeType(): TypeInfo {
+    public override func getNodeType(): NodeType {
         return TableRowType
     }
 }

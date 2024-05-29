@@ -1,10 +1,10 @@
 package strikethrough
 
-let StrikethroughType: TypeInfo = TypeInfo.of<Strikethrough>()
+let StrikethroughType: NodeType = "Strikethrough"
 
 public abstract class StrikethroughNodeRenderer <: NodeRenderer {
-    public override func getNodeTypes(): HashSet<TypeInfo> {
-        return HashSet<TypeInfo>([StrikethroughType])
+    public override func getNodeTypes(): HashSet<NodeType> {
+        return HashSet<NodeType>([StrikethroughType])
     }
 }
 
@@ -22,7 +22,7 @@ public class Strikethrough <: CustomNode & Delimited {
         return DELIMITER
     }
 
-    public override func getNodeType(): TypeInfo {
+    public override func getNodeType(): NodeType {
         return StrikethroughType
     }
 }

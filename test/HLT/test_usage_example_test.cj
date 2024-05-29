@@ -76,9 +76,9 @@ class IndentedCodeBlockNodeRenderer <: NodeRenderer {
         this.html = context.getWriter()
     }
 
-    public override func getNodeTypes(): HashSet<TypeInfo> {
+    public override func getNodeTypes(): HashSet<NodeType> {
         // Return the node types we want to use this renderer for.
-        return HashSet<TypeInfo>([TypeInfo.of<IndentedCodeBlock>()])
+        return HashSet<NodeType>(["IndentedCodeBlock"])
     }
 
     public override func render(node: Node): Unit {

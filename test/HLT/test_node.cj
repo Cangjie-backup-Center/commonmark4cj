@@ -555,7 +555,7 @@ public class TestCommarkEmphasis {
     }
 }
 
-public class CustomNodeImpl <: CustomNode {}
+public class CustomNodeImpl <: CustomNode {public func getNodeType():NodeType{"CustomNodeImpl"}}
 
 class AbstractVisitorImpl <: AbstractVisitor {
     public func visit(text: Text): Unit {

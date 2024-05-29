@@ -5,7 +5,6 @@ package table
 
 from commonmark4cj import commonmark.*
 from std import collection.{HashSet, HashMap, Map, ArrayList}
-from std import reflect.{TypeInfo}
 from std import unicode.{UnicodeExtension}
 
 extend Option<T> {

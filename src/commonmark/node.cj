@@ -120,7 +120,7 @@ public abstract class Node <: Context & ToString & Equatable<Node> & Hashable {
     }
 
     public open func toString(): String {
-        return this.getNodeType().name + "{" + toStringAttributes() + "}"
+        return "${getNodeType()}{${toStringAttributes()}}"
     }
 
     protected open func toStringAttributes(): String {
@@ -137,10 +137,6 @@ public abstract class Node <: Context & ToString & Equatable<Node> & Hashable {
 
     public open func hashCode(): Int {
         return "${this}${getParent()}${getPrevious()}${getNext()}${getFirstChild()}${getLastChild()}".hashCode()
-    }
-
-    public open func getNodeType(): TypeInfo {
-        return TypeInfo.of(this)
     }
 }
 
@@ -175,7 +171,7 @@ public open class Text <: Node & Equatable<Text> {
         !(refEq(this, other))
     }
 
-    public open func getNodeType(): TypeInfo {
+    public open func getNodeType(): NodeType {
         return TextType
     }
 }
@@ -199,7 +195,7 @@ public open class HtmlInline <: Node {
         this.literal = literal
     }
 
-    public open func getNodeType(): TypeInfo {
+    public open func getNodeType(): NodeType {
         return HtmlInlineType
     }
 }
@@ -243,7 +239,7 @@ public open class Image <: Node {
         return "destination=${destination}, title=${title}"
     }
 
-    public open func getNodeType(): TypeInfo {
+    public open func getNodeType(): NodeType {
         return ImageType
     }
 }
@@ -267,7 +263,7 @@ public open class Code <: Node {
         this.literal = literal
     }
 
-    public open func getNodeType(): TypeInfo {
+    public open func getNodeType(): NodeType {
         return CodeType
     }
 }
@@ -277,7 +273,7 @@ public open class HardLineBreak <: Node {
         visitor.visit(this)
     }
 
-    public open func getNodeType(): TypeInfo {
+    public open func getNodeType(): NodeType {
         return HardLineBreakType
     }
 }
@@ -287,7 +283,7 @@ public open class SoftLineBreak <: Node {
         visitor.visit(this)
     }
 
-    public open func getNodeType(): TypeInfo {
+    public open func getNodeType(): NodeType {
         return SoftLineBreakType
     }
 }
@@ -333,7 +329,7 @@ public open class LinkReferenceDefinition <: Node {
         visitor.visit(this)
     }
 
-    public open func getNodeType(): TypeInfo {
+    public open func getNodeType(): NodeType {
         return LinkReferenceDefinitionType
     }
 }
@@ -371,7 +367,7 @@ public open class Link <: Node {
         return "destination=${destination}, title=${title}"
     }
 
-    public open func getNodeType(): TypeInfo {
+    public open func getNodeType(): NodeType {
         return LinkType
     }
 }
@@ -410,7 +406,7 @@ public open class StrongEmphasis <: Node & Delimited {
         visitor.visit(this)
     }
 
-    public open func getNodeType(): TypeInfo {
+    public open func getNodeType(): NodeType {
         return StrongEmphasisType
     }
 }
@@ -440,7 +436,7 @@ public open class Emphasis <: Node & Delimited {
         visitor.visit(this)
     }
 
-    public open func getNodeType(): TypeInfo {
+    public open func getNodeType(): NodeType {
         return EmphasisType
     }
 }
@@ -455,4 +451,5 @@ public abstract class Context {
             this._custom = v
         }
     }
+    public func getNodeType(): NodeType
 }

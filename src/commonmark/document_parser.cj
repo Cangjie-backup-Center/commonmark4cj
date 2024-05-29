@@ -1,7 +1,7 @@
 package commonmark
 
 class DocumentParser <: ParserState {
-    private static var CORE_FACTORY_TYPES: HashSet<TypeInfo> = HashSet<TypeInfo>(
+    private static var CORE_FACTORY_TYPES: HashSet<NodeType> = HashSet<NodeType>(
         [
             BlockQuoteType,
             HeadingType,
@@ -13,7 +13,7 @@ class DocumentParser <: ParserState {
         ]
     )
 
-    private static var NODES_TO_CORE_FACTORIES: HashMap<TypeInfo, BlockParserFactory> = HashMap<TypeInfo, BlockParserFactory>(
+    private static var NODES_TO_CORE_FACTORIES: HashMap<NodeType, BlockParserFactory> = HashMap<NodeType, BlockParserFactory>(
         [
             (BlockQuoteType, BlockQuoteParserFactory()),
             (HeadingType, HeadingParserFactory()),
@@ -71,13 +71,13 @@ class DocumentParser <: ParserState {
         activateBlockParser(this.documentBlockParser)
     }
 
-    public static func getDefaultBlockParserTypes(): HashSet<TypeInfo> {
+    public static func getDefaultBlockParserTypes(): HashSet<NodeType> {
         return CORE_FACTORY_TYPES
     }
 
     public static func calculateBlockParserFactories(
         customBlockParserFactories: ArrayList<BlockParserFactory>,
-        enabledBlockTypes: HashSet<TypeInfo>
+        enabledBlockTypes: HashSet<NodeType>
     ): ArrayList<BlockParserFactory> {
         var list: ArrayList<BlockParserFactory> = ArrayList<BlockParserFactory>()
         // By having the custom factories come first, extensions are able to change behavior of core syntax.

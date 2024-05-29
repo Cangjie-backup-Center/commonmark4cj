@@ -35,9 +35,9 @@ public class AbstractVisitorTest {
     }
 
     private static func assertCode(expectedLiteral: String, node: Node): Unit {
-        // println("${TypeInfo.of<Code>()} ${TypeInfo.of(node)}")
-        // println("${TypeInfo.of<Code>() == TypeInfo.of(node)}")
-        assertEquals("Expected node to be a Code node: ${node}", TypeInfo.of<Code>(), TypeInfo.of(node))
+        // println("${"Code"} ${node.getNodeType()}")
+        // println("${"Code" == node.getNodeType()}")
+        assertEquals("Expected node to be a Code node: ${node}", "Code", node.getNodeType())
         let code: Code = (node as Code).getOrThrow()
         assertEquals(expectedLiteral, code.getLiteral())
     }

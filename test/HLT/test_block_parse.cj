@@ -224,6 +224,8 @@ class DashBlock <: CustomBlock {
     public func setInfo(info: String): Unit {
         this.info = info
     }
+
+    public func getNodeType():NodeType{"DashBlock"}
 }
 
 class ParagraphParser <: AbstractBlockParser {
