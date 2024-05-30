@@ -22,7 +22,7 @@ public open class BlockQuote <: Block {
         visitor.visit(this)
     }
 
-    public open func getNodeType(): TypeInfo {
+    public open func getNodeType(): NodeType {
         return BlockQuoteType
     }
 }
@@ -42,7 +42,7 @@ public open class HtmlBlock <: Block {
         this.literal = literal
     }
 
-    public open func getNodeType(): TypeInfo {
+    public open func getNodeType(): NodeType {
         return HtmlBlockType
     }
 }
@@ -58,7 +58,7 @@ public open class ThematicBreak <: Block {
         visitor.visit(this)
     }
 
-    public open func getNodeType(): TypeInfo {
+    public open func getNodeType(): NodeType {
         return ThematicBreakType
     }
 }
@@ -68,7 +68,7 @@ public open class Document <: Block {
         visitor.visit(this)
     }
 
-    public open func getNodeType(): TypeInfo {
+    public open func getNodeType(): NodeType {
         return DocumentType
     }
 }
@@ -78,7 +78,7 @@ public open class Paragraph <: Block {
         visitor.visit(this)
     }
 
-    public open func getNodeType(): TypeInfo {
+    public open func getNodeType(): NodeType {
         return ParagraphType
     }
 }
@@ -98,7 +98,7 @@ public open class IndentedCodeBlock <: Block {
         this.literal = literal
     }
 
-    public open func getNodeType(): TypeInfo {
+    public open func getNodeType(): NodeType {
         return IndentedCodeBlockType
     }
 }
@@ -155,7 +155,7 @@ public open class FencedCodeBlock <: Block {
         this.literal = literal
     }
 
-    public open func getNodeType(): TypeInfo {
+    public open func getNodeType(): NodeType {
         return FencedCodeBlockType
     }
 }
@@ -165,7 +165,7 @@ public open class ListItem <: Block {
         visitor.visit(this)
     }
 
-    public open func getNodeType(): TypeInfo {
+    public open func getNodeType(): NodeType {
         return ListItemType
     }
 }
@@ -185,7 +185,7 @@ public open class Heading <: Block {
         this.level = level
     }
 
-    public open func getNodeType(): TypeInfo {
+    public open func getNodeType(): NodeType {
         return HeadingType
     }
 }
@@ -221,7 +221,7 @@ public open class BulletList <: ListBlock {
         this.bulletMarker = bulletMarker
     }
 
-    public open func getNodeType(): TypeInfo {
+    public open func getNodeType(): NodeType {
         return BulletListType
     }
 }
@@ -255,7 +255,7 @@ public open class OrderedList <: ListBlock {
         this.delimiter = delimiter
     }
 
-    public open func getNodeType(): TypeInfo {
+    public open func getNodeType(): NodeType {
         return OrderedListType
     }
 }

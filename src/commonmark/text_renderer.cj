@@ -142,8 +142,8 @@ class CoreTextContentNodeRenderer <: AbstractVisitor & NodeRenderer {
         this.textContent = context.getWriter()
     }
 
-    public override func getNodeTypes(): HashSet<TypeInfo> {
-        return HashSet<TypeInfo>(
+    public override func getNodeTypes(): HashSet<NodeType> {
+        return HashSet<NodeType>(
             [
                 DocumentType,
                 HeadingType,

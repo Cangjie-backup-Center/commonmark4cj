@@ -136,7 +136,7 @@ class AsymmetricDelimiterProcessor <: DelimiterProcessor {
     }
 }
 
-class UpperCaseNode <: CustomNode {}
+class UpperCaseNode <: CustomNode {public func getNodeType():NodeType{"UpperCaseNode"}}
 
 class UpperCaseNodeRenderer <: NodeRenderer {
     private let context: HtmlNodeRendererContext
@@ -145,8 +145,8 @@ class UpperCaseNodeRenderer <: NodeRenderer {
         this.context = context
     }
 
-    public override func getNodeTypes(): HashSet<TypeInfo> {
-        return HashSet<TypeInfo>([TypeInfo.of<UpperCaseNode>()])
+    public override func getNodeTypes(): HashSet<NodeType> {
+        return HashSet<NodeType>(["UpperCaseNode"])
     }
 
     public override func render(node: Node): Unit {

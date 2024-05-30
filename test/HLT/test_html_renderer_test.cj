@@ -231,8 +231,8 @@ class NodeRendererImpl <: NodeRenderer {
     init(context: HtmlNodeRendererContext) {
         this.context = context
     }
-    public func getNodeTypes(): HashSet<TypeInfo> {
-        return HashSet<TypeInfo>([TypeInfo.of<Link>()])
+    public func getNodeTypes(): HashSet<NodeType> {
+        return HashSet<NodeType>(["Link"])
     }
     public func render(_: Node): Unit {
         context.getWriter().text("test")

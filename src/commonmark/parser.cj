@@ -98,7 +98,7 @@ public class ParserBuilder {
     let blockParserFactories: ArrayList<BlockParserFactory> = ArrayList<BlockParserFactory>()
     let delimiterProcessors: ArrayList<DelimiterProcessor> = ArrayList<DelimiterProcessor>()
     let postProcessors: ArrayList<PostProcessor> = ArrayList<PostProcessor>()
-    var _enabledBlockTypes: HashSet<TypeInfo> = DocumentParser.getDefaultBlockParserTypes()
+    var _enabledBlockTypes: HashSet<NodeType> = DocumentParser.getDefaultBlockParserTypes()
     var _inlineParserFactory: ?InlineParserFactory = None
 
     /**
@@ -108,7 +108,7 @@ public class ParserBuilder {
         return Parser(this)
     }
 
-    public func getEnabledBlockTypes(): HashSet<TypeInfo> {
+    public func getEnabledBlockTypes(): HashSet<NodeType> {
         return _enabledBlockTypes
     }
 
@@ -148,7 +148,7 @@ public class ParserBuilder {
      * If this list is empty, the parser will not recognize any CommonMark core features.
      * @return {@code this}
      */
-    public func enabledBlockTypes(enabledBlockTypes: HashSet<TypeInfo>): ParserBuilder {
+    public func enabledBlockTypes(enabledBlockTypes: HashSet<NodeType>): ParserBuilder {
         this._enabledBlockTypes = enabledBlockTypes
         return this
     }

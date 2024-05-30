@@ -16,8 +16,8 @@ from std import fs.*
 public class TestParser {
     @TestCase
     func test_parser_builder(): Unit {
-        var headersOnly: HashSet<TypeInfo> = HashSet<TypeInfo>()
-        headersOnly.put(TypeInfo.of<Heading>())
+        var headersOnly: HashSet<NodeType> = HashSet<NodeType>()
+        headersOnly.put("Heading")
         var parserBuilder: ParserBuilder = Parser.builder()
         parserBuilder.enabledBlockTypes(headersOnly)
         @Assert(parserBuilder.getEnabledBlockTypes().size, 1)
@@ -25,7 +25,7 @@ public class TestParser {
         var parserBuilder2: ParserBuilder = Parser.builder()
         @Assert(parserBuilder2.getEnabledBlockTypes().size, 7)
 
-        var headersOnly2: HashSet<TypeInfo> = HashSet<TypeInfo>()
+        var headersOnly2: HashSet<NodeType> = HashSet<NodeType>()
         var parserBuilder3: ParserBuilder = Parser.builder()
         parserBuilder3.enabledBlockTypes(headersOnly2)
         @Assert(parserBuilder3.getEnabledBlockTypes().size, 0)
@@ -208,7 +208,7 @@ class DashBlockParser <: AbstractBlockParser {
     }
 }
 
-class DashBlock <: CustomBlock {}
+class DashBlock <: CustomBlock {public func getNodeType():NodeType{"DashBlock"}}
 
 class TablesTest {
     private static let EXTENSIONS: Array<Extension> = Array<Extension>([TablesExtension.create()])

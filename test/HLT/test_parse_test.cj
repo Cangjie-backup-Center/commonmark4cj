@@ -42,12 +42,12 @@ public class ParserTest {
         var parser: Parser = Parser.builder().build()
         var document: Node = parser.parse(given)
         assertEquals("Heading{}", document.getFirstChild()().toString())
-        var headersOnly: HashSet<TypeInfo> = HashSet<TypeInfo>()
-        headersOnly.put(TypeInfo.of<Heading>())
+        var headersOnly: HashSet<NodeType> = HashSet<NodeType>()
+        headersOnly.put("Heading")
         parser = Parser.builder().enabledBlockTypes(headersOnly).build()
         document = parser.parse(given)
         assertEquals("Heading{}", document.getFirstChild()().toString())
-        var noCoreTypes: HashSet<TypeInfo> = HashSet<TypeInfo>()
+        var noCoreTypes: HashSet<NodeType> = HashSet<NodeType>()
         parser = Parser.builder().enabledBlockTypes(noCoreTypes).build()
         document = parser.parse(given)
         assertNotEquals("Heading{}", document.getFirstChild()().toString())
@@ -78,7 +78,7 @@ public class ParserTest {
     }
 }
 
-class DashBlock <: CustomBlock {}
+class DashBlock <: CustomBlock {public func getNodeType():NodeType{"DashBlock"}}
 
 class DashBlockParser <: AbstractBlockParser {
     private var dash: DashBlock = DashBlock()

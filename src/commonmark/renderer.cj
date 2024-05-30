@@ -25,7 +25,7 @@ public interface NodeRenderer {
     /**
      * @return the types of nodes that this renderer handles
      */
-    func getNodeTypes(): HashSet<TypeInfo>
+    func getNodeTypes(): HashSet<NodeType>
 
     /**
      * Render the specified node.
@@ -36,7 +36,7 @@ public interface NodeRenderer {
 }
 
 class NodeRendererMap {
-    private let renderers: HashMap<TypeInfo, NodeRenderer> = HashMap<TypeInfo, NodeRenderer>()
+    private let renderers: HashMap<NodeType, NodeRenderer> = HashMap<NodeType, NodeRenderer>()
 
     public func add(nodeRenderer: NodeRenderer): Unit {
         for (nodeType in nodeRenderer.getNodeTypes()) {
