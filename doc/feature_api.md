@@ -973,9 +973,9 @@ public class ParserBuilder {
 
 	/*
      * 获取那七个block相关node对象象集合
-     * 返回值 HashSet<TypeInfo> - 那七个block相关Node的对象集合
+     * 返回值 HashSet<String> - 那七个block相关Node的对象集合
      */
-    public func getEnabledBlockTypes(): HashSet<TypeInfo>
+    public func getEnabledBlockTypes(): HashSet<String>
 
 	/*
      * 作为插件 拓展解析器 参考table
@@ -986,10 +986,10 @@ public class ParserBuilder {
 
 	/*
      * 更新支持解析的Node对象集合
-     * 参数 HashSet<TypeInfo> - 支持解析的Node对象集合
+     * 参数 HashSet<String> - 支持解析的Node对象集合
      * 返回值 ParserBuilder - ParserBuilder对象
      */
-    public func enabledBlockTypes(enabledBlockTypes: HashSet<TypeInfo>): ParserBuilder
+    public func enabledBlockTypes(enabledBlockTypes: HashSet<String>): ParserBuilder
 
 	/*
      * 增加用户新增的解析工厂类
@@ -1595,11 +1595,9 @@ class fakeInlineParserFactory <: InlineParserFactory {
 public abstract class StrikethroughNodeRenderer <: NodeRenderer {
 	/*
      * 获取删除线类型
-     * 返回值 HashSet<TypeInfo> - 删除线类型
+     * 返回值 HashSet<String> - 删除线类型
      */
-    public override func getNodeTypes(): HashSet<TypeInfo> {
-        return HashSet<TypeInfo>([TypeInfo.of<Strikethrough>()])
-    }
+    public override func getNodeTypes(): HashSet<String>
 }
 
 public class Strikethrough <: CustomNode & Delimited {
@@ -1684,9 +1682,9 @@ public class StrikethroughTest {
 public abstract class TableNodeRenderer <: NodeRenderer {
 	/*
      * 获取表格类型
-     * 返回值 HashSet<TypeInfo> - 表格类型
+     * 返回值 HashSet<String> - 表格类型
      */
-    public override func getNodeTypes(): HashSet<TypeInfo>
+    public override func getNodeTypes(): HashSet<String>
 
 	/*
      * 渲染
