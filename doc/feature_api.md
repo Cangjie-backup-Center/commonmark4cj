@@ -1410,7 +1410,11 @@ class DashBlockParserFactory <: AbstractBlockParserFactory {
     }
 }
 
-class DashBlock <: CustomBlock {}
+class DashBlock <: CustomBlock {
+    public func getNodeType(): NodeType {
+        "DashBlock"
+    }
+}
 
 class DashBlockParser <: AbstractBlockParser {
 
