@@ -3,9 +3,9 @@
         "Name": " commonmark-java",
         "License": " FreeBSD ",
         "License File": " LICENSE ",
-        "Version Number": " 2 ",
         "Owner": "pllab"
         "Upstream URL": "https://github.com/commonmark/commonmark-java",
+        "Version Number": " v0.13.0 ",
         "Description": " Parsing and rendering Markdown text according to the CommonMark specification (and some extensions)."
     }
 ]
