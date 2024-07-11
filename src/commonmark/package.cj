@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
+ */
+
 /**
  * Core of commonmark (implementation of CommonMark for parsing markdown and rendering to HTML)
  */
