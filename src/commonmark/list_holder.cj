@@ -2,7 +2,7 @@
  * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
  */
 
-package commonmark
+package commonmark4cj.commonmark
 
 public abstract class ListHolder {
     private static let INDENT_DEFAULT: String = "   "
@@ -31,20 +31,20 @@ public abstract class ListHolder {
 }
 
 class BulletListHolder <: ListHolder {
-    private let marker: Char
+    private let marker: Rune
 
     public init(parent: ?ListHolder, list: BulletList) {
         super(parent)
         marker = list.getBulletMarker()
     }
 
-    public func getMarker(): Char {
+    public func getMarker(): Rune {
         return marker
     }
 }
 
 class OrderedListHolder <: ListHolder {
-    private let delimiter: Char
+    private let delimiter: Rune
     private var counter: Int
 
     public init(parent: ?ListHolder, list: OrderedList) {
@@ -53,7 +53,7 @@ class OrderedListHolder <: ListHolder {
         counter = list.getStartNumber()
     }
 
-    public func getDelimiter(): Char {
+    public func getDelimiter(): Rune {
         return delimiter
     }
 

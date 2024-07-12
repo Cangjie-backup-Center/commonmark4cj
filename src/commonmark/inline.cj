@@ -2,20 +2,20 @@
  * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
  */
 
-package commonmark
+package commonmark4cj.commonmark
 
 public abstract class EmphasisDelimiterProcessor <: DelimiterProcessor {
-    private let delimiterChar: Char
+    private let delimiterChar: Rune
 
-    protected init(delimiterChar: Char) {
+    protected init(delimiterChar: Rune) {
         this.delimiterChar = delimiterChar
     }
 
-    public override func getOpeningCharacter(): Char {
+    public override func getOpeningCharacter(): Rune {
         return delimiterChar
     }
 
-    public override func getClosingCharacter(): Char {
+    public override func getClosingCharacter(): Rune {
         return delimiterChar
     }
 
@@ -60,12 +60,12 @@ public abstract class EmphasisDelimiterProcessor <: DelimiterProcessor {
 
 public class UnderscoreDelimiterProcessor <: EmphasisDelimiterProcessor {
     public init() {
-        super('_')
+        super(r'_')
     }
 }
 
 public class AsteriskDelimiterProcessor <: EmphasisDelimiterProcessor {
     public init() {
-        super('*')
+        super(r'*')
     }
 }

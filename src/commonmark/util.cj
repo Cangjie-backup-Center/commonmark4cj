@@ -2,7 +2,7 @@
  * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
  */
 
-package commonmark
+package commonmark4cj.commonmark
 
 /* Character range of ascii type：0-127*/
 public type AsciiByte = Byte
@@ -24,10 +24,10 @@ public class Escaping {
 
     private static let WHITESPACE = Regex("[ \t\r\n]+")
 
-    static let amp: Array<Byte> = b"&amp;"
-    static let lt: Array<Byte> = b"&lt;"
-    static let gt: Array<Byte> = b"&gt;"
-    static let quot: Array<Byte> = b"&quot;"
+    static let amp: Array<Byte> = "&amp;".toArray()
+    static let lt: Array<Byte> = "&lt;".toArray()
+    static let gt: Array<Byte> = "&gt;".toArray()
+    static let quot: Array<Byte> = "&quot;".toArray()
 
     public static func escapeHtml(input: String): String {
         // Avoid building a new string in the majority of cases (nothing to escape)
@@ -36,10 +36,10 @@ public class Escaping {
         var i: Int64 = 0
         while (i < arr.size) {
             let replacement: Array<Byte> = match (arr[i]) {
-                case b'&' => amp
-                case b'<' => lt
-                case b'>' => gt
-                case b'\"' => quot
+                case '&' => amp
+                case '<' => lt
+                case '>' => gt
+                case '\"' => quot
                 case byte =>
                     if (let Some(s) <- sb) {
                         s.append(byte)
@@ -74,7 +74,7 @@ public class Escaping {
     public static func percentEncodeUrl(s: String): String {
         let str = s |> map<Byte, ToString> {
             b => if (b < 128) {
-                String(Char(b))
+                String(Rune(b))
             } else {
                 "%${b.format("X")}"
             }
@@ -121,7 +121,7 @@ public class Escaping {
 
 class UnescapeReplacer <: Replacer {
     public func replace(input: String, sb: StringBuilder): Unit {
-        if (input[0] == b'\\') {
+        if (input[0] == '\\'.b) {
             sb.append(input[1..])
         } else {
             sb.append(Html5Entities.entityToString(input))
@@ -130,11 +130,10 @@ class UnescapeReplacer <: Replacer {
 }
 
 class UriReplacer <: Replacer {
-    private static let HEX_DIGITS: Array<Rune> = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D',
-    'E', 'F']
+    private static let HEX_DIGITS: Array<Rune> = [r'0', r'1', r'2', r'3', r'4', r'5', r'6', r'7', r'8', r'9', r'A', r'B', r'C', r'D', r'E', r'F']
 
     public func replace(input: String, sb: StringBuilder): Unit {
-        if (input[0] == b'%') {
+        if (input[0] == '%'.b) {
             if (input.size == 3) {
                 // Already percent-encoded, preserve
                 sb.append(input)
@@ -177,7 +176,7 @@ public class Html5Entities {
                     return "\u{FFFD}"
                 }
 
-                return String(Char(codePoint))
+                return String(Rune(codePoint))
             } catch (e: IllegalArgumentException) {
                 return "\u{FFFD}"
             }
@@ -205,11 +204,11 @@ public class LinkScanner {
         while (i < input.size) {
             let c = input[i]
             match (c) {
-                case b'\\' => if (Parsing.isEscapable(input, i + 1)) {
+                case '\\' => if (Parsing.isEscapable(input, i + 1)) {
                     i++
                 }
-                case b']' => return i
-                case b'[' =>
+                case ']' => return i
+                case '[' =>
                     // spec: Unescaped square bracket characters are not allowed inside the opening and closing
                     // square brackets of link labels.
                     return -1
@@ -227,16 +226,16 @@ public class LinkScanner {
         if (start >= input.size) {
             return -1
         }
-        if (input[start] == b'<') {
+        if (input[start] == '<'.b) {
             var i: Int64 = start + 1
             while (i < input.size) {
                 let c = input[i]
                 match (c) {
-                    case b'\\' => if (Parsing.isEscapable(input, i + 1)) {
+                    case '\\' => if (Parsing.isEscapable(input, i + 1)) {
                         i++
                     }
-                    case b'\n' | b'<' => return -1
-                    case b'>' => return i + 1
+                    case '\n' | '<' => return -1
+                    case '>' => return i + 1
                     case _ => ()
                 }
                 i++
@@ -254,9 +253,9 @@ public class LinkScanner {
 
         var endDelimiterByte: Byte
         match (input[start]) {
-            case b'"' => endDelimiterByte = b'"'
-            case b'\'' => endDelimiterByte = b'\''
-            case b'(' => endDelimiterByte = b')'
+            case '"' => endDelimiterByte = '"'
+            case '\'' => endDelimiterByte = '\''
+            case '(' => endDelimiterByte = ')'
             case _ => return -1
         }
         let afterContent: Int64 = scanLinkTitleContent(input, start + 1, endDelimiterByte)
@@ -279,11 +278,11 @@ public class LinkScanner {
         var i: Int64 = start
         while (i < input.size) {
             let c = input[i]
-            if (c == b'\\' && Parsing.isEscapable(input, i + 1)) {
+            if (c == '\\'.b && Parsing.isEscapable(input, i + 1)) {
                 i++
             } else if (c == endDelimiter) {
                 return i
-            } else if (endDelimiter == b')' && c == b'(') {
+            } else if (endDelimiter == ')'.b && c == '('.b) {
                 // unescaped '(' in title within parens is invalid
                 return -1
             }
@@ -301,27 +300,27 @@ public class LinkScanner {
         while (i < input.size) {
             let c = input[i]
             match (c) {
-                case b'\0' | b' ' => if (i != start) {
+                case '\0' | ' ' => if (i != start) {
                     return i
                 } else {
                     return -1
                 }
-                case b'\\' => if (Parsing.isEscapable(input, i + 1)) {
+                case '\\' => if (Parsing.isEscapable(input, i + 1)) {
                     i++
                 }
-                case b'(' =>
+                case '(' =>
                     parens++
                     // Limit to 32 nested parens for pathological cases
                     if (parens > 32) {
                         return -1
                     }
-                case b')' => if (parens == 0) {
+                case ')' => if (parens == 0) {
                     return i
                 } else {
                     parens--
                 }
                 case _ =>
-                    let (char, charSize) = Char.fromUtf8(unsafe { input.rawData() }, i)
+                    let (char, charSize) = Rune.fromUtf8(unsafe { input.rawData() }, i)
                     // or control character
                     if (charSize == 1 && isISOControl(char)) {
                         if (i != start) {
@@ -338,16 +337,16 @@ public class LinkScanner {
         }
         return input.size
     }
-    private static func isISOControl(codePoint: Char): Bool {
+    private static func isISOControl(codePoint: Rune): Bool {
         let u32 = UInt32(codePoint)
         return u32 <= 0x9F && (u32 >= 0x7F || (u32 >> 5 == 0x00))
     }
 }
 
 public class Parsing {
-    private static let bytes: Array<Byte> = [b'!', b'"', b'#', b'$', b'%', b'&', b'\'', b'(', b')', b'*', b'+', b',',
-    b'-', b'.', b'/', b':', b';', b'<', b'=', b'>', b'?', b'@', b'[', b'\\', b']', b'^', b'_', b'`', b'{', b'|', b'}',
-    b'~']
+    private static let bytes: Array<Byte> = ['!'.b, '"'.b, '#'.b, '$'.b, '%'.b, '&'.b, '\''.b, '('.b, ')'.b, '*'.b, '+'.b, ','.b,
+    '-'.b, '.'.b, '/'.b, ':'.b, ';'.b, '<'.b, '='.b, '>'.b, '?'.b, '@'.b, '['.b, '\\'.b, ']'.b, '^'.b, '_'.b, '`'.b, '{'.b, '|'.b, '}'.b,
+    '~'.b]
     private static let TAGNAME: String = "[A-Za-z][A-Za-z0-9-]*"
     private static let ATTRIBUTENAME: String = "[a-zA-Z_:][a-zA-Z0-9:._-]*"
     private static let UNQUOTEDVALUE: String = "[^\"'=<>`\\x00-\\x20]+"
@@ -386,7 +385,7 @@ public class Parsing {
         var i = startIndex
         while (i < length) {
             match (s[i]) {
-                case b'\n' | b'\r' => return i
+                case '\n' | '\r' => return i
                 case _ => ()
             }
             i++
@@ -400,7 +399,7 @@ public class Parsing {
 
     public static func hasNonSpace(s: String): Bool {
         let length: Int64 = s.size
-        let skipped: Int64 = skip(b' ', s, 0, length)
+        let skipped: Int64 = skip(' '.b, s, 0, length)
         return skipped != length
     }
 
@@ -411,7 +410,7 @@ public class Parsing {
     public static func isSpaceOrTab(s: String, index: Int64): Bool {
         if (index < s.size) {
             match (s[index]) {
-                case b' ' | b'\t' => return true
+                case ' ' | '\t' => return true
                 case _ => ()
             }
         }
@@ -448,7 +447,7 @@ public class Parsing {
     public static func skipSpaceTab(s: String, startIndex: Int64, endIndex: Int64): Int64 {
         for (i in startIndex..endIndex) {
             match (s[i]) {
-                case b' ' | b'\t' => continue
+                case ' ' | '\t' => continue
                 case _ => return i
             }
         }
@@ -458,7 +457,7 @@ public class Parsing {
     public static func skipSpaceTabBackwards(s: String, startIndex: Int64, lastIndex: Int64): Int64 {
         for (i in startIndex..lastIndex : -1) {
             match (s[i]) {
-                case b' ' | b'\t' => continue
+                case ' ' | '\t' => continue
                 case _ => return i
             }
         }
@@ -469,7 +468,7 @@ public class Parsing {
         let length: Int64 = s.size
         for (i in startIndex..length) {
             match (s[i]) {
-                case b' ' | b'\t' | b'\n' | b'\u{0B}' | b'\f' | b'\r' => continue
+                case ' ' | '\t' | '\n' | '\u{0B}' | '\f' | '\r' => continue
                 case _ => return i
             }
         }

@@ -2,7 +2,7 @@
  * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
  */
 
-package commonmark
+package commonmark4cj.commonmark
 
 /**
  * Parser for inline content (text, links, emphasized text, etc).
@@ -97,7 +97,7 @@ class InlineParserImpl <: InlineParser {
 
     private var specialCharacters: BitSet
     private var delimiterCharacters: BitSet
-    private var delimiterProcessors: HashMap<Char, DelimiterProcessor>
+    private var delimiterProcessors: HashMap<Rune, DelimiterProcessor>
     private var context: InlineParserContext
 
     private var input: String = ""
@@ -117,13 +117,13 @@ class InlineParserImpl <: InlineParser {
     public init(inlineParserContext: InlineParserContext) {
         this.delimiterProcessors = calculateDelimiterProcessors(inlineParserContext.getCustomDelimiterProcessors())
         this.delimiterCharacters = calculateDelimiterCharacters(
-            HashSet<Char>(this.delimiterProcessors.keys().toArray()))
+            HashSet<Rune>(this.delimiterProcessors.keys().toArray()))
         this.specialCharacters = calculateSpecialCharacters(delimiterCharacters)
 
         this.context = inlineParserContext
     }
 
-    private static func calculateDelimiterCharacters(characters: HashSet<Char>): BitSet {
+    private static func calculateDelimiterCharacters(characters: HashSet<Rune>): BitSet {
         var bitSet: BitSet = BitSet(characters.size)
         for (i in characters) {
             bitSet.set(Int64(UInt32(i)))
@@ -134,20 +134,20 @@ class InlineParserImpl <: InlineParser {
     private static func calculateSpecialCharacters(delimiterCharacters: BitSet): BitSet {
         var bitSet: BitSet = BitSet(8)
         bitSet.or(delimiterCharacters)
-        bitSet.set(Int64(UInt32('\n')))
-        bitSet.set(Int64(UInt32('`')))
-        bitSet.set(Int64(UInt32('[')))
-        bitSet.set(Int64(UInt32(']')))
-        bitSet.set(Int64(UInt32('\\')))
-        bitSet.set(Int64(UInt32('!')))
-        bitSet.set(Int64(UInt32('<')))
-        bitSet.set(Int64(UInt32('&')))
+        bitSet.set(Int64(UInt32(r'\n')))
+        bitSet.set(Int64(UInt32(r'`')))
+        bitSet.set(Int64(UInt32(r'[')))
+        bitSet.set(Int64(UInt32(r']')))
+        bitSet.set(Int64(UInt32(r'\\')))
+        bitSet.set(Int64(UInt32(r'!')))
+        bitSet.set(Int64(UInt32(r'<')))
+        bitSet.set(Int64(UInt32(r'&')))
         return bitSet
     }
 
-    private static func calculateDelimiterProcessors(delimiterProcessors: ArrayList<DelimiterProcessor>): HashMap<Char,
+    private static func calculateDelimiterProcessors(delimiterProcessors: ArrayList<DelimiterProcessor>): HashMap<Rune,
         DelimiterProcessor> {
-        var map: HashMap<Char, DelimiterProcessor> = HashMap<Char, DelimiterProcessor>()
+        var map: HashMap<Rune, DelimiterProcessor> = HashMap<Rune, DelimiterProcessor>()
         addDelimiterProcessors(
             ArrayList<DelimiterProcessor>(AsteriskDelimiterProcessor(), UnderscoreDelimiterProcessor()), map)
         addDelimiterProcessors(delimiterProcessors, map)
@@ -156,11 +156,11 @@ class InlineParserImpl <: InlineParser {
 
     private static func addDelimiterProcessors(
         delimiterProcessors: ArrayList<DelimiterProcessor>,
-        hashMap: HashMap<Char, DelimiterProcessor>
+        hashMap: HashMap<Rune, DelimiterProcessor>
     ): Unit {
         for (delimiterProcessor in delimiterProcessors) {
-            let opening: Char = delimiterProcessor.getOpeningCharacter()
-            let closing: Char = delimiterProcessor.getClosingCharacter()
+            let opening: Rune = delimiterProcessor.getOpeningCharacter()
+            let closing: Rune = delimiterProcessor.getClosingCharacter()
             if (opening == closing) {
                 let old: Option<DelimiterProcessor> = hashMap.get(opening)
                 if (old.isSome() && old().getOpeningCharacter() == old().getClosingCharacter()) {
@@ -184,9 +184,9 @@ class InlineParserImpl <: InlineParser {
     }
 
     private static func addDelimiterProcessorForChar(
-        delimiterChar: Char,
+        delimiterChar: Rune,
         toAdd: DelimiterProcessor,
-        delimiterProcessors: HashMap<Char, DelimiterProcessor>
+        delimiterProcessors: HashMap<Rune, DelimiterProcessor>
     ): Unit {
         let existing: ?DelimiterProcessor = delimiterProcessors.put(delimiterChar, toAdd)
         if (existing.isSome()) {
@@ -232,8 +232,8 @@ class InlineParserImpl <: InlineParser {
      * On failure, return null.
      */
     private func parseInline(previous: ?Node): ?Node {
-        let c: Char = peek()
-        if (c == '\0') {
+        let c: Rune = peek()
+        if (c == r'\0') {
             return Option<Node>.None
         }
 
@@ -292,11 +292,11 @@ class InlineParserImpl <: InlineParser {
     /**
      * Returns the char at the current input index, or {@code '\0'} in case there are no more characters.
      */
-    private func peek(): Char {
+    private func peek(): Rune {
         if (index < input.size) {
-            return Char.fromUtf8(unsafe { input.rawData() }, index)[0]
+            return Rune.fromUtf8(unsafe { input.rawData() }, index)[0]
         } else {
-            return '\0'
+            return r'\0'
         }
     }
 
@@ -349,7 +349,7 @@ class InlineParserImpl <: InlineParser {
         index++
         let inputArr: String = input
         var nodes: Node
-        if (peek() == '\n') {
+        if (peek() == r'\n') {
             nodes = HardLineBreak()
             index++
         } else if (index < inputArr.size && ESCAPABLE.matcher(inputArr[index..(index + 1)]).find().isSome()) {
@@ -377,7 +377,7 @@ class InlineParserImpl <: InlineParser {
                 content = content.replace("\n", " ")
                 // spec: If the resulting string both begins and ends with a space character, but does not consist
                 // entirely of space characters, a single space character is removed from the front and back.
-                if (content.size >= 3 && content[0] == b' ' && content[content.size - 1] == b' ' && Parsing.hasNonSpace(
+                if (content.size >= 3 && content[0] == ' '.b && content[content.size - 1] == ' '.b && Parsing.hasNonSpace(
                     content)) {
                     content = content[1..(content.size - 1)]
                 }
@@ -394,7 +394,7 @@ class InlineParserImpl <: InlineParser {
     /**
      * Attempt to parse delimiters like emphasis, strong emphasis or custom delimiters.
      */
-    private func parseDelimiters(delimiterProcessor: DelimiterProcessor, delimiterChar: Char): ?Node {
+    private func parseDelimiters(delimiterProcessor: DelimiterProcessor, delimiterChar: Rune): ?Node {
         let res: ?DelimiterData = scanDelimiters(delimiterProcessor, delimiterChar)
         if (res.isNone()) {
             return Option<Node>.None
@@ -438,7 +438,7 @@ class InlineParserImpl <: InlineParser {
     private func parseBang(): Node {
         let startIndex: Int64 = index
         index++
-        if (peek() == '[') {
+        if (peek() == r'[') {
             index++
 
             let nodes: Text = text("![")
@@ -480,7 +480,7 @@ class InlineParserImpl <: InlineParser {
         var isImageOrLink: Bool = false
 
         // Maybe a inline link like `[foo](/uri "titleStr")`
-        if (peek() == '(') {
+        if (peek() == r'(') {
             index++
             let newIndex: Int64 = index
             spnl()
@@ -492,7 +492,7 @@ class InlineParserImpl <: InlineParser {
                     titleStr = parseLinkTitle()
                     spnl()
                 }
-                if (peek() == ')') {
+                if (peek() == r')') {
                     index++
                     isImageOrLink = true
                 } else {
@@ -595,7 +595,7 @@ class InlineParserImpl <: InlineParser {
 
         var dest: ?String = None
         let inputArr: String = input
-        if (peek() == '<') {
+        if (peek() == r'<') {
             // chop off surrounding <..>:
             dest = inputArr[(index + 1)..(afterDest - 1)]
         } else {
@@ -626,7 +626,7 @@ class InlineParserImpl <: InlineParser {
      */
     func parseLinkLabel(): Int64 {
         let inputArr: String = input
-        if (index >= inputArr.size || inputArr[index] != b'[') {
+        if (index >= inputArr.size || inputArr[index] != '['.b) {
             return 0
         }
 
@@ -637,7 +637,7 @@ class InlineParserImpl <: InlineParser {
         if (endContent == -1 || contentLength > 999) {
             return 0
         }
-        if (endContent >= inputArr.size || inputArr[endContent] != b']') {
+        if (endContent >= inputArr.size || inputArr[endContent] != ']'.b) {
             return 0
         }
         index = endContent + 1
@@ -714,13 +714,13 @@ class InlineParserImpl <: InlineParser {
      *
      * @return information about delimiter run, or {@code null}
      */
-    private func scanDelimiters(delimiterProcessor: DelimiterProcessor, delimiterChar: Char): ?DelimiterData {
+    private func scanDelimiters(delimiterProcessor: DelimiterProcessor, delimiterChar: Rune): ?DelimiterData {
         let startIndex: Int64 = index
 
         var delimiterCount: Int64 = 0
         while (peek() == delimiterChar) {
             delimiterCount++
-            index += Char.utf8Size(delimiterChar)
+            index += Rune.utf8Size(delimiterChar)
         }
 
         if (delimiterCount < delimiterProcessor.getMinLength()) {
@@ -730,12 +730,12 @@ class InlineParserImpl <: InlineParser {
         let before: String = if (startIndex == 0) {
             "\n"
         } else {
-            let (c, _) = Char.getPreviousFromUtf8(unsafe { input.rawData() }, startIndex)
+            let (c, _) = Rune.getPreviousFromUtf8(unsafe { input.rawData() }, startIndex)
             c.toString()
         }
 
-        let charAfter: Char = peek()
-        let after: String = if (charAfter == '\0') {
+        let charAfter: Rune = peek()
+        let after: String = if (charAfter == r'\0') {
             "\n"
         } else {
             String(charAfter)
@@ -751,7 +751,7 @@ class InlineParserImpl <: InlineParser {
         let rightFlanking: Bool = !beforeIsWhitespace && (!beforeIsPunctuation || afterIsWhitespace || afterIsPunctuation)
         var isCanOpen: Bool
         var isCanClose: Bool
-        if (delimiterChar == '_') {
+        if (delimiterChar == r'_') {
             isCanOpen = leftFlanking && (!rightFlanking || beforeIsPunctuation)
             isCanClose = rightFlanking && (!leftFlanking || afterIsPunctuation)
         } else {
@@ -764,7 +764,7 @@ class InlineParserImpl <: InlineParser {
     }
 
     private func processDelimiters(stackBottom: ?Delimiter): Unit {
-        var openersBottom: HashMap<Char, ?Delimiter> = HashMap<Char, ?Delimiter>()
+        var openersBottom: HashMap<Rune, ?Delimiter> = HashMap<Rune, ?Delimiter>()
 
         // find first closer above stackBottom:
         var closer: ?Delimiter = lastDelimiter
@@ -773,7 +773,7 @@ class InlineParserImpl <: InlineParser {
         }
         // move forward, looking for closers, and handling each
         while (closer.isSome()) {
-            let delimiterChar: Char = closer().delimiterChar
+            let delimiterChar: Rune = closer().delimiterChar
 
             var delimiterProcessor: ?DelimiterProcessor = delimiterProcessors.get(delimiterChar)
             if (!(closer().canClose()) || delimiterProcessor.isNone()) {
@@ -781,7 +781,7 @@ class InlineParserImpl <: InlineParser {
                 continue
             }
 
-            let openingDelimiterChar: Char = delimiterProcessor().getOpeningCharacter()
+            let openingDelimiterChar: Rune = delimiterProcessor().getOpeningCharacter()
 
             // Found delimiter closer. Now look back for first matching opener.
             var useDelims: Int64 = 0

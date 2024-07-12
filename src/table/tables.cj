@@ -2,7 +2,7 @@
  * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
  */
 
-package table
+package commonmark4cj.table
 
 let TableBlockType: NodeType = "TableBlock"
 let TableBodyType: NodeType = "TableBody"

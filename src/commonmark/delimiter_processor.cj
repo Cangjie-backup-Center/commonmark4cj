@@ -2,7 +2,7 @@
  * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
  */
 
-package commonmark
+package commonmark4cj.commonmark
 
 public interface DelimiterProcessor {
 
@@ -10,13 +10,13 @@ public interface DelimiterProcessor {
      * @return the character that marks the beginning of a delimited node, must not clash with any built-in special
      * characters
      */
-    func getOpeningCharacter(): Char
+    func getOpeningCharacter(): Rune
 
     /**
      * @return the character that marks the the ending of a delimited node, must not clash with any built-in special
      * characters. Note that for a symmetric delimiter such as "*", this is the same as the opening.
      */
-    func getClosingCharacter(): Char
+    func getClosingCharacter(): Rune
 
     /**
      * Minimum number of delimiter characters that are needed to activate this. Must be at least 1.
@@ -49,19 +49,19 @@ public interface DelimiterProcessor {
 }
 
 class StaggeredDelimiterProcessor <: DelimiterProcessor {
-    private var delim: Char
+    private var delim: Rune
     private var minLength: Int64 = 0
     private var processors: LinkedList<DelimiterProcessor> = LinkedList<DelimiterProcessor>()
 
-    init(delim: Char) {
+    init(delim: Rune) {
         this.delim = delim
     }
 
-    public override func getOpeningCharacter(): Char {
+    public override func getOpeningCharacter(): Rune {
         return delim
     }
 
-    public override func getClosingCharacter(): Char {
+    public override func getClosingCharacter(): Rune {
         return delim
     }
 

@@ -2,7 +2,7 @@
  * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
  */
 
-package strikethrough
+package commonmark4cj.strikethrough
 
 let StrikethroughType: NodeType = "Strikethrough"
 
@@ -32,12 +32,12 @@ public class Strikethrough <: CustomNode & Delimited {
 }
 
 class StrikethroughDelimiterProcessor <: DelimiterProcessor {
-    public override func getOpeningCharacter(): Char {
-        return '~'
+    public override func getOpeningCharacter(): Rune {
+        return r'~'
     }
 
-    public override func getClosingCharacter(): Char {
-        return '~'
+    public override func getClosingCharacter(): Rune {
+        return r'~'
     }
 
     public override func getMinLength(): Int64 {

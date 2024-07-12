@@ -2,7 +2,7 @@
  * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
  */
 
-package commonmark
+package commonmark4cj.commonmark
 
 /**
  * Renders a tree of nodes to HTML.
@@ -273,7 +273,7 @@ public class HtmlWriter {
     }
 
     public func line(): Unit {
-        if (lastChar != 0 && lastChar != b'\n') {
+        if (lastChar != 0 && lastChar != '\n'.b) {
             append("\n")
         }
     }

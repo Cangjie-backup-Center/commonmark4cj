@@ -2,7 +2,7 @@
  * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
  */
 
-package commonmark
+package commonmark4cj.commonmark
 
 public abstract class AbstractBlockParser <: BlockParser {
     public open func isContainer(): Bool {
@@ -261,7 +261,7 @@ class BlockQuoteParser <: AbstractBlockParser {
 
     public static func isMarker(state: ParserState, index: Int64): Bool {
         var line = state.getLine()
-        return state.getIndent() < Parsing.CODE_BLOCK_INDENT && index < line.size && line[index] == b'>'
+        return state.getIndent() < Parsing.CODE_BLOCK_INDENT && index < line.size && line[index] == '>'.b
     }
 }
 
@@ -351,7 +351,7 @@ class FencedCodeBlockParser <: AbstractBlockParser {
     private var firstLine: ?String = None
     private var otherLines: StringBuilder = StringBuilder(STRINGBUILDER_CAPACITY)
 
-    public init(fenceChar: Char, fenceLength: Int64, fenceIndent: Int64) {
+    public init(fenceChar: Rune, fenceLength: Int64, fenceIndent: Int64) {
         block.setFenceChar(fenceChar)
         block.setFenceLength(fenceLength)
         block.setFenceIndent(fenceIndent)
@@ -373,7 +373,7 @@ class FencedCodeBlockParser <: AbstractBlockParser {
             // skip optional spaces of fence indent
             var i: Int64 = block.getFenceIndent()
             var length: Int64 = line.size
-            while (i > 0 && newIndex < length && line[newIndex] == b' ') {
+            while (i > 0 && newIndex < length && line[newIndex] == ' '.b) {
                 newIndex++
                 i--
             }
@@ -405,8 +405,8 @@ class FencedCodeBlockParser <: AbstractBlockParser {
         var i: Int64 = index
         while(i < length) {
             match(line[i]) {
-                case b'`' => backticks++
-                case b'~' => tildes++
+                case '`' => backticks++
+                case '~' => tildes++
                 case _ => break
             }
             i++
@@ -414,13 +414,13 @@ class FencedCodeBlockParser <: AbstractBlockParser {
 
         if (backticks >= 3 && tildes == 0) {
             // spec: If the info string comes after a backtick fence, it may not contain any backtick characters.
-            if (Parsing.find(b'`', line, index + backticks) != -1) {
+            if (Parsing.find('`'.b, line, index + backticks) != -1) {
                 return None
             }
-            return FencedCodeBlockParser('`', backticks, indent)
+            return FencedCodeBlockParser(r'`', backticks, indent)
         } else if (tildes >= 3 && backticks == 0) {
             // spec: Info strings for tilde code blocks can contain backticks and tildes
-            return FencedCodeBlockParser('~', tildes, indent)
+            return FencedCodeBlockParser(r'~', tildes, indent)
         } else {
             return None
         }
@@ -486,7 +486,7 @@ class HeadingParser <: AbstractBlockParser {
     // sequence of # characters must be followed by a space or by the end of line. The optional closing sequence of #s
     // must be preceded by a space and may be followed by spaces only.
     public static func getAtxHeading(line: String, index: Int64): Option<HeadingParser> {
-        var level: Int64 = Parsing.skip(b'#', line, index, line.size) - index
+        var level: Int64 = Parsing.skip('#'.b, line, index, line.size) - index
 
         if (level == 0 || level > 6) {
             return None
@@ -499,12 +499,12 @@ class HeadingParser <: AbstractBlockParser {
         }
 
         var next = line[start]
-        if (!(next == b' ' || next == b'\t')) {
+        if (!(next == ' '.b || next == '\t'.b)) {
             return None
         }
 
         var beforeSpace: Int64 = Parsing.skipSpaceTabBackwards(line, line.size - 1, start)
-        var beforeHash: Int64 = Parsing.skipBackwards(b'#', line, beforeSpace, start)
+        var beforeHash: Int64 = Parsing.skipBackwards('#'.b, line, beforeSpace, start)
         var beforeTrailer: Int64 = Parsing.skipSpaceTabBackwards(line, beforeHash, start)
         var lines: String
         if (beforeTrailer != beforeHash) {
@@ -520,10 +520,10 @@ class HeadingParser <: AbstractBlockParser {
     // 3 spaces indentation and any number of trailing spaces.
     public static func getSetextHeadingLevel(line: String, index: Int64): Int64 {
         match (line[index]) {
-            case b'=' => if (isSetextHeadingRest(line, index + 1, b'=')) {
+            case '=' => if (isSetextHeadingRest(line, index + 1, '='.b)) {
                 return 1
             }
-            case b'-' => if (isSetextHeadingRest(line, index + 1, b'-')) {
+            case '-' => if (isSetextHeadingRest(line, index + 1, '-'.b)) {
                 return 2
             }
             case _ => return 0
@@ -654,7 +654,7 @@ public class HtmlBlockParserFactory <: BlockParserFactory {
         var nextNonSpace: Int64 = state.getNextNonSpaceIndex()
         var line = state.getLine()
 
-        if (state.getIndent() < 4 && line[nextNonSpace] == b'<') {
+        if (state.getIndent() < 4 && line[nextNonSpace] == '<'.b) {
             for (blockType in 1..8) {
                 // Type 7 can not interrupt a paragraph
                 if (blockType == 7 && matchedBlockParser.getMatchedBlockParser().getBlock() is Paragraph) {
@@ -754,7 +754,7 @@ public class LinkReferenceDefinitionParser {
     private var label: StringBuilder = StringBuilder()
     private var normalizedLabel: String = ""
     private var destination: String = ""
-    private var titleDelimiter: Char = NULL_CHAR
+    private var titleDelimiter: Rune = NULL_CHAR
     private var title: StringBuilder = StringBuilder()
     private var referenceValid: Bool = false
 
@@ -800,7 +800,7 @@ public class LinkReferenceDefinitionParser {
 
     private func startDefinition(line: String, i: Int64): Int64 {
         var index = Parsing.skipSpaceTab(line, i, line.size)
-        if (index >= line.size || line[index] != b'[') {
+        if (index >= line.size || line[index] != '['.b) {
             return -1
         }
 
@@ -826,10 +826,10 @@ public class LinkReferenceDefinitionParser {
             // label might continue on next line
             label.append('\n')
             return afterLabel
-        } else if (line[afterLabel] == b']') {
+        } else if (line[afterLabel] == ']'.b) {
             var colon: Int64 = afterLabel + 1
             // end of label
-            if (colon >= line.size || line[colon] != b':') {
+            if (colon >= line.size || line[colon] != ':'.b) {
                 return -1
             }
 
@@ -857,7 +857,7 @@ public class LinkReferenceDefinitionParser {
             return -1
         }
 
-        if (line[index] == b'<') {
+        if (line[index] == '<'.b) {
             destination = line[i + 1..afterDestination - 1]
         } else {
             destination = line[i..afterDestination]
@@ -887,13 +887,13 @@ public class LinkReferenceDefinitionParser {
 
         titleDelimiter = '\0'
         var c: Byte = line[i]
-        if (c == b'"' || c == b'\'') {
-            titleDelimiter = Char(c)
-        } else if (c == b'(') {
+        if (c == '"'.b || c == '\''.b) {
+            titleDelimiter = Rune(c)
+        } else if (c == '('.b) {
             titleDelimiter = ')'
         }
 
-        if (titleDelimiter != '\0') {
+        if (titleDelimiter != r'\0') {
             state = State.TITLE
             title = StringBuilder()
             index++
@@ -1032,9 +1032,9 @@ class ListBlockParser <: AbstractBlockParser {
         var length: Int64 = line.size
         for (i in indexAfterMarker..length) {
             var c = line[i]
-            if (c == b'\t') {
+            if (c == '\t'.b) {
                 contentColumn += Parsing.columnsToNextTabStop(contentColumn)
-            } else if (c == b' ') {
+            } else if (c == ' '.b) {
                 contentColumn++
             } else {
                 hasContent = true
@@ -1064,9 +1064,9 @@ class ListBlockParser <: AbstractBlockParser {
     private static func parseListMarker(line: String, index: Int64): Option<ListMarkerData> {
         var c = line[index]
         // spec: A bullet list marker is a -, +, or * character.
-        if (c == b'-' || c == b'+' || c == b'*') {
+        if (c == '-'.b || c == '+'.b || c == '*'.b) {
             if (isSpaceTabOrEnd(line, index + 1)) {
-                var bulletList: BulletList = BulletList(Char(c))
+                var bulletList: BulletList = BulletList(Rune(c))
                 // bulletList.setBulletMarker(c)
                 return ListMarkerData(bulletList, index + 1)
             } else {
@@ -1085,14 +1085,14 @@ class ListBlockParser <: AbstractBlockParser {
         for (i in index..length) {
             var c: Byte = line[i]
             match (c) {
-                case b'0' | b'1' | b'2' | b'3' | b'4' | b'5' | b'6' | b'7' | b'8' | b'9' =>
+                case '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' =>
                     digits++
                     if (digits > 9) {
                         return None
                     }
-                case b'.' | b')' => if (digits >= 1 && isSpaceTabOrEnd(line, i + 1)) {
+                case '.' | ')' => if (digits >= 1 && isSpaceTabOrEnd(line, i + 1)) {
                     var number: String = line[index..i]
-                    var orderedList: OrderedList = OrderedList(Int64.parse(number), Char(c))
+                    var orderedList: OrderedList = OrderedList(Int64.parse(number), Rune(c))
                     return ListMarkerData(orderedList, i + 1)
                 } else {
                     return None
@@ -1106,7 +1106,7 @@ class ListBlockParser <: AbstractBlockParser {
     private static func isSpaceTabOrEnd(line: String, index: Int64): Bool {
         if (index < line.size) {
             match (line[index]) {
-                case b' ' | b'\t' => return true
+                case ' ' | '\t' => return true
                 case _ => return false
             }
         } else {
@@ -1132,7 +1132,7 @@ class ListBlockParser <: AbstractBlockParser {
         return false
     }
 
-    private static func equals(a: Option<Char>, b: Option<Char>): Bool {
+    private static func equals(a: Option<Rune>, b: Option<Rune>): Bool {
         if (a == None) {
             return b == None
         } else {
@@ -1322,10 +1322,10 @@ class ThematicBreakParser <: AbstractBlockParser {
         var length: Int64 = line.size
         for (i in index..length) {
             match (line[i]) {
-                case b'-' => dashes++
-                case b'_' => underscores++
-                case b'*' => asterisks++
-                case b' ' | b'\t' =>
+                case '-' => dashes++
+                case '_' => underscores++
+                case '*' => asterisks++
+                case ' ' | '\t' =>
                     // Allowed, even between markers
                     continue
                 case _ => return false

@@ -2,7 +2,7 @@
  * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
  */
 
-package commonmark
+package commonmark4cj.commonmark
 /**
  * A delimiter run is one or more of the same delimiter character.
  */
@@ -35,7 +35,7 @@ public interface DelimiterRun {
  */
 public class Delimiter <: DelimiterRun & Equatable<Delimiter> {
     public let node: Text
-    public let delimiterChar: Char
+    public let delimiterChar: Rune
 
     /**
      * Can open emphasis, see spec.
@@ -53,7 +53,7 @@ public class Delimiter <: DelimiterRun & Equatable<Delimiter> {
     public var length: Int64 = 1
     public var originalLength: Int64 = 1
 
-    public init(node: Text, delimiterChar: Char, canOpen: Bool, canClose: Bool, previous: ?Delimiter) {
+    public init(node: Text, delimiterChar: Rune, canOpen: Bool, canClose: Bool, previous: ?Delimiter) {
         this.node = node
         this.delimiterChar = delimiterChar
         this.canOpenBool = canOpen
