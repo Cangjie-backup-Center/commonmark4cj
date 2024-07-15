@@ -1,7 +1,7 @@
 [
     {
         "Name": " commonmark-java",
-        "License": " FreeBSD ",
+        "License": " BSD-2-Clause ",
         "License File": " LICENSE ",
         "Owner": "pllab"
         "Upstream URL": "https://github.com/commonmark/commonmark-java",

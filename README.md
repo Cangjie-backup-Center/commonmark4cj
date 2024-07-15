@@ -24,13 +24,8 @@
 
 
 ### 路线
-```mermaid
-gantt
-    title Milestone
-    dateFormat YYYY-MM-DD
-        Node : a1, 2024-01-29, 2024-02-08
-        Parser : 2024-02-17, 30d
-```
+
+<img alt="" src="./doc/assets/image.png" style="display: inline-block;" />
 
 
 ## 软件架构
@@ -225,10 +220,13 @@ func parse(source: String): Node {
 
 ## 约束与限制
 
-描述环境限制，版本限制，依赖版本等
+在下述版本验证通过：
+
+    Cangjie Version: 0.51.4
 
 ## 开源协议
-FreeBSD
+
+BSD-2-Clause
 
 ## 参与贡献
 
