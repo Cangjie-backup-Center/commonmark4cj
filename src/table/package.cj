@@ -5,13 +5,13 @@
 /**
  * commonmark extension for GFM strikethrough using ~~ (GitHub Flavored Markdown)
  */
-package table
+package commonmark4cj.table
 
-from commonmark4cj import commonmark.*
-from std import collection.{HashSet, HashMap, Map, ArrayList}
-from std import unicode.{UnicodeExtension}
+internal import commonmark4cj.commonmark.*
+internal import std.collection.{HashSet, HashMap, Map, ArrayList}
+internal import std.unicode.{UnicodeExtension}
 
-extend Option<T> {
+extend<T> Option<T> {
     operator func ()(): T {
         this.getOrThrow()
     }
@@ -19,7 +19,7 @@ extend Option<T> {
 
 public type CharSequence = Array<Rune>
 
-extend Array<T> where T <: Rune {
+extend<T> Array<T> where T <: Rune {
     func trim(): Array<T> {
         var (a, b) = (0, this.size - 1)
         while (a <= b) {
@@ -44,6 +44,28 @@ extend Array<T> where T <: Rune {
             if (this[i] == old) {
                 this[i] = new
             }
+        }
+    }
+}
+
+extend Rune{
+    prop b: Byte {
+        get(){
+            UInt8(UInt32(this))
+        }
+    }
+}
+extend Byte{
+    prop b: Byte {
+        get(){
+            this
+        }
+    }
+}
+extend String{
+    prop b: Byte {
+        get(){
+            this[0]
         }
     }
 }

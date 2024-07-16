@@ -2,7 +2,7 @@
  * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
  */
 
-package commonmark
+package commonmark4cj.commonmark
 
 public class TextContentRenderer <: Renderer {
     let stripNewlines: Bool
@@ -225,7 +225,7 @@ class CoreTextContentNodeRenderer <: AbstractVisitor & NodeRenderer {
 
     public override func visit(heading: Heading): Unit {
         visitChildren(heading)
-        writeEndOfLineIfNeeded(heading, ':')
+        writeEndOfLineIfNeeded(heading, r':')
     }
 
     public override func visit(thematicBreak: ThematicBreak): Unit {
@@ -359,7 +359,7 @@ class CoreTextContentNodeRenderer <: AbstractVisitor & NodeRenderer {
         }
     }
 
-    private func writeEndOfLineIfNeeded(node: Node, c: ?Char): Unit {
+    private func writeEndOfLineIfNeeded(node: Node, c: ?Rune): Unit {
         if (context.stripNewlines()) {
             if (let Some(v) <- c?.toString()) {
                 textContent.write(v)
@@ -423,19 +423,19 @@ public class TextContentWriter {
     }
 
     public func whitespace(): Unit {
-        if (lastChar != 0 && lastChar != b' ') {
+        if (lastChar != 0 && lastChar != ' '.b) {
             append(" ")
         }
     }
 
     public func colon(): Unit {
-        if (lastChar != 0 && lastChar != b':') {
+        if (lastChar != 0 && lastChar != ':'.b) {
             append(":")
         }
     }
 
     public func line(): Unit {
-        if (lastChar != 0 && lastChar != b'\n') {
+        if (lastChar != 0 && lastChar != '\n'.b) {
             append("\n")
         }
     }

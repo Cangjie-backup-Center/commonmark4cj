@@ -2,7 +2,7 @@
  * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
  */
 
-package commonmark
+package commonmark4cj.commonmark
 
 public abstract class Block <: Node {
     public open func getParent(): ?Node {
@@ -108,7 +108,7 @@ public open class IndentedCodeBlock <: Block {
 }
 
 public open class FencedCodeBlock <: Block {
-    private var fenceChar: Char = NULL_CHAR
+    private var fenceChar: Rune = NULL_CHAR
     private var fenceLength: Int64 = 0
     private var fenceIndent: Int64 = 0
 
@@ -119,11 +119,11 @@ public open class FencedCodeBlock <: Block {
         visitor.visit(this)
     }
 
-    public open func getFenceChar(): Char {
+    public open func getFenceChar(): Rune {
         return fenceChar
     }
 
-    public open func setFenceChar(fenceChar: Char): Unit {
+    public open func setFenceChar(fenceChar: Rune): Unit {
         this.fenceChar = fenceChar
     }
 
@@ -207,9 +207,9 @@ public abstract class ListBlock <: Block {
 }
 
 public open class BulletList <: ListBlock {
-    private var bulletMarker: Char
+    private var bulletMarker: Rune
 
-    public init(bulletMarker: Char) {
+    public init(bulletMarker: Rune) {
         this.bulletMarker = bulletMarker
     }
 
@@ -217,11 +217,11 @@ public open class BulletList <: ListBlock {
         visitor.visit(this)
     }
 
-    public open func getBulletMarker(): Char {
+    public open func getBulletMarker(): Rune {
         return bulletMarker
     }
 
-    public open func setBulletMarker(bulletMarker: Char): Unit {
+    public open func setBulletMarker(bulletMarker: Rune): Unit {
         this.bulletMarker = bulletMarker
     }
 
@@ -232,9 +232,9 @@ public open class BulletList <: ListBlock {
 
 public open class OrderedList <: ListBlock {
     private var startNumber: Int64
-    private var delimiter: Char
+    private var delimiter: Rune
 
-    public init(startNumber: Int64, delimiter: Char) {
+    public init(startNumber: Int64, delimiter: Rune) {
         this.startNumber = startNumber
         this.delimiter = delimiter
     }
@@ -251,11 +251,11 @@ public open class OrderedList <: ListBlock {
         this.startNumber = startNumber
     }
 
-    public open func getDelimiter(): Char {
+    public open func getDelimiter(): Rune {
         return delimiter
     }
 
-    public open func setDelimiter(delimiter: Char): Unit {
+    public open func setDelimiter(delimiter: Rune): Unit {
         this.delimiter = delimiter
     }
 

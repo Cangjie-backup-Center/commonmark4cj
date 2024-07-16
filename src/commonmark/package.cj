@@ -5,23 +5,23 @@
 /**
  * Core of commonmark (implementation of CommonMark for parsing markdown and rendering to HTML)
  */
-package commonmark
+package commonmark4cj.commonmark
 
-from std import collection.{ArrayList, HashMap, HashSet, Map, EquatableCollection, Set, LinkedList, map, collectString}
-from std import convert.{Parsable}
-from std import format.{Formatter}
-from std import io.{StringReader, InputStream, IOException}
-from std import os.{getEnv}
-from std import regex.{Regex, Matcher, MatchData, RegexOption, Position}
-from std import unicode.{UnicodeExtension}
+internal import std.collection.{ArrayList, HashMap, HashSet, Map, EquatableCollection, Set, LinkedList, map, collectString}
+internal import std.convert.{Parsable}
+internal import std.format.{Formatter}
+internal import std.io.{StringReader, InputStream, IOException}
+internal import std.os.{getEnv}
+internal import std.regex.{Regex, Matcher, MatchData, RegexOption, Position}
+internal import std.unicode.{UnicodeExtension}
 
-extend Option<T> {
+extend<T> Option<T> {
     operator func ()(): T {
         this.getOrThrow()
     }
 }
 
-extend Option<T> where T <: Equatable<T> {
+extend<T> Option<T> where T <: Equatable<T> {
     operator func ==(other: T): Bool {
         match (this) {
             case Some(v) => v == other
@@ -42,7 +42,7 @@ let EMPTY_MAP: Map<String, String> = HashMap()
 let STRINGBUILDER_CAPACITY: Int64 = 256
 public type CharSequence = Array<Rune>
 
-extend Array<T> where T <: Rune {
+extend<T> Array<T> where T <: Rune {
     func trim(): Array<T> {
         var (a, b) = (0, this.size - 1)
         while (a <= b) {
@@ -67,6 +67,28 @@ extend Array<T> where T <: Rune {
             if (this[i] == old) {
                 this[i] = new
             }
+        }
+    }
+}
+
+extend Rune{
+    prop b: Byte {
+        get(){
+            UInt8(UInt32(this))
+        }
+    }
+}
+extend Byte{
+    prop b: Byte {
+        get(){
+            this
+        }
+    }
+}
+extend String{
+    prop b: Byte {
+        get(){
+            this[0]
         }
     }
 }

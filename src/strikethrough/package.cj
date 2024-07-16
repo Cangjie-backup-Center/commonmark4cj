@@ -5,12 +5,12 @@
 /**
  * commonmark extension for GFM strikethrough using ~~ (GitHub Flavored Markdown)
  */
-package strikethrough
+package commonmark4cj.strikethrough
 
-from commonmark4cj import commonmark.*
-from std import collection.{HashSet, HashMap, Map}
+internal import commonmark4cj.commonmark.*
+internal import std.collection.{HashSet, HashMap, Map}
 
-extend Option<T> {
+extend<T> Option<T> {
     operator func ()(): T {
         this.getOrThrow()
     }
