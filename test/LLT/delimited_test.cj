@@ -2,11 +2,11 @@
 // EXEC: cjc %import-path %L %l %f z_test.cj -Woff unused
 // EXEC: ./main
 
-from commonmark4cj import commonmark.*
-from std import unittest.*
-from std import unittest.testmacro.*
-from std import collection.*
-from std import reflect.{TypeInfo}
+import commonmark4cj.commonmark.*
+import std.unittest.*
+import std.unittest.testmacro.*
+import std.collection.*
+import std.reflect.{TypeInfo}
 
 main() {
     let tester = DelimitedTest()

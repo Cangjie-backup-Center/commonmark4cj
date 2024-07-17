@@ -2,15 +2,15 @@
 // EXEC: cjc %import-path %L %l %f z_test.cj
 // EXEC: ./main
 
-from commonmark4cj import commonmark.*
-from std import unittest.*
-from std import unittest.testmacro.*
+import commonmark4cj.commonmark.*
+import std.unittest.*
+import std.unittest.testmacro.*
+import std.reflect.*
 
 main(): Int64 {
     let tester = I98VRUTester()
-    tester.execute()
-    tester.printResult()
-    tester.getTestInfo().errorCount + tester.getTestInfo().failedCount
+    tester.t1()
+    return 0
 }
 
 @Test

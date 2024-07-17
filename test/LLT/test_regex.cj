@@ -10,12 +10,13 @@
 // EXEC: cjc %import-path %L %l %f z_test.cj -Woff unused
 // EXEC: ./main
 
-from commonmark4cj import commonmark.*
-from std import unittest.*
-from std import unittest.testmacro.*
-from std import io.*
-from std import collection.*
-from std import regex.{Regex, Matcher, MatchData, RegexOption, Position}
+import commonmark4cj.commonmark.*
+import std.unittest.*
+import std.unittest.testmacro.*
+import std.io.*
+import std.collection.*
+import std.fs.*
+import std.regex.{Regex, Matcher, MatchData, RegexOption, Position}
 
 main(): Int64 {
     let tester = RegexTest()

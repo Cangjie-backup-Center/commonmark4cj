@@ -1,7 +1,7 @@
 // EXEC: cjc %import-path %L %l %f
 // EXEC: ./main
 
-from commonmark4cj import commonmark.*
+import commonmark4cj.commonmark.*
 
 main(): Int64 {
     let parser: Parser = Parser.builder().customBlockParserFactory(DashBlockParserFactory()).build()

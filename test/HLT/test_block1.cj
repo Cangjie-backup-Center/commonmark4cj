@@ -1,8 +1,8 @@
 // 3rd_party_lib:commonmark4cj/build/release/commonmark4cj
 // 3rd_party_lib_ohos:commonmark4cj/build/aarch64-linux-ohos/commonmark4cj
 
-from commonmark4cj import commonmark.*
-from commonmark4cj import table.*
+import commonmark4cj.commonmark.*
+import commonmark4cj.table.*
 
 @Test
 public class TestCommarkBlockQuote{
@@ -120,7 +120,7 @@ public class TestCommarkFencedCodeBlock{
     @TestCase
     func test_FencedCodeBlock_init1():Unit {
         var fencedCodeBlock = FencedCodeBlock()
-        @Assert(fencedCodeBlock.getFenceChar(),'\u{0}')
+        @Assert(fencedCodeBlock.getFenceChar(),r'\u{0}')
         @Assert(fencedCodeBlock.getFenceLength(), 0)
         @Assert(fencedCodeBlock.getFenceIndent(), 0)
         @Assert(fencedCodeBlock.getInfo(), "")
@@ -130,12 +130,12 @@ public class TestCommarkFencedCodeBlock{
     @TestCase
     func test_FencedCodeBlock_init2():Unit {
         var fencedCodeBlock = FencedCodeBlock()
-        fencedCodeBlock.setFenceChar('仓')
+        fencedCodeBlock.setFenceChar(r'仓')
         fencedCodeBlock.setFenceLength(2222222222)
         fencedCodeBlock.setFenceIndent(2222222222)
         fencedCodeBlock.setInfo("仓颉12")
         fencedCodeBlock.setLiteral("仓颉literal12")
-        @Assert(fencedCodeBlock.getFenceChar(),'仓')
+        @Assert(fencedCodeBlock.getFenceChar(),r'仓')
         @Assert(fencedCodeBlock.getFenceLength(), 2222222222)
         @Assert(fencedCodeBlock.getFenceIndent(), 2222222222)
         @Assert(fencedCodeBlock.getInfo(), "仓颉12")
@@ -145,12 +145,12 @@ public class TestCommarkFencedCodeBlock{
     @TestCase
     func test_FencedCodeBlock_init3():Unit {
         var fencedCodeBlock = FencedCodeBlock()
-        fencedCodeBlock.setFenceChar('#')
+        fencedCodeBlock.setFenceChar(r'#')
         fencedCodeBlock.setFenceLength(-2222222222)
         fencedCodeBlock.setFenceIndent(-2222222222)
         fencedCodeBlock.setInfo("（")
         fencedCodeBlock.setLiteral("）")
-        @Assert(fencedCodeBlock.getFenceChar(),'#')
+        @Assert(fencedCodeBlock.getFenceChar(),r'#')
         @Assert(fencedCodeBlock.getFenceLength(), -2222222222)
         @Assert(fencedCodeBlock.getFenceIndent(), -2222222222)
         @Assert(fencedCodeBlock.getInfo(), "（")
@@ -229,37 +229,37 @@ public class TestCommarkHeading{
 public class TestCommarkBulletList{
     @TestCase
     func test_BulletList_init1():Unit {
-        var bulletList = BulletList('\u{85}')
-        @Assert(bulletList.getBulletMarker(), '\u{85}')
+        var bulletList = BulletList(r'\u{85}')
+        @Assert(bulletList.getBulletMarker(), r'\u{85}')
         @Assert(bulletList.isTight(), false)
     }
 
     @TestCase
     func test_BulletList_init2():Unit {
-        var bulletList = BulletList('\u{0}')
-        bulletList.setBulletMarker('颉')
+        var bulletList = BulletList(r'\u{0}')
+        bulletList.setBulletMarker(r'颉')
         bulletList.setTight(false)
-        @Assert(bulletList.getBulletMarker(), '颉')
+        @Assert(bulletList.getBulletMarker(), r'颉')
         @Assert(bulletList.isTight(), false)
     }
 
     @TestCase
     func test_BulletList_init3():Unit {
-        var bulletList = BulletList('\u{0}')
-        bulletList.setBulletMarker('&')
+        var bulletList = BulletList(r'\u{0}')
+        bulletList.setBulletMarker(r'&')
         bulletList.setTight(false)
-        bulletList.setBulletMarker('\u{5}')
+        bulletList.setBulletMarker(r'\u{5}')
         bulletList.setTight(false)
-        @Assert(bulletList.getBulletMarker(), '\u{5}')
+        @Assert(bulletList.getBulletMarker(), r'\u{5}')
         @Assert(bulletList.isTight(), false)
     }
 
     @TestCase
     func test_BulletList_accept():Unit {
-        var bulletList = BulletList('仓')
+        var bulletList = BulletList(r'仓')
         bulletList.appendChild(Text("仓颉"))
         bulletList.accept(AbstractVisitorImpl())
-        @Assert(bulletList.getBulletMarker(), '仓')
+        @Assert(bulletList.getBulletMarker(), r'仓')
         let firstChild = bulletList.getFirstChild().getOrThrow()
         @Assert((firstChild as Text).getOrThrow().getLiteral(),"仓颉")
         let lastChild = bulletList.getLastChild().getOrThrow()
@@ -272,40 +272,40 @@ public class TestCommarkBulletList{
 public class TestCommarkOrderedList{
     @TestCase
     func test_OrderedList_init1():Unit {
-        var orderedList = OrderedList(555, '~')
+        var orderedList = OrderedList(555, r'~')
         @Assert(orderedList.getStartNumber(), 555)
-        @Assert(orderedList.getDelimiter(), '~')
+        @Assert(orderedList.getDelimiter(), r'~')
         @Assert(orderedList.isTight(), false)
     }
 
     @TestCase
     func test_OrderedList_init2():Unit {
-        var orderedList = OrderedList(1, '~')
+        var orderedList = OrderedList(1, r'~')
         orderedList.setStartNumber(-8888)
-        orderedList.setDelimiter('*')
+        orderedList.setDelimiter(r'*')
         orderedList.setTight(true)
         @Assert(orderedList.getStartNumber(), -8888)
-        @Assert(orderedList.getDelimiter(), '*')
+        @Assert(orderedList.getDelimiter(), r'*')
         @Assert(orderedList.isTight(), true)
     }
 
     @TestCase
     func test_OrderedList_init3():Unit {
-        var orderedList = OrderedList(8, '1')
+        var orderedList = OrderedList(8, r'1')
         orderedList.setStartNumber(0)
-        orderedList.setDelimiter('~')
+        orderedList.setDelimiter(r'~')
         orderedList.setTight(false)
         orderedList.setStartNumber(1)
-        orderedList.setDelimiter('*')
+        orderedList.setDelimiter(r'*')
         orderedList.setTight(true)
         @Assert(orderedList.getStartNumber(), 1)
-        @Assert(orderedList.getDelimiter(), '*')
+        @Assert(orderedList.getDelimiter(), r'*')
         @Assert(orderedList.isTight(), true)
     }
 
     @TestCase
     func test_OrderedList_accept():Unit {
-        var orderedList = OrderedList(0, '*')
+        var orderedList = OrderedList(0, r'*')
         orderedList.appendChild(Text("&*"))
         orderedList.accept(AbstractVisitorImpl())
         @Assert(orderedList.isTight(), false)

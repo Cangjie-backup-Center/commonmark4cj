@@ -3,11 +3,36 @@
 // EXEC: cjc %import-path %L %l %f z_test.cj
 // EXEC: ./main
 
+import commonmark4cj.commonmark.*
+import std.unittest.*
+import std.unittest.testmacro.*
+import std.reflect.{TypeInfo}
+import std.collection.*
+import std.fs.*
+import std.core.*
+
 main(): Int64 {
     let tester = HtmlRendererTest()
-    tester.execute()
-    tester.printResult()
-    tester.getTestInfo().errorCount + tester.getTestInfo().failedCount
+    tester.htmlAllowingShouldNotEscapeInlineHtml()
+    tester.htmlRULTest()
+    tester.htmlAllowingShouldNotEscapeBlockHtml()
+    tester.htmlEscapingShouldEscapeInlineHtml()
+    tester.htmlEscapingShouldEscapeHtmlBlocks()
+    tester.textEscaping()
+    tester.attributeEscaping()
+    tester.percentEncodeUrlDisabled()
+    tester.percentEncodeUrl()
+    tester.attributeProviderForCodeBlock()
+    tester.attributeProviderForImage()
+    tester.attributeProviderFactoryNewInstanceForEachRender()
+    tester.overrideNodeRender()
+    tester.orderedListStartZero()
+    tester.imageAltTextWithSoftLineBreak()
+    tester.imageAltTextWithHardLineBreak()
+    tester.imageAltTextWithEntities()
+    tester.canRenderContentsOfSingleParagraph()
+    tester.threading()
+    return 0
 }
 
 @Test

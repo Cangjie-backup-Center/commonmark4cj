@@ -2,12 +2,13 @@
 // 3rd_party_lib_ohos:commonmark4cj/build/aarch64-linux-ohos/commonmark4cj
 // dependence: z_test.cj
 
-from commonmark4cj import commonmark.*
-from std import unittest.*
-from std import unittest.testmacro.*
-from std import collection.*
-from std import unicode.*
-from std import reflect.{TypeInfo}
+import commonmark4cj.commonmark.*
+import std.unittest.*
+import std.unittest.testmacro.*
+import std.collection.*
+import std.unicode.*
+import std.fs.*
+import std.reflect.{TypeInfo}
 
 // sources_file: spec.txt   
 

@@ -1,7 +1,7 @@
 // 3rd_party_lib:commonmark4cj/build/release/commonmark4cj
 // 3rd_party_lib_ohos:commonmark4cj/build/aarch64-linux-ohos/commonmark4cj
 // dependence: z_test.cj
-
+import commonmark4cj.commonmark.*
 class visitorImpl <: AbstractVisitor {
     public func visit(code: Code): Unit {
         code.insertAfter(Text("new text"))
@@ -63,7 +63,7 @@ public class VisitorTest {
     public func visitorBulletListQuote(): Unit {
         let visitor: Visitor = visitorImpl()
 
-        var bulletList: BulletList = BulletList('*')
+        var bulletList: BulletList = BulletList(r'*')
         var text = Text("text")
         var code = Code("code")
 
@@ -157,7 +157,7 @@ public class VisitorTest {
     public func visitorOrderedListQuote(): Unit {
         let visitor: Visitor = visitorCodeImpl()
 
-        var node: OrderedList = OrderedList(1, ',')
+        var node: OrderedList = OrderedList(1, r',')
         var text = Text("text")
         var code = Code("code")
         var paragraph = Paragraph()

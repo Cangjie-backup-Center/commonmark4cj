@@ -1,13 +1,13 @@
 // 3rd_party_lib:commonmark4cj/build/release/commonmark4cj
 // 3rd_party_lib_ohos:commonmark4cj/build/aarch64-linux-ohos/commonmark4cj
 // dependence: z_test.cj
-from commonmark4cj import commonmark.*
-from commonmark4cj import table.*
-from commonmark4cj import strikethrough.*
-from std import unittest.*
-from std import unittest.testmacro.*
-from std import io.*
-from std import collection.*
+import commonmark4cj.commonmark.*
+import commonmark4cj.table.*
+import commonmark4cj.strikethrough.*
+import std.unittest.*
+import std.unittest.testmacro.*
+import std.io.*
+import std.collection.*
 
 @Test
 public class TextContentRendererTest {

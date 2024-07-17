@@ -2,12 +2,12 @@
 // 3rd_party_lib_ohos:commonmark4cj/build/aarch64-linux-ohos/commonmark4cj
 // dependence: z_test.cj
 
-from commonmark4cj import commonmark.*
-from std import unittest.*
-from std import unittest.testmacro.*
-from std import collection.*
-from std import unicode.*
-from std import reflect.{TypeInfo}
+import commonmark4cj.commonmark.*
+import std.unittest.*
+import std.unittest.testmacro.*
+import std.collection.*
+import std.unicode.*
+import std.reflect.{TypeInfo}
 
 @Test
 public class DelimiterProcessorTest {
@@ -20,8 +20,8 @@ public class DelimiterProcessorTest {
 
     @TestCase
     public func delimiterProcessorWithInvalidDelimiterUse(): Unit {
-        let parser: Parser = Parser.builder().customDelimiterProcessor(CustomDelimiterProcessor(':', 0)).
-            customDelimiterProcessor(CustomDelimiterProcessor(';', -1)).build()
+        let parser: Parser = Parser.builder().customDelimiterProcessor(CustomDelimiterProcessor(r':', 0)).
+            customDelimiterProcessor(CustomDelimiterProcessor(r';', -1)).build()
         assertEquals("<p>:test:</p>\n", RENDERER.render(parser.parse(":test:")))
         assertEquals("<p>;test;</p>\n", RENDERER.render(parser.parse(";test;")))
     }
@@ -69,19 +69,19 @@ public class DelimiterProcessorTest {
 }
 
 class CustomDelimiterProcessor <: DelimiterProcessor {
-    private let delimiterChar: Char
+    private let delimiterChar: Rune
     private let delimiterUse: Int64
 
-    init(delimiterChar: Char, delimiterUse: Int64) {
+    init(delimiterChar: Rune, delimiterUse: Int64) {
         this.delimiterChar = delimiterChar
         this.delimiterUse = delimiterUse
     }
 
-    public override func getOpeningCharacter(): Char {
+    public override func getOpeningCharacter(): Rune {
         return delimiterChar
     }
 
-    public override func getClosingCharacter(): Char {
+    public override func getClosingCharacter(): Rune {
         return delimiterChar
     }
 
@@ -98,12 +98,12 @@ class CustomDelimiterProcessor <: DelimiterProcessor {
 }
 
 class AsymmetricDelimiterProcessor <: DelimiterProcessor {
-    public override func getOpeningCharacter(): Char {
-        return '{'
+    public override func getOpeningCharacter(): Rune {
+        return r'{'
     }
 
-    public override func getClosingCharacter(): Char {
-        return '}'
+    public override func getClosingCharacter(): Rune {
+        return r'}'
     }
 
     public override func getMinLength(): Int64 {
@@ -154,12 +154,12 @@ class UpperCaseNodeRenderer <: NodeRenderer {
 }
 
 class OneDelimiterProcessor <: DelimiterProcessor {
-    public override func getOpeningCharacter(): Char {
-        return '+'
+    public override func getOpeningCharacter(): Rune {
+        return r'+'
     }
 
-    public override func getClosingCharacter(): Char {
-        return '+'
+    public override func getClosingCharacter(): Rune {
+        return r'+'
     }
 
     public override func getMinLength(): Int64 {
@@ -177,12 +177,12 @@ class OneDelimiterProcessor <: DelimiterProcessor {
 }
 
 class TwoDelimiterProcessor <: DelimiterProcessor {
-    public override func getOpeningCharacter(): Char {
-        return '+'
+    public override func getOpeningCharacter(): Rune {
+        return r'+'
     }
 
-    public override func getClosingCharacter(): Char {
-        return '+'
+    public override func getClosingCharacter(): Rune {
+        return r'+'
     }
 
     public override func getMinLength(): Int64 {

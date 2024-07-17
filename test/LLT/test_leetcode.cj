@@ -8,14 +8,14 @@
 // EXEC: cjc %import-path %L %l %f z_test.cj -Woff unused
 // EXEC: ./main
 
-from commonmark4cj import commonmark.*
-from commonmark4cj import strikethrough.*
-from std import unittest.*
-from std import unittest.testmacro.*
-from std import collection.*
-from std import unicode.*
-from std import fs.*
-from std import reflect.{TypeInfo}
+import commonmark4cj.commonmark.*
+import commonmark4cj.strikethrough.*
+import std.unittest.*
+import std.unittest.testmacro.*
+import std.collection.*
+import std.unicode.*
+import std.fs.*
+import std.reflect.{TypeInfo}
 
 main() {
     let tester = LeetCodeTest()

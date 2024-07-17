@@ -2,10 +2,13 @@
 // EXEC: cjc %import-path %L %l %f z_test.cj -Woff unused
 // EXEC: ./main
 
-from commonmark4cj import strikethrough.*
-from std import unittest.*
-from std import unittest.testmacro.*
-from std import regex.*
+import commonmark4cj.strikethrough.*
+import commonmark4cj.commonmark.*
+import std.unittest.*
+import std.unittest.testmacro.*
+import std.regex.*
+import std.collection.*
+import std.core.*
 
 main() {
     let tester = StrikethroughTest()

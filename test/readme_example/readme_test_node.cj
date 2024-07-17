@@ -1,7 +1,7 @@
 // EXEC: cjc %import-path %L %l %f
 // EXEC: ./main
 
-from commonmark4cj import commonmark.*
+import commonmark4cj.commonmark.*
 main(): Int64 {
     var tb = Text("bb") // node子类
     var ta = Text("aa")

@@ -421,6 +421,8 @@ public class Emphasis <: Node & Delimited {
 ##### 1.1.2 示例
 
 ```cangjie
+    import commonmark4cj.commonmark.*
+
     @TestCase
     func linkReferenceDefinitionTest(): Unit {
         var text: LinkReferenceDefinition = LinkReferenceDefinition()
@@ -542,14 +544,14 @@ public class FencedCodeBlock <: Block {
     public func accept(visitor: Visitor): Unit
 	/*
      * 获取围栏字符 默认`
-     * 返回值 Char - 围栏字符
+     * 返回值 Rune - 围栏字符
      */
-    public func getFenceChar(): Char
+    public func getFenceChar(): Rune
    	/*
      * 设置围栏字符
-     * 参数 Char - 围栏字符
+     * 参数 Rune - 围栏字符
      */
-    public func setFenceChar(fenceChar: Char): Unit
+    public func setFenceChar(fenceChar: Rune): Unit
 	/*
      * 获取围栏代码块长度 至少3
      * 返回值 Int64 - 围栏代码块长度
@@ -638,9 +640,9 @@ public abstract class ListBlock <: Block {
 public class BulletList <: ListBlock {
    	/*
      * 初始化
-     * 参数 Char - 标记
+     * 参数 Rune - 标记
      */
-    public init(bulletMarker: Char): Unit
+    public init(bulletMarker: Rune): Unit
   	/*
      * 添加操作行为
      * 参数 Visitor - 具体的操作行为
@@ -649,14 +651,14 @@ public class BulletList <: ListBlock {
 		
 	/*
      * 获取标记
-     * 返回值 Char - 标记
+     * 返回值 Rune - 标记
      */
-    public func getBulletMarker(): Char
+    public func getBulletMarker(): Rune
    	/*
      * 设置标记
-     * 参数 Char - 标记
+     * 参数 Rune - 标记
      */
-    public func setBulletMarker(bulletMarker: Char): Unit
+    public func setBulletMarker(bulletMarker: Rune): Unit
 }
 /**
  * 有序列表块节点
@@ -665,9 +667,9 @@ public class OrderedList <: ListBlock {
    	/*
      * 初始化
      * 参数 Int64 - 起始数字
-     * 参数 Char - 分隔符
+     * 参数 Rune - 分隔符
      */
-    public init(startNumber: Int64, delimiter: Char)
+    public init(startNumber: Int64, delimiter: Rune)
 	/*
      * 添加操作行为
      * 参数 Visitor - 具体的操作行为
@@ -685,20 +687,22 @@ public class OrderedList <: ListBlock {
     public func setStartNumber(startNumber: Int64): Unit
 	/*
      * 获取分隔符
-     * 返回值 Char - 分隔符
+     * 返回值 Rune - 分隔符
      */
-    public func getDelimiter(): Char
+    public func getDelimiter(): Rune
    	/*
      * 设置分隔符
-     * 参数 Char - 分隔符
+     * 参数 Rune - 分隔符
      */
-    public func setDelimiter(delimiter: Char): Unit
+    public func setDelimiter(delimiter: Rune): Unit
 }
 ```
 
 ##### 1.2.2 示例
 
 ```cangjie
+    import commonmark4cj.commonmark.*
+    
     @TestCase
     func documentTest(): Unit {
         var document: Document = Document ()
@@ -907,6 +911,8 @@ public abstract class AbstractVisitor <: Visitor {
 ##### 1.3.2 示例
 
 ```cangjie
+    import commonmark4cj.commonmark.*
+
     @TestCase
     func test_Text_accept():Unit {
         var text = Text("aa")
@@ -1048,6 +1054,8 @@ public interface PostProcessor {
 ##### 2.1.2 示例
 
 ```cangjie
+    import commonmark4cj.commonmark.*
+
     @TestCase
     func parse_test():Unit {
         let given: String = "# heading 1\n\nnot a heading"
@@ -1388,6 +1396,8 @@ public class ThematicBreakParserFactory <: BlockParserFactory {
 ##### 2.2.2 示例
 
 ```cangjie
+import commonmark4cj.commonmark.*
+
 main(): Int64 {
     let parser: Parser = Parser.builder().customBlockParserFactory(DashBlockParserFactory()).build()
 
@@ -1471,15 +1481,15 @@ public interface InlineParserFactory {
 public interface DelimiterProcessor {
 	/*
      * 获取开始分隔符
-     * 返回值 Char - 开始分隔符
+     * 返回值 Rune - 开始分隔符
      */
-    func getOpeningCharacter(): Char
+    func getOpeningCharacter(): Rune
 
 	/*
      * 获取结束分隔符
-     * 返回值 Char - 结束分隔符
+     * 返回值 Rune - 结束分隔符
      */
-    func getClosingCharacter(): Char
+    func getClosingCharacter(): Rune
 
 	/*
      * 获取最小长度 为1
@@ -1507,15 +1517,15 @@ public interface DelimiterProcessor {
 public abstract class EmphasisDelimiterProcessor <: DelimiterProcessor {
 	/*
      * 获取开始分隔符
-     * 返回值 Char - 开始分隔符
+     * 返回值 Rune - 开始分隔符
      */
-    public override func getOpeningCharacter(): Char
+    public override func getOpeningCharacter(): Rune
 
 	/*
      * 获取结束分隔符
-     * 返回值 Char - 结束分隔符
+     * 返回值 Rune - 结束分隔符
      */
-    public override func getClosingCharacter(): Char
+    public override func getClosingCharacter(): Rune
 
 	/*
      * 获取最小长度 为1
@@ -1570,6 +1580,8 @@ public interface DelimiterRun {
 ##### 2.3.2 示例
 
 ```cangjie
+    import commonmark4cj.commonmark.*
+
     @TestCase
     public func inlineParser(): Unit {
         let parser: Parser = Parser.builder().inlineParserFactory(fakeInlineParserFactory()).build()
@@ -1648,6 +1660,8 @@ public class StrikethroughExtension <: ParserExtension & HtmlRendererExtension &
 ##### 2.4.2 示例
 
 ```cangjie
+import commonmark4cj.commonmark.*
+
 @TestCase
 public class StrikethroughTest {
     private static let EXTENSIONS: Iterable<Extension> = ArrayList<Extension>(StrikethroughExtension.create())
@@ -1765,6 +1779,8 @@ public class TablesExtension <: ParserExtension & HtmlRendererExtension & TextCo
 ##### 2.5.2 示例
 
 ```cangjie
+
+import commonmark4cj.commonmark.*
 
 @Test
 public class TableTT {
@@ -1937,16 +1953,17 @@ public class TextContentWriter {
 
 	/*
      * 写入文本
-     * 参数 Char - 文本
+     * 参数 Rune - 文本
      */
-    public func write(c: Char): Unit
+    public func write(c: Rune): Unit
 }
 ```
 
 ##### 3.1.2 示例
 
 ```cangjie
-    
+    import commonmark4cj.commonmark.*
+
     @TestCase
     func render_test():Unit {
         var source: String = ""
@@ -2167,6 +2184,8 @@ public type HtmlNodeRendererFactory = (context: HtmlNodeRendererContext) -> Node
 ##### 3.2.2 示例
 
 ```cangjie
+    import commonmark4cj.commonmark.*
+
     @TestCase
     func render_test():Unit {
         let rendered: String = htmlAllowingRenderer().render(
@@ -2238,6 +2257,8 @@ public class Html5Entities {
 ##### 4.2.2 示例
 
 ```cangjie
+    import commonmark4cj.commonmark.*
+
     @TestCase
     func escaping_test(): Unit {
         let escapeString6: String = Escaping.escapeHtml("< start")
