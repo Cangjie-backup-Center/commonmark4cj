@@ -885,7 +885,7 @@ public class LinkReferenceDefinitionParser {
             return index
         }
 
-        titleDelimiter = '\0'
+        titleDelimiter = r'\0'
         var c: Byte = line[i]
         if (c == '"'.b || c == '\''.b) {
             titleDelimiter = Rune(c)

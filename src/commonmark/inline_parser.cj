@@ -239,18 +239,18 @@ class InlineParserImpl <: InlineParser {
 
         var node: ?Node = Option<Node>.None
         match (c) {
-            case '\n' => return parseNewline(previous)
-            case '\\' => return parseBackslash()
-            case '`' => node = parseBackticks()
-            case '[' => return parseOpenBracket()
-            case '!' => return parseBang()
-            case ']' => return parseCloseBracket()
-            case '<' =>
+            case r'\n' => return parseNewline(previous)
+            case r'\\' => return parseBackslash()
+            case r'`' => node = parseBackticks()
+            case r'[' => return parseOpenBracket()
+            case r'!' => return parseBang()
+            case r']' => return parseCloseBracket()
+            case r'<' =>
                 node = parseAutolink()
                 if (node.isNone()) {
                     node = parseHtmlInline()
                 }
-            case '&' => node = parseEntity()
+            case r'&' => node = parseEntity()
             case _ =>
                 let isDelimiter: Bool = delimiterCharacters.get(Int64(UInt32(c)))
                 if (isDelimiter) {

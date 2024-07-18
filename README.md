@@ -82,7 +82,7 @@ markdown解析得到的节点树，不同类型节点为不同的Node子类
 示例代码如下：
 
 ```cangjie
-from commonmark4cj import commonmark.*
+import commonmark4cj.commonmark.*
 
 main(): Int64 {
     var tb = Text("bb") // node子类
@@ -137,7 +137,7 @@ bb
 示例代码如下：
 
 ```cangjie
-from commonmark4cj import commonmark.*
+import commonmark4cj.commonmark.*
 
 main(): Int64 {
     let parser: Parser = Parser.builder().customBlockParserFactory(DashBlockParserFactory()).build()
@@ -194,7 +194,7 @@ DashBlock{}
 示例代码如下：
 
 ```cangjie
-from commonmark4cj import commonmark.*
+import commonmark4cj.commonmark.*
 
 main(): Int64 {
     let rendered: String = htmlAllowingRenderer().render(
@@ -222,11 +222,11 @@ func parse(source: String): Node {
 
 在下述版本验证通过：
 
-    Cangjie Version: 0.51.4
+    Cangjie Version: 0.53.4
 
 ## 开源协议
 
-BSD-2-Clause
+本项目基于 [BSD-2-Clause](./LICENSE) ，请自由的享受和参与开源。    
 
 ## 参与贡献
 

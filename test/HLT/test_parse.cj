@@ -2,15 +2,15 @@
 // 3rd_party_lib_ohos:commonmark4cj/build/aarch64-linux-ohos/commonmark4cj
 // RESOURCES: spec.txt
 
-from commonmark4cj import commonmark.*
-from commonmark4cj import table.*
-from std import unittest.*
-from std import unittest.testmacro.*
-from std import io.*
-from std import collection.*
-from std import reflect.{TypeInfo}
-from std import unicode.*
-from std import fs.*
+import commonmark4cj.commonmark.*
+import commonmark4cj.table.*
+import std.unittest.*
+import std.unittest.testmacro.*
+import std.io.*
+import std.collection.*
+import std.reflect.{TypeInfo}
+import std.unicode.*
+import std.fs.*
 
 @Test
 public class TestParser {
@@ -124,8 +124,8 @@ public class TestParserBuilder {
         var ssss = defaultRenderer().render(parser.parse("\n"))
         @Assert("", ssss)
 
-        @Assert('+', oneDelimiterProcessor.getOpeningCharacter())
-        @Assert('+', oneDelimiterProcessor.getClosingCharacter())
+        @Assert(r'+', oneDelimiterProcessor.getOpeningCharacter())
+        @Assert(r'+', oneDelimiterProcessor.getClosingCharacter())
         @Assert(1, oneDelimiterProcessor.getMinLength())
     }
 
@@ -165,12 +165,12 @@ func parse(source: String): Node {
 }
 
 class OneDelimiterProcessor <: DelimiterProcessor {
-    public override func getOpeningCharacter(): Char {
-        return '+'
+    public override func getOpeningCharacter(): Rune {
+        return r'+'
     }
 
-    public override func getClosingCharacter(): Char {
-        return '+'
+    public override func getClosingCharacter(): Rune {
+        return r'+'
     }
 
     public override func getMinLength(): Int64 {

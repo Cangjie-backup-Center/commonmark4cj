@@ -1,13 +1,13 @@
 // EXEC: cjc %import-path %L %l %f
 // EXEC: ./main
 
-from commonmark4cj import commonmark.*
-from commonmark4cj import table.*
-from std import unittest.*
-from std import unittest.testmacro.*
-from std import io.*
-from std import collection.*
-from std import regex.{Regex, Matcher, MatchData, RegexOption, Position}
+import commonmark4cj.commonmark.*
+import commonmark4cj.table.*
+import std.unittest.*
+import std.unittest.testmacro.*
+import std.io.*
+import std.collection.*
+import std.regex.{Regex, Matcher, MatchData, RegexOption, Position}
 
 main(): Int64 {
     let tester = TableTT()
@@ -518,7 +518,7 @@ public class TableTT {
         @PowerAssert(cArray.size == 1)
 
         @PowerAssert(s.toArray() == [201, 190])
-        @PowerAssert(cArray == ['ɾ'])
+        @PowerAssert(cArray == [r'ɾ'])
     }
 
     @TestCase

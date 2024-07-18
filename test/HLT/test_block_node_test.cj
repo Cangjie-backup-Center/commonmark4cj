@@ -2,11 +2,11 @@
 // 3rd_party_lib_ohos:commonmark4cj/build/aarch64-linux-ohos/commonmark4cj
 // dependence: z_test.cj
 
-from commonmark4cj import commonmark.*
-from std import unittest.*
-from std import unittest.testmacro.*
-from std import io.*
-from std import collection.*
+import commonmark4cj.commonmark.*
+import std.unittest.*
+import std.unittest.testmacro.*
+import std.io.*
+import std.collection.*
 
 @Test
 public class BlockNodeTest {
@@ -60,12 +60,12 @@ public class BlockNodeTest {
     @TestCase
     func fencedCodeBlockTest(): Unit {
         var fencedCodeBlock = FencedCodeBlock()
-        fencedCodeBlock.setFenceChar('`')
+        fencedCodeBlock.setFenceChar(r'`')
         fencedCodeBlock.setFenceLength(1)
         fencedCodeBlock.setFenceIndent(1)
         fencedCodeBlock.setInfo("cangjie")
         fencedCodeBlock.setLiteral("var")
-        assertEquals('`', fencedCodeBlock.getFenceChar())
+        assertEquals(r'`', fencedCodeBlock.getFenceChar())
         assertEquals(1, fencedCodeBlock.getFenceLength())
         assertEquals(1, fencedCodeBlock.getFenceIndent())
         assertEquals("cangjie", fencedCodeBlock.getInfo())
@@ -81,21 +81,21 @@ public class BlockNodeTest {
 
     @TestCase
     func bulletListTest(): Unit {
-        var BulletList  = BulletList('*')
-        assertEquals('*', BulletList.getBulletMarker())
-        BulletList.setBulletMarker('$')
-        assertEquals('$', BulletList.getBulletMarker())
+        var BulletList  = BulletList(r'*')
+        assertEquals(r'*', BulletList.getBulletMarker())
+        BulletList.setBulletMarker(r'$')
+        assertEquals(r'$', BulletList.getBulletMarker())
     }
 
     @TestCase
     func orderedListTest(): Unit {
-        var orderedList = OrderedList(1, '.')
+        var orderedList = OrderedList(1, r'.')
         assertEquals(1, orderedList.getStartNumber())
-        assertEquals('.', orderedList.getDelimiter())
+        assertEquals(r'.', orderedList.getDelimiter())
         orderedList.setStartNumber(2)
-        orderedList.setDelimiter(',')
+        orderedList.setDelimiter(r',')
         assertEquals(2, orderedList.getStartNumber())
-        assertEquals(',', orderedList.getDelimiter())
+        assertEquals(r',', orderedList.getDelimiter())
     }
 
     @TestCase
@@ -144,46 +144,46 @@ public class BlockNodeTest {
 
     @TestCase
     func orderedListTest1(): Unit {
-        var orderedList = OrderedList(9223372036854775807, '.')
+        var orderedList = OrderedList(9223372036854775807, r'.')
         @Assert(9223372036854775807, orderedList.getStartNumber())
-        @Assert('.', orderedList.getDelimiter())
+        @Assert(r'.', orderedList.getDelimiter())
         orderedList.setStartNumber(9223372036854775807)
-        orderedList.setDelimiter('，')
+        orderedList.setDelimiter(r'，')
         @Assert(9223372036854775807, orderedList.getStartNumber())
-        @Assert('，', orderedList.getDelimiter())
+        @Assert(r'，', orderedList.getDelimiter())
     }
 
     @TestCase
     func orderedListTest2(): Unit {
-        var orderedList = OrderedList(0, '.')
+        var orderedList = OrderedList(0, r'.')
         @Assert(0, orderedList.getStartNumber())
-        @Assert('.', orderedList.getDelimiter())
+        @Assert(r'.', orderedList.getDelimiter())
         orderedList.setStartNumber(-9223372036854775808)
-        orderedList.setDelimiter('↗')
+        orderedList.setDelimiter(r'↗')
         @Assert(-9223372036854775808, orderedList.getStartNumber())
-        @Assert('↗', orderedList.getDelimiter())
+        @Assert(r'↗', orderedList.getDelimiter())
     }
 
     @TestCase
     func orderedListTest3(): Unit {
-        var orderedList = OrderedList(0, '.')
+        var orderedList = OrderedList(0, r'.')
         @Assert(0, orderedList.getStartNumber())
-        @Assert('.', orderedList.getDelimiter())
+        @Assert(r'.', orderedList.getDelimiter())
         orderedList.setStartNumber(0)
-        orderedList.setDelimiter('仓')
+        orderedList.setDelimiter(r'仓')
         @Assert(0, orderedList.getStartNumber())
-        @Assert('仓', orderedList.getDelimiter())
+        @Assert(r'仓', orderedList.getDelimiter())
     }
 
     @TestCase
     func orderedListTest4(): Unit {
-        var orderedList = OrderedList(0, '.')
+        var orderedList = OrderedList(0, r'.')
         @Assert(0, orderedList.getStartNumber())
-        @Assert('.', orderedList.getDelimiter())
+        @Assert(r'.', orderedList.getDelimiter())
         orderedList.setStartNumber(0)
-        orderedList.setDelimiter('③')
+        orderedList.setDelimiter(r'③')
         @Assert(0, orderedList.getStartNumber())
-        @Assert('③', orderedList.getDelimiter())
+        @Assert(r'③', orderedList.getDelimiter())
     }
 
 

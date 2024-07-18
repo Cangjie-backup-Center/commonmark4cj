@@ -1,10 +1,10 @@
-from commonmark4cj import commonmark.*
-from std import unittest.*
-from std import unittest.testmacro.*
-from std import io.*
-from std import reflect.*
-from std import collection.*
-from std import fs.*
+import commonmark4cj.commonmark.*
+import std.unittest.*
+import std.unittest.testmacro.*
+import std.io.*
+import std.reflect.*
+import std.collection.*
+import std.fs.*
 
 func assertEquals<T>(msg: String, expected: T, actual: T): Unit where T <: Equatable<T> {
     if (expected != actual) {
@@ -26,7 +26,7 @@ func assertNull<T>(any: ?T): Unit {
     }
 }
 
-extend Option<T> {
+extend<T> Option<T> {
     operator func ()(): T {
         this.getOrThrow()
     }

@@ -1,39 +1,39 @@
 // 3rd_party_lib:commonmark4cj/build/release/commonmark4cj
 // 3rd_party_lib_ohos:commonmark4cj/build/aarch64-linux-ohos/commonmark4cj
 
-from commonmark4cj import commonmark.*
-from commonmark4cj import table.*
-from std import unittest.*
-from std import unittest.testmacro.*
-from std import io.*
-from std import collection.*
-from std import reflect.{TypeInfo}
-from std import unicode.*
-from std import fs.*
+import commonmark4cj.commonmark.*
+import commonmark4cj.table.*
+import std.unittest.*
+import std.unittest.testmacro.*
+import std.io.*
+import std.collection.*
+import std.reflect.{TypeInfo}
+import std.unicode.*
+import std.fs.*
 
 @Test
 public class TestInlinekParser {
     @TestCase
     func test_inline_parser(): Unit {
         var emphasisDelimiterProcessor: EmphasisDelimiterProcessor2 = EmphasisDelimiterProcessor2()
-        @Assert('-', emphasisDelimiterProcessor.getOpeningCharacter())
-        @Assert('-', emphasisDelimiterProcessor.getClosingCharacter())
+        @Assert(r'-', emphasisDelimiterProcessor.getOpeningCharacter())
+        @Assert(r'-', emphasisDelimiterProcessor.getClosingCharacter())
         @Assert(1, emphasisDelimiterProcessor.getMinLength())
     }
 
     @TestCase
     func test_inline_parser2(): Unit {
         var emphasisDelimiterProcessor: EmphasisDelimiterProcessor3 = EmphasisDelimiterProcessor3()
-        @Assert(' ', emphasisDelimiterProcessor.getOpeningCharacter())
-        @Assert(' ', emphasisDelimiterProcessor.getClosingCharacter())
+        @Assert(r' ', emphasisDelimiterProcessor.getOpeningCharacter())
+        @Assert(r' ', emphasisDelimiterProcessor.getClosingCharacter())
         @Assert(1, emphasisDelimiterProcessor.getMinLength())
     }
 
     @TestCase
     func test_inline_parser3(): Unit {
         var emphasisDelimiterProcessor: EmphasisDelimiterProcessor4 = EmphasisDelimiterProcessor4()
-        @Assert('1', emphasisDelimiterProcessor.getOpeningCharacter())
-        @Assert('1', emphasisDelimiterProcessor.getClosingCharacter())
+        @Assert(r'1', emphasisDelimiterProcessor.getOpeningCharacter())
+        @Assert(r'1', emphasisDelimiterProcessor.getClosingCharacter())
         @Assert(1, emphasisDelimiterProcessor.getMinLength())
     }
 
@@ -59,18 +59,18 @@ class fakeInlineParserFactory <: InlineParserFactory {
 
 class EmphasisDelimiterProcessor2 <: EmphasisDelimiterProcessor {
     public init() {
-        super('-')
+        super(r'-')
     }
 }
 
 class EmphasisDelimiterProcessor3 <: EmphasisDelimiterProcessor {
     public init() {
-        super(' ')
+        super(r' ')
     }
 }
 
 class EmphasisDelimiterProcessor4 <: EmphasisDelimiterProcessor {
     public init() {
-        super('1')
+        super(r'1')
     }
 }

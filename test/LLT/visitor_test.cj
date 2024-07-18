@@ -2,6 +2,10 @@
 // EXEC: cjc %import-path %L %l %f z_test.cj
 // EXEC: ./main
 
+import commonmark4cj.commonmark.*
+import std.unittest.*
+import std.unittest.testmacro.*
+
 main(): Int64 {
     let tester = VisitorTest()
     tester.visitorDocument()
@@ -84,7 +88,7 @@ public class VisitorTest {
     public func visitorBulletListQuote(): Unit {
         let visitor: Visitor = visitorImpl()
 
-        var bulletList: BulletList = BulletList('*')
+        var bulletList: BulletList = BulletList(r'*')
         var text = Text("text")
         var code = Code("code")
 
@@ -178,7 +182,7 @@ public class VisitorTest {
     public func visitorOrderedListQuote(): Unit {
         let visitor: Visitor = visitorCodeImpl()
 
-        var node: OrderedList = OrderedList(1,',')
+        var node: OrderedList = OrderedList(1,r',')
         var text = Text("text")
         var code = Code("code")
         var paragraph = Paragraph()

@@ -2,10 +2,13 @@
 // 3rd_party_lib_ohos:commonmark4cj/build/aarch64-linux-ohos/commonmark4cj
 // dependence: z_test.cj
 
-from commonmark4cj import strikethrough.*
-from std import unittest.*
-from std import unittest.testmacro.*
-from std import regex.*
+import commonmark4cj.strikethrough.*
+import commonmark4cj.commonmark.*
+import std.unittest.*
+import std.unittest.testmacro.*
+import std.regex.*
+import std.core.*
+import std.collection.*
 
 @Test
 public class StrikethroughTest {

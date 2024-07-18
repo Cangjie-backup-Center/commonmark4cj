@@ -2,10 +2,11 @@
 // EXEC: cjc %import-path %L %l %f z_test.cj -Woff unused
 // EXEC: ./main
 
-from commonmark4cj import commonmark.*
-from std import unittest.*
-from std import unittest.testmacro.*
-from std import regex.*
+import commonmark4cj.commonmark.*
+import std.unittest.*
+import std.unittest.testmacro.*
+import std.regex.*
+import std.collection.*
 
 main() {
     let tester = UsageExampleTest()

@@ -2,15 +2,15 @@
 // 3rd_party_lib_ohos:commonmark4cj/build/aarch64-linux-ohos/commonmark4cj
 
 
-from commonmark4cj import commonmark.*
-from commonmark4cj import table.*
-from std import unittest.*
-from std import unittest.testmacro.*
-from std import io.*
-from std import collection.*
-from std import reflect.{TypeInfo}
-from std import unicode.*
-from std import fs.*
+import commonmark4cj.commonmark.*
+import commonmark4cj.table.*
+import std.unittest.*
+import std.unittest.testmacro.*
+import std.io.*
+import std.collection.*
+import std.reflect.{TypeInfo}
+import std.unicode.*
+import std.fs.*
 
 @Test
 public class TestParser {

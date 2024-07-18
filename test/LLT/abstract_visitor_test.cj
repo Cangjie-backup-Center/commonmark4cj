@@ -2,11 +2,14 @@
 // EXEC: cjc %import-path %L %l %f z_test.cj
 // EXEC: ./main
 
+import commonmark4cj.commonmark.*
+import std.unittest.*
+import std.unittest.testmacro.*
+
 main(): Int64 {
     let tester = AbstractVisitorTest()
-    tester.execute()
-    tester.printResult()
-    tester.getTestInfo().errorCount + tester.getTestInfo().failedCount
+    tester.replacingNodeInVisitorShouldNotDestroyVisitOrder()
+    return 0
 }
 
 class AbstractVisitorImpl <: AbstractVisitor {
