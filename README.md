@@ -44,18 +44,17 @@ flowchart LR
 ### 源码目录
 
 ```shell
-├── README.md              #整体介绍
 ├── doc                    #文档目录，包括设计文档，API接口文档等
-│   ├── cjcov              #覆盖率信息
-│   ├── design.md          #整体设计文档
 │   └── feature_api.md     #API接口文档
 ├── src                    #源码目录
 │   └── commonmark         #描述关键代码文件的功能
 │   ├── strikethrough      #删除线功能的插件代码
 │   └── table              #表格功能的插件代码
-└── test                   #测试代码目录
-    ├── HLT
-    └── LLT
+├── CHANGELOG.MD           #修改日志
+├── cjpm.toml              #编译
+├── LICENSE                #license 文件
+├── README.md              #整体介绍
+├── README.OpenSource      #开源介绍
 ```
 
 ### 接口说明
