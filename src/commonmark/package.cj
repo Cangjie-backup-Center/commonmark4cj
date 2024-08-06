@@ -7,7 +7,7 @@
  */
 package commonmark4cj.commonmark
 
-internal import std.collection.{ArrayList, HashMap, HashSet, Map, EquatableCollection, Set, LinkedList, map, collectString}
+internal import std.collection.{ArrayList, HashMap, HashSet, Map, EquatableCollection, Set, LinkedList, map, collectString, collectHashSet}
 internal import std.convert.{Parsable}
 internal import std.format.{Formatter}
 internal import std.io.{StringReader, InputStream, IOException}

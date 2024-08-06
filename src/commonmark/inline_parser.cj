@@ -293,11 +293,14 @@ class InlineParserImpl <: InlineParser {
      * Returns the char at the current input index, or {@code '\0'} in case there are no more characters.
      */
     private func peek(): Rune {
-        if (index < input.size) {
-            return Rune.fromUtf8(unsafe { input.rawData() }, index)[0]
-        } else {
-            return r'\0'
+        try {
+            if (index < input.size) {
+                return Rune.fromUtf8(unsafe { input.rawData() }, index)[0]
+            }
+        } catch (_) {
+            // just in case
         }
+        return r'\0'
     }
 
     /**
@@ -341,6 +344,7 @@ class InlineParserImpl <: InlineParser {
         return SoftLineBreak()
     }
 
+    static let ESCAPABLE_SET: HashSet<Byte> = ##"!"#$%&'()*+,./:;<=>?@[\]^_`{|}~-"##.toArray() |> collectHashSet
     /**
      * Parse a backslash-escaped special character, adding either the escaped  character, a hard line break
      * (if the backslash is followed by a newline), or a literal backslash to the block's children.
@@ -352,7 +356,7 @@ class InlineParserImpl <: InlineParser {
         if (peek() == r'\n') {
             nodes = HardLineBreak()
             index++
-        } else if (index < inputArr.size && ESCAPABLE.matcher(inputArr[index..(index + 1)]).find().isSome()) {
+        } else if (index < inputArr.size && ESCAPABLE_SET.contains(inputArr[index])) {
             nodes = text(inputArr[index..(index + 1)])
             index++
         } else {
@@ -377,8 +381,8 @@ class InlineParserImpl <: InlineParser {
                 content = content.replace("\n", " ")
                 // spec: If the resulting string both begins and ends with a space character, but does not consist
                 // entirely of space characters, a single space character is removed from the front and back.
-                if (content.size >= 3 && content[0] == ' '.b && content[content.size - 1] == ' '.b && Parsing.hasNonSpace(
-                    content)) {
+                if (content.size >= 3 && content[0] == ' '.b && content[content.size - 1] == ' '.b &&
+                    Parsing.hasNonSpace(content)) {
                     content = content[1..(content.size - 1)]
                 }
 
