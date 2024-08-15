@@ -73,7 +73,7 @@ class InlineParserImpl <: InlineParser {
 
     private static let HTML_TAG: Regex = Regex("^" + HTMLTAG, RegexOption().ignoreCase())
 
-    private static let ESCAPABLE: Regex = Regex("^" + Escaping.ESCAPABLE)
+    // private static let ESCAPABLE: Regex = Regex("^" + Escaping.ESCAPABLE)
 
     private static let ENTITY_HERE: Regex = Regex("^" + Escaping.ENTITY, RegexOption().ignoreCase())
 
