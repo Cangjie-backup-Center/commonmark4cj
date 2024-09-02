@@ -381,7 +381,7 @@ class InlineParserImpl <: InlineParser {
                 content = content.replace("\n", " ")
                 // spec: If the resulting string both begins and ends with a space character, but does not consist
                 // entirely of space characters, a single space character is removed from the front and back.
-                if (content.size >= 3 && content[0] == ' '.b && content[content.size - 1] == ' '.b &&
+                if (content.size >= 3 && content[0] == b' ' && content[content.size - 1] == b' ' &&
                     Parsing.hasNonSpace(content)) {
                     content = content[1..(content.size - 1)]
                 }
@@ -630,7 +630,7 @@ class InlineParserImpl <: InlineParser {
      */
     func parseLinkLabel(): Int64 {
         let inputArr: String = input
-        if (index >= inputArr.size || inputArr[index] != '['.b) {
+        if (index >= inputArr.size || inputArr[index] != b'[') {
             return 0
         }
 
@@ -641,7 +641,7 @@ class InlineParserImpl <: InlineParser {
         if (endContent == -1 || contentLength > 999) {
             return 0
         }
-        if (endContent >= inputArr.size || inputArr[endContent] != ']'.b) {
+        if (endContent >= inputArr.size || inputArr[endContent] != b']') {
             return 0
         }
         index = endContent + 1
