@@ -273,7 +273,7 @@ public class HtmlWriter {
     }
 
     public func line(): Unit {
-        if (lastChar != 0 && lastChar != '\n'.b) {
+        if (lastChar != 0 && lastChar != b'\n') {
             append("\n")
         }
     }

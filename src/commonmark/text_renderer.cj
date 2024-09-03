@@ -423,19 +423,19 @@ public class TextContentWriter {
     }
 
     public func whitespace(): Unit {
-        if (lastChar != 0 && lastChar != ' '.b) {
+        if (lastChar != 0 && lastChar != b' ') {
             append(" ")
         }
     }
 
     public func colon(): Unit {
-        if (lastChar != 0 && lastChar != ':'.b) {
+        if (lastChar != 0 && lastChar != b':') {
             append(":")
         }
     }
 
     public func line(): Unit {
-        if (lastChar != 0 && lastChar != '\n'.b) {
+        if (lastChar != 0 && lastChar != b'\n') {
             append("\n")
         }
     }

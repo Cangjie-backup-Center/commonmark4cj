@@ -47,25 +47,3 @@ extend<T> Array<T> where T <: Rune {
         }
     }
 }
-
-extend Rune{
-    prop b: Byte {
-        get(){
-            UInt8(UInt32(this))
-        }
-    }
-}
-extend Byte{
-    prop b: Byte {
-        get(){
-            this
-        }
-    }
-}
-extend String{
-    prop b: Byte {
-        get(){
-            this[0]
-        }
-    }
-}
