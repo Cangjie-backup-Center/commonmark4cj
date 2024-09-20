@@ -10,7 +10,7 @@ package commonmark4cj.commonmark
 public class BitSet {
     static let ARRSIZE = 16
     var maxIndex: Int64
-    let words: Array<UInt64> = Array(ARRSIZE, item: 0)
+    let words: Array<UInt64> = Array(ARRSIZE, repeat: 0)
     let wordsMap: HashMap<Int64, UInt64> = HashMap()
 
     public init(size: Int64) {
