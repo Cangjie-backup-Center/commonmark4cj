@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
  */
 
 package commonmark4cj.commonmark
@@ -165,11 +165,12 @@ class InlineParserImpl <: InlineParser {
                 let old: Option<DelimiterProcessor> = hashMap.get(opening)
                 if (old.isSome() && old().getOpeningCharacter() == old().getClosingCharacter()) {
                     var s: StaggeredDelimiterProcessor
-                    if (let Some(v: StaggeredDelimiterProcessor) <- old) {
-                        s = v
-                    } else {
-                        s = StaggeredDelimiterProcessor(opening)
-                        s.add(old())
+                    match(old) {
+                        case Some(v: StaggeredDelimiterProcessor) => 
+                            s = v
+                        case _ => 
+                            s = StaggeredDelimiterProcessor(opening)
+                            s.add(old())
                     }
                     s.add(delimiterProcessor)
                     hashMap.put(opening, s)
@@ -923,18 +924,20 @@ class InlineParserImpl <: InlineParser {
 
         var node: ?Node = fromNode
         while (node.isSome()) {
-            if (let Some(text: Text) <- node) {
-                if (first.isNone()) {
-                    first = text
-                }
-                length += text.getLiteral().size
-                last = text
-            } else {
-                mergeIfNeeded(first, last, length)
-                first = Option<Text>.None
-                last = Option<Text>.None
-                length = 0
+            match(node) {
+                case Some(text: Text) => 
+                    if (first.isNone()) {
+                        first = text
+                    }
+                    length += text.getLiteral().size
+                    last = text
+                case _ => 
+                    mergeIfNeeded(first, last, length)
+                    first = Option<Text>.None
+                    last = Option<Text>.None
+                    length = 0
             }
+ 
             if (node == toNode) {
                 break
             }
@@ -951,12 +954,15 @@ class InlineParserImpl <: InlineParser {
             var node: ?Node = first().getNext()
             let stop: ?Node = last().getNext()
             while (node != stop) {
-                if (let Some(v: Text) <- node) {
-                    sb.append(v.getLiteral())
-                    var unlink: Node = v
-                    node = v.getNext()
-                    unlink.unlink()
+                match(node) {
+                    case Some(v: Text) =>
+                        sb.append(v.getLiteral())
+                        var unlink: Node = v
+                        node = v.getNext()
+                        unlink.unlink()
+                    case _ => ()
                 }
+                
             }
             let literal: String = sb.toString()
             first().setLiteral(literal)

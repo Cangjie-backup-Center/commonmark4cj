@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
  */
 
 package commonmark4cj.commonmark
@@ -261,23 +261,30 @@ class CoreTextContentNodeRenderer <: AbstractVisitor & NodeRenderer {
     }
 
     public override func visit(listItem: ListItem): Unit {
-        if (let Some(orderedListHolder: OrderedListHolder) <- listHolder) {
-            let indent: String = if (context.stripNewlines()) {
-                ""
-            } else {
-                orderedListHolder.getIndent()
-            }
-            textContent.write("${indent}${orderedListHolder.getCounter()}${orderedListHolder.getDelimiter()} ")
-            visitChildren(listItem)
-            writeEndOfLineIfNeeded(listItem, None)
-            orderedListHolder.increaseCounter()
-        } else if (let Some(bulletListHolder: BulletListHolder) <- listHolder) {
-            if (!context.stripNewlines()) {
-                textContent.write("${bulletListHolder.getIndent()}${bulletListHolder.getMarker()} ")
-            }
-            visitChildren(listItem)
-            writeEndOfLineIfNeeded(listItem, None)
+        match(listHolder) {
+            case Some(orderedListHolder: OrderedListHolder) =>
+                let indent: String = if (context.stripNewlines()) {
+                    ""
+                } else {
+                    orderedListHolder.getIndent()
+                }
+                textContent.write("${indent}${orderedListHolder.getCounter()}${orderedListHolder.getDelimiter()} ")
+                visitChildren(listItem)
+                writeEndOfLineIfNeeded(listItem, None)
+                orderedListHolder.increaseCounter()
+                
+            case _ => 
+                match(listHolder) {
+                    case Some(bulletListHolder: BulletListHolder) =>
+                        if (!context.stripNewlines()) {
+                            textContent.write("${bulletListHolder.getIndent()}${bulletListHolder.getMarker()} ")
+                        }
+                        visitChildren(listItem)
+                        writeEndOfLineIfNeeded(listItem, None)
+                    case _ => ()
+                }
         }
+        
     }
 
     public override func visit(orderedList: OrderedList): Unit {
