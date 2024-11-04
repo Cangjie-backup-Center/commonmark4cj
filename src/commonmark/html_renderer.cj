@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
  */
 
 package commonmark4cj.commonmark
@@ -562,9 +562,11 @@ class CoreHtmlNodeRenderer <: AbstractVisitor & NodeRenderer {
 
     private func isInTightList(paragraph: Paragraph): Bool {
         if (let Some(parent) <- paragraph.getParent()) {
-            if (let Some(list: ListBlock) <- parent.getParent()) {
-                return list.isTight()
+            match(parent.getParent()) {
+                case Some(list: ListBlock) => return list.isTight()
+                case _ => ()
             }
+            
         }
         return false
     }
