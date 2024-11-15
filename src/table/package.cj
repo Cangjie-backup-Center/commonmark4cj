@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
  */
 
 /**
@@ -19,8 +19,8 @@ extend<T> Option<T> {
 
 public type CharSequence = Array<Rune>
 
-extend Array<Rune> {
-    func trim(): Array<Rune> {
+extend<T> Array<T> where T <: Rune {
+    func trim(): Array<T> {
         var (a, b) = (0, this.size - 1)
         while (a <= b) {
             if (this[a].isWhiteSpace()) {
@@ -39,11 +39,33 @@ extend Array<Rune> {
         this[a..=b]
     }
 
-    func replace(old: Rune, new: Rune): Unit {
+    func replace(old: T, new: T): Unit {
         for (i in 0..this.size) {
             if (this[i] == old) {
                 this[i] = new
             }
+        }
+    }
+}
+
+extend Rune{
+    prop b: Byte {
+        get(){
+            UInt8(UInt32(this))
+        }
+    }
+}
+extend Byte{
+    prop b: Byte {
+        get(){
+            this
+        }
+    }
+}
+extend String{
+    prop b: Byte {
+        get(){
+            this[0]
         }
     }
 }

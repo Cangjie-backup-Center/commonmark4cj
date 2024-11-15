@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
  */
 
 package commonmark4cj.commonmark
@@ -273,7 +273,7 @@ public class HtmlWriter {
     }
 
     public func line(): Unit {
-        if (lastChar != 0 && lastChar != b'\n') {
+        if (lastChar != 0 && lastChar != '\n'.b) {
             append("\n")
         }
     }
@@ -562,11 +562,9 @@ class CoreHtmlNodeRenderer <: AbstractVisitor & NodeRenderer {
 
     private func isInTightList(paragraph: Paragraph): Bool {
         if (let Some(parent) <- paragraph.getParent()) {
-            match(parent.getParent()) {
-                case Some(list: ListBlock) => return list.isTight()
-                case _ => ()
+            if (let Some(list: ListBlock) <- parent.getParent()) {
+                return list.isTight()
             }
-            
         }
         return false
     }

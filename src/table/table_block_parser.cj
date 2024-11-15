@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
  */
 
 package commonmark4cj.table
@@ -95,7 +95,7 @@ class TableBlockParser <: AbstractBlockParser {
 
     static func split(input: String): ArrayList<String> {
         var line: String = input.trimAscii()
-        if (line.size > 0 && line[0] == b'|') {
+        if (line.size > 0 && line[0] == '|'.b) {
             line = line[1..]
         }
         var cells: ArrayList<String> = ArrayList<String>()
@@ -105,7 +105,7 @@ class TableBlockParser <: AbstractBlockParser {
         while (i < arr.size) {
             let c = arr[i]
             match (c) {
-                case '\\' => if (i + 1 < arr.size && arr[i + 1] == b'|') {
+                case '\\' => if (i + 1 < arr.size && arr[i + 1] == '|'.b) {
                     // Pipe is special for table parsing. An escaped pipe doesn't result in a new cell, but is
                     // passed down to inline parsing as an unescaped pipe. Note that that applies even for the `\|`
                     // in an input like `\\|` - in other words, table parsing doesn't support escaping backslashes.
@@ -164,12 +164,12 @@ class TableBlockParser <: AbstractBlockParser {
                     }
                     var left: Bool = false
                     var right: Bool = false
-                    if (c == b':') {
+                    if (c == ':'.b) {
                         left = true
                         i++
                     }
                     var haveDash: Bool = false
-                    while (i < s.size && s[i] == b'-') {
+                    while (i < s.size && s[i] == '-'.b) {
                         i++
                         haveDash = true
                     }
@@ -177,7 +177,7 @@ class TableBlockParser <: AbstractBlockParser {
                         // Need at least one dash
                         return None
                     }
-                    if (i < s.size && s[i] == b':') {
+                    if (i < s.size && s[i] == ':'.b) {
                         right = true
                         i++
                     }
