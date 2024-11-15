@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
  */
 
 package commonmark4cj.commonmark
@@ -103,7 +103,7 @@ class DocumentParser <: ParserState {
         while (lineBreak != -1) {
             var line = input[lineStart..lineBreak]
             incorporateLine(line)
-            if (lineBreak + 1 < input.size && input[lineBreak] == b'\r' && input[lineBreak + 1] == b'\n') {
+            if (lineBreak + 1 < input.size && input[lineBreak] == '\r'.b && input[lineBreak + 1] == '\n'.b) {
                 lineStart = lineBreak + 2
             } else {
                 lineStart = lineBreak + 1
@@ -273,11 +273,11 @@ class DocumentParser <: ParserState {
         var length: Int64 = line.size
         while (i < length) {
             var c = line[i]
-            if (c == b' ') {
+            if (c == ' '.b) {
                 i++
                 colsNum++
                 continue
-            } else if (c == b'\t') {
+            } else if (c == '\t'.b) {
                 i++
                 colsNum += (4 - (colsNum % 4))
                 continue
@@ -346,7 +346,7 @@ class DocumentParser <: ParserState {
 
     private func advance(): Unit {
         var lineChar = line[index]
-        if (lineChar == b'\t') {
+        if (lineChar == '\t'.b) {
             index++
             column = Parsing.columnsToNextTabStop(column) + column
         } else {

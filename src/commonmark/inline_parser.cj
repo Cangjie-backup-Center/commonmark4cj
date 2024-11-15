@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
  */
 
 package commonmark4cj.commonmark
@@ -73,7 +73,7 @@ class InlineParserImpl <: InlineParser {
 
     private static let HTML_TAG: Regex = Regex("^" + HTMLTAG, RegexOption().ignoreCase())
 
-    // private static let ESCAPABLE: Regex = Regex("^" + Escaping.ESCAPABLE)
+    private static let ESCAPABLE: Regex = Regex("^" + Escaping.ESCAPABLE)
 
     private static let ENTITY_HERE: Regex = Regex("^" + Escaping.ENTITY, RegexOption().ignoreCase())
 
@@ -165,12 +165,11 @@ class InlineParserImpl <: InlineParser {
                 let old: Option<DelimiterProcessor> = hashMap.get(opening)
                 if (old.isSome() && old().getOpeningCharacter() == old().getClosingCharacter()) {
                     var s: StaggeredDelimiterProcessor
-                    match(old) {
-                        case Some(v: StaggeredDelimiterProcessor) => 
-                            s = v
-                        case _ => 
-                            s = StaggeredDelimiterProcessor(opening)
-                            s.add(old())
+                    if (let Some(v: StaggeredDelimiterProcessor) <- old) {
+                        s = v
+                    } else {
+                        s = StaggeredDelimiterProcessor(opening)
+                        s.add(old())
                     }
                     s.add(delimiterProcessor)
                     hashMap.put(opening, s)
@@ -240,18 +239,18 @@ class InlineParserImpl <: InlineParser {
 
         var node: ?Node = Option<Node>.None
         match (c) {
-            case r'\n' => return parseNewline(previous)
-            case r'\\' => return parseBackslash()
-            case r'`' => node = parseBackticks()
-            case r'[' => return parseOpenBracket()
-            case r'!' => return parseBang()
-            case r']' => return parseCloseBracket()
-            case r'<' =>
+            case '\n' => return parseNewline(previous)
+            case '\\' => return parseBackslash()
+            case '`' => node = parseBackticks()
+            case '[' => return parseOpenBracket()
+            case '!' => return parseBang()
+            case ']' => return parseCloseBracket()
+            case '<' =>
                 node = parseAutolink()
                 if (node.isNone()) {
                     node = parseHtmlInline()
                 }
-            case r'&' => node = parseEntity()
+            case '&' => node = parseEntity()
             case _ =>
                 let isDelimiter: Bool = delimiterCharacters.get(Int64(UInt32(c)))
                 if (isDelimiter) {
@@ -294,14 +293,11 @@ class InlineParserImpl <: InlineParser {
      * Returns the char at the current input index, or {@code '\0'} in case there are no more characters.
      */
     private func peek(): Rune {
-        try {
-            if (index < input.size) {
-                return Rune.fromUtf8(unsafe { input.rawData() }, index)[0]
-            }
-        } catch (_) {
-            // just in case
+        if (index < input.size) {
+            return Rune.fromUtf8(unsafe { input.rawData() }, index)[0]
+        } else {
+            return r'\0'
         }
-        return r'\0'
     }
 
     /**
@@ -345,7 +341,6 @@ class InlineParserImpl <: InlineParser {
         return SoftLineBreak()
     }
 
-    static let ESCAPABLE_SET: HashSet<Byte> = ##"!"#$%&'()*+,./:;<=>?@[\]^_`{|}~-"##.toArray() |> collectHashSet
     /**
      * Parse a backslash-escaped special character, adding either the escaped  character, a hard line break
      * (if the backslash is followed by a newline), or a literal backslash to the block's children.
@@ -357,7 +352,7 @@ class InlineParserImpl <: InlineParser {
         if (peek() == r'\n') {
             nodes = HardLineBreak()
             index++
-        } else if (index < inputArr.size && ESCAPABLE_SET.contains(inputArr[index])) {
+        } else if (index < inputArr.size && ESCAPABLE.matcher(inputArr[index..(index + 1)]).find().isSome()) {
             nodes = text(inputArr[index..(index + 1)])
             index++
         } else {
@@ -382,8 +377,8 @@ class InlineParserImpl <: InlineParser {
                 content = content.replace("\n", " ")
                 // spec: If the resulting string both begins and ends with a space character, but does not consist
                 // entirely of space characters, a single space character is removed from the front and back.
-                if (content.size >= 3 && content[0] == b' ' && content[content.size - 1] == b' ' &&
-                    Parsing.hasNonSpace(content)) {
+                if (content.size >= 3 && content[0] == ' '.b && content[content.size - 1] == ' '.b && Parsing.hasNonSpace(
+                    content)) {
                     content = content[1..(content.size - 1)]
                 }
 
@@ -631,7 +626,7 @@ class InlineParserImpl <: InlineParser {
      */
     func parseLinkLabel(): Int64 {
         let inputArr: String = input
-        if (index >= inputArr.size || inputArr[index] != b'[') {
+        if (index >= inputArr.size || inputArr[index] != '['.b) {
             return 0
         }
 
@@ -642,7 +637,7 @@ class InlineParserImpl <: InlineParser {
         if (endContent == -1 || contentLength > 999) {
             return 0
         }
-        if (endContent >= inputArr.size || inputArr[endContent] != b']') {
+        if (endContent >= inputArr.size || inputArr[endContent] != ']'.b) {
             return 0
         }
         index = endContent + 1
@@ -924,20 +919,18 @@ class InlineParserImpl <: InlineParser {
 
         var node: ?Node = fromNode
         while (node.isSome()) {
-            match(node) {
-                case Some(text: Text) => 
-                    if (first.isNone()) {
-                        first = text
-                    }
-                    length += text.getLiteral().size
-                    last = text
-                case _ => 
-                    mergeIfNeeded(first, last, length)
-                    first = Option<Text>.None
-                    last = Option<Text>.None
-                    length = 0
+            if (let Some(text: Text) <- node) {
+                if (first.isNone()) {
+                    first = text
+                }
+                length += text.getLiteral().size
+                last = text
+            } else {
+                mergeIfNeeded(first, last, length)
+                first = Option<Text>.None
+                last = Option<Text>.None
+                length = 0
             }
- 
             if (node == toNode) {
                 break
             }
@@ -954,15 +947,12 @@ class InlineParserImpl <: InlineParser {
             var node: ?Node = first().getNext()
             let stop: ?Node = last().getNext()
             while (node != stop) {
-                match(node) {
-                    case Some(v: Text) =>
-                        sb.append(v.getLiteral())
-                        var unlink: Node = v
-                        node = v.getNext()
-                        unlink.unlink()
-                    case _ => ()
+                if (let Some(v: Text) <- node) {
+                    sb.append(v.getLiteral())
+                    var unlink: Node = v
+                    node = v.getNext()
+                    unlink.unlink()
                 }
-                
             }
             let literal: String = sb.toString()
             first().setLiteral(literal)

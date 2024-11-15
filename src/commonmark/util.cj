@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
  */
 
 package commonmark4cj.commonmark
@@ -121,7 +121,7 @@ public class Escaping {
 
 class UnescapeReplacer <: Replacer {
     public func replace(input: String, sb: StringBuilder): Unit {
-        if (input[0] == b'\\') {
+        if (input[0] == '\\'.b) {
             sb.append(input[1..])
         } else {
             sb.append(Html5Entities.entityToString(input))
@@ -133,7 +133,7 @@ class UriReplacer <: Replacer {
     private static let HEX_DIGITS: Array<Rune> = [r'0', r'1', r'2', r'3', r'4', r'5', r'6', r'7', r'8', r'9', r'A', r'B', r'C', r'D', r'E', r'F']
 
     public func replace(input: String, sb: StringBuilder): Unit {
-        if (input[0] == b'%') {
+        if (input[0] == '%'.b) {
             if (input.size == 3) {
                 // Already percent-encoded, preserve
                 sb.append(input)
@@ -226,7 +226,7 @@ public class LinkScanner {
         if (start >= input.size) {
             return -1
         }
-        if (input[start] == b'<') {
+        if (input[start] == '<'.b) {
             var i: Int64 = start + 1
             while (i < input.size) {
                 let c = input[i]
@@ -278,11 +278,11 @@ public class LinkScanner {
         var i: Int64 = start
         while (i < input.size) {
             let c = input[i]
-            if (c == b'\\' && Parsing.isEscapable(input, i + 1)) {
+            if (c == '\\'.b && Parsing.isEscapable(input, i + 1)) {
                 i++
             } else if (c == endDelimiter) {
                 return i
-            } else if (endDelimiter == b')' && c == b'(') {
+            } else if (endDelimiter == ')'.b && c == '('.b) {
                 // unescaped '(' in title within parens is invalid
                 return -1
             }
@@ -344,9 +344,9 @@ public class LinkScanner {
 }
 
 public class Parsing {
-    private static let bytes: Array<Byte> = [b'!', b'"', b'#', b'$', b'%', b'&', b'\'', b'(', b')', b'*', b'+', b',',
-    b'-', b'.', b'/', b':', b';', b'<', b'=', b'>', b'?', b'@', b'[', b'\\', b']', b'^', b'_', b'`', b'{', b'|', b'}',
-    b'~']
+    private static let bytes: Array<Byte> = ['!'.b, '"'.b, '#'.b, '$'.b, '%'.b, '&'.b, '\''.b, '('.b, ')'.b, '*'.b, '+'.b, ','.b,
+    '-'.b, '.'.b, '/'.b, ':'.b, ';'.b, '<'.b, '='.b, '>'.b, '?'.b, '@'.b, '['.b, '\\'.b, ']'.b, '^'.b, '_'.b, '`'.b, '{'.b, '|'.b, '}'.b,
+    '~'.b]
     private static let TAGNAME: String = "[A-Za-z][A-Za-z0-9-]*"
     private static let ATTRIBUTENAME: String = "[a-zA-Z_:][a-zA-Z0-9:._-]*"
     private static let UNQUOTEDVALUE: String = "[^\"'=<>`\\x00-\\x20]+"
@@ -399,7 +399,7 @@ public class Parsing {
 
     public static func hasNonSpace(s: String): Bool {
         let length: Int64 = s.size
-        let skipped: Int64 = skip(b' ', s, 0, length)
+        let skipped: Int64 = skip(' '.b, s, 0, length)
         return skipped != length
     }
 
