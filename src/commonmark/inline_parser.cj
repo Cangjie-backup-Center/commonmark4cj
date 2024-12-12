@@ -68,7 +68,7 @@ class InlineParserImpl <: InlineParser {
     private static let HTMLTAG: String = "(?:" + Parsing.OPENTAG + "|" + Parsing.CLOSETAG + "|" + HTMLCOMMENT + "|" +
         PROCESSINGINSTRUCTION + "|" + DECLARATION + "|" + CDATA + ")"
 
-    private static let ASCII_PUNCTUATION: String = "!\"#\\$%&'\\(\\)\\*\\+,\\-\\./:;<=>\\?@\\[\\\\\\]\\^_`\\{\\|\\}~，！；’‘。"
+    private static let ASCII_PUNCTUATION: String = ##"!"#\$%&'\(\)\*\+,\-\./:;<=>\?@\[\\\]\^_`\{\|\}~"##
     private static let PUNCTUATION: Regex = Regex("^[${ASCII_PUNCTUATION}]")
 
     private static let HTML_TAG: Regex = Regex("^" + HTMLTAG, RegexOption().ignoreCase())
