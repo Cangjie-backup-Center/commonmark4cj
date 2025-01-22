@@ -8,11 +8,9 @@
 package commonmark4cj.commonmark
 
 internal import std.collection.{ArrayList, HashMap, HashSet, Map, EquatableCollection, Set, LinkedList, map, collectString, collectHashSet}
-internal import std.convert.{Parsable}
-internal import std.format.{Formatter}
+internal import std.convert.*
 internal import std.io.{StringReader, InputStream, IOException}
 internal import std.regex.{Regex, Matcher, MatchData, RegexOption, Position}
-internal import std.unicode.{UnicodeExtension}
 
 extend<T> Option<T> {
     operator func ()(): T {
@@ -37,7 +35,7 @@ extend<T> Option<T> where T <: Equatable<T> {
 
 let NULL_CHAR: Rune = '\u{0}'
 let EMPTY_STRING: String = ""
-let EMPTY_MAP: Map<String, String> = HashMap()
+let EMPTY_MAP: HashMap<String, String> = HashMap()
 let STRINGBUILDER_CAPACITY: Int64 = 256
 public type CharSequence = Array<Rune>
 
@@ -45,14 +43,14 @@ extend Array<Rune> {
     func trim(): Array<Rune> {
         var (a, b) = (0, this.size - 1)
         while (a <= b) {
-            if (this[a].isWhiteSpace()) {
+            if (this[a].isAsciiWhiteSpace()) {
                 a++
             } else {
                 break
             }
         }
         while (b >= a) {
-            if (this[b].isWhiteSpace()) {
+            if (this[b].isAsciiWhiteSpace()) {
                 b--
             } else {
                 break

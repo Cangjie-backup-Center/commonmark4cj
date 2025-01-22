@@ -45,7 +45,7 @@ class NodeRendererMap {
     public func add(nodeRenderer: NodeRenderer): Unit {
         for (nodeType in nodeRenderer.getNodeTypes()) {
             // Overwrite existing renderer
-            renderers.put(nodeType, nodeRenderer)
+            renderers.add(nodeType, nodeRenderer)
         }
     }
 

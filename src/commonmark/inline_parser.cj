@@ -149,7 +149,7 @@ class InlineParserImpl <: InlineParser {
         DelimiterProcessor> {
         var map: HashMap<Rune, DelimiterProcessor> = HashMap<Rune, DelimiterProcessor>()
         addDelimiterProcessors(
-            ArrayList<DelimiterProcessor>(AsteriskDelimiterProcessor(), UnderscoreDelimiterProcessor()), map)
+            ArrayList<DelimiterProcessor>([AsteriskDelimiterProcessor(), UnderscoreDelimiterProcessor()]), map)
         addDelimiterProcessors(delimiterProcessors, map)
         return map
     }
@@ -173,7 +173,7 @@ class InlineParserImpl <: InlineParser {
                             s.add(old())
                     }
                     s.add(delimiterProcessor)
-                    hashMap.put(opening, s)
+                    hashMap.add(opening, s)
                 } else {
                     addDelimiterProcessorForChar(opening, delimiterProcessor, hashMap)
                 }
@@ -189,7 +189,7 @@ class InlineParserImpl <: InlineParser {
         toAdd: DelimiterProcessor,
         delimiterProcessors: HashMap<Rune, DelimiterProcessor>
     ): Unit {
-        let existing: ?DelimiterProcessor = delimiterProcessors.put(delimiterChar, toAdd)
+        let existing: ?DelimiterProcessor = delimiterProcessors.add(delimiterChar, toAdd)
         if (existing.isSome()) {
             throw IllegalArgumentException("Delimiter processor conflict with delimiter char '${delimiterChar}'")
         }
@@ -816,7 +816,7 @@ class InlineParserImpl <: InlineParser {
                      we want to consider it next time because the number
                      of delimiters can change as we continue processing.
                      */
-                    openersBottom.put(delimiterChar, closer().previous)
+                    openersBottom.add(delimiterChar, closer().previous)
                     if (closer.isSome() && !closer().canOpen()) {
                         // We can remove a closer that can't be an opener,
                         // once we've seen there's no matching opener:

@@ -78,7 +78,7 @@ class StrikethroughHtmlNodeRenderer <: StrikethroughNodeRenderer {
     }
 
     public override func render(node: Node): Unit {
-        let attributes: Map<String, String> = context.extendAttributes(node, "del", HashMap<String, String>())
+        let attributes: HashMap<String, String> = context.extendAttributes(node, "del", HashMap<String, String>())
         html.tag("del", attributes)
         renderChildren(node)
         html.tag("/del")

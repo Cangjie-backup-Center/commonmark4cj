@@ -37,7 +37,7 @@ class TableBlockParser <: AbstractBlockParser {
         if (nextIsSeparatorLine) {
             nextIsSeparatorLine = false
         } else {
-            bodyLines.append(line)
+            bodyLines.add(line)
         }
     }
 
@@ -116,7 +116,7 @@ class TableBlockParser <: AbstractBlockParser {
                     sb.append('\\')
                 }
                 case '|' =>
-                    cells.append(sb.toString())
+                    cells.add(sb.toString())
                     sb.reset()
                 case _ =>
                     let (char, charSize) = Rune.fromUtf8(unsafe { line.rawData() }, i)
@@ -127,7 +127,7 @@ class TableBlockParser <: AbstractBlockParser {
             i++
         }
         if (sb.size > 0) {
-            cells.append(sb.toString())
+            cells.add(sb.toString())
         }
         return cells
     }
@@ -181,7 +181,7 @@ class TableBlockParser <: AbstractBlockParser {
                         right = true
                         i++
                     }
-                    columns.append(getAlignment(left, right))
+                    columns.add(getAlignment(left, right))
                     // Next, need another pipe
                     pipes = 0
                 case ' ' | '\t' =>

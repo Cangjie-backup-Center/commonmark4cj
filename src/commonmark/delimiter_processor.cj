@@ -76,7 +76,7 @@ class StaggeredDelimiterProcessor <: DelimiterProcessor {
         for (p in processors) {
             let pLen: Int64 = p.getMinLength()
             if (len > pLen) {
-                processors.insertBefore(processors.nodeAt(i)(), dp)
+                processors.addBefore(processors.nodeAt(i)(), dp)
                 added = true
                 break
             } else if (len == pLen) {
@@ -87,7 +87,7 @@ class StaggeredDelimiterProcessor <: DelimiterProcessor {
         }
 
         if (!added) {
-            processors.append(dp)
+            processors.addLast(dp)
             this.minLength = len
         }
     }
@@ -98,7 +98,7 @@ class StaggeredDelimiterProcessor <: DelimiterProcessor {
                 return p
             }
         }
-        return processors.firstNode()().value
+        return processors.firstNode().value
     }
 
     public override func getDelimiterUse(opener: DelimiterRun, closer: DelimiterRun): Int64 {

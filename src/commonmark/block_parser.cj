@@ -691,7 +691,7 @@ class IndentedCodeBlockParser <: AbstractBlockParser {
     }
 
     public func addLine(line: String): Unit {
-        lines.append(line)
+        lines.add(line)
     }
 
     public func closeBlock(): Unit {
@@ -949,7 +949,7 @@ public class LinkReferenceDefinitionParser {
         } else {
             Escaping.unescapeString(title.toString())
         }
-        definitions.append(LinkReferenceDefinition(normalizedLabel, d, t))
+        definitions.add(LinkReferenceDefinition(normalizedLabel, d, t))
 
         label.reset()
         referenceValid = false

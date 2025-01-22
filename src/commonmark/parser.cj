@@ -168,7 +168,7 @@ public class ParserBuilder {
      * @return {@code this}
      */
     public func customBlockParserFactory(blockParserFactory: BlockParserFactory): ParserBuilder {
-        blockParserFactories.append(blockParserFactory)
+        blockParserFactories.add(blockParserFactory)
         return this
     }
 
@@ -183,12 +183,12 @@ public class ParserBuilder {
      * @return {@code this}
      */
     public func customDelimiterProcessor(delimiterProcessor: DelimiterProcessor): ParserBuilder {
-        delimiterProcessors.append(delimiterProcessor)
+        delimiterProcessors.add(delimiterProcessor)
         return this
     }
 
     public func postProcessor(postProcessor: PostProcessor): ParserBuilder {
-        postProcessors.append(postProcessor)
+        postProcessors.add(postProcessor)
         return this
     }
 

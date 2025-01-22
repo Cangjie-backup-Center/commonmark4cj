@@ -9,7 +9,6 @@ package commonmark4cj.table
 
 internal import commonmark4cj.commonmark.*
 internal import std.collection.{HashSet, HashMap, Map, ArrayList}
-internal import std.unicode.{UnicodeExtension}
 
 extend<T> Option<T> {
     operator func ()(): T {
@@ -23,14 +22,14 @@ extend Array<Rune> {
     func trim(): Array<Rune> {
         var (a, b) = (0, this.size - 1)
         while (a <= b) {
-            if (this[a].isWhiteSpace()) {
+            if (this[a].isAsciiWhiteSpace()) {
                 a++
             } else {
                 break
             }
         }
         while (b >= a) {
-            if (this[b].isWhiteSpace()) {
+            if (this[b].isAsciiWhiteSpace()) {
                 b--
             } else {
                 break

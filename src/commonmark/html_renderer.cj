@@ -27,9 +27,9 @@ public class HtmlRenderer <: Renderer {
         this.attributeProviderFactories = ArrayList<AttributeProviderFactory>(builder.attributeProviderFactories)
 
         this.nodeRendererFactories = ArrayList<HtmlNodeRendererFactory>(builder.nodeRendererFactories.size + 1)
-        this.nodeRendererFactories.appendAll(builder.nodeRendererFactories)
+        this.nodeRendererFactories.add(all: builder.nodeRendererFactories)
         // Add as last. This means clients can override the rendering of core nodes if they want.
-        this.nodeRendererFactories.append({context: HtmlNodeRendererContext => CoreHtmlNodeRenderer(context)})
+        this.nodeRendererFactories.add({context: HtmlNodeRendererContext => CoreHtmlNodeRenderer(context)})
     }
 
     /**
@@ -44,7 +44,7 @@ public class HtmlRenderer <: Renderer {
     public override func render(node: Node, output: StringBuilder): Unit {
         let context: HtmlRendererContextImpl = HtmlRendererContextImpl(HtmlWriter(output), this)
         for (attributeProviderFactory in attributeProviderFactories) {
-            context.attributeProviders.append(attributeProviderFactory(context))
+            context.attributeProviders.add(attributeProviderFactory(context))
         }
         // The first node renderer for a node type "wins".
         for (i in nodeRendererFactories.size - 1..=0 : -1) {
@@ -135,7 +135,7 @@ public class HtmlRendererBuilder {
      * @return {@code this}
      */
     public func attributeProviderFactory(attributeProviderFactory: AttributeProviderFactory): HtmlRendererBuilder {
-        this.attributeProviderFactories.append(attributeProviderFactory)
+        this.attributeProviderFactories.add(attributeProviderFactory)
         return this
     }
 
@@ -150,7 +150,7 @@ public class HtmlRendererBuilder {
      * @return {@code this}
      */
     public func nodeRendererFactory(nodeRendererFactory: HtmlNodeRendererFactory): HtmlRendererBuilder {
-        this.nodeRendererFactories.append(nodeRendererFactory)
+        this.nodeRendererFactories.add(nodeRendererFactory)
         return this
     }
 
@@ -203,9 +203,9 @@ class HtmlRendererContextImpl <: HtmlNodeRendererContext & AttributeProviderCont
     public override func extendAttributes(
         node: Node,
         tagName: String,
-        attributes: Map<String, String>
-    ): Map<String, String> {
-        let attrs: Map<String, String> = attributes.clone()
+        attributes: HashMap<String, String>
+    ): HashMap<String, String> {
+        let attrs: HashMap<String, String> = attributes.clone()
         setCustomAttributes(node, tagName, attrs)
         return attrs
     }
@@ -222,7 +222,7 @@ class HtmlRendererContextImpl <: HtmlNodeRendererContext & AttributeProviderCont
         nodeRendererMap.render(node)
     }
 
-    private func setCustomAttributes(node: Node, tagName: String, attrs: Map<String, String>): Unit {
+    private func setCustomAttributes(node: Node, tagName: String, attrs: HashMap<String, String>): Unit {
         for (attributeProvider in attributeProviders) {
             attributeProvider.setAttributes(node, tagName, attrs)
         }
@@ -230,7 +230,7 @@ class HtmlRendererContextImpl <: HtmlNodeRendererContext & AttributeProviderCont
 }
 
 public class HtmlWriter {
-    private static let NO_ATTRIBUTES: Map<String, String> = EMPTY_MAP
+    private static let NO_ATTRIBUTES: HashMap<String, String> = EMPTY_MAP
 
     private let buffer: StringBuilder
     private var lastChar: Byte = 0 // 只关注[\x0\n]所以用Byte类型
@@ -250,11 +250,11 @@ public class HtmlWriter {
         tag(name, NO_ATTRIBUTES)
     }
 
-    public func tag(name: String, attrs: Map<String, String>): Unit {
+    public func tag(name: String, attrs: HashMap<String, String>): Unit {
         tag(name, attrs, false)
     }
 
-    public func tag(name: String, attrs: ?Map<String, String>, voidElement: Bool): Unit {
+    public func tag(name: String, attrs: ?HashMap<String, String>, voidElement: Bool): Unit {
         append("<")
         append(name)
         if (attrs.isSome() && attrs().size > 0) {
@@ -307,7 +307,7 @@ public interface AttributeProvider {
      * @param tagName the HTML tag name that these attributes are for (e.g. {@code h1}, {@code pre}, {@code code}).
      * @param attributes the attributes, with any default attributes already set in the map
      */
-    func setAttributes(node: Node, tagName: String, attributes: Map<String, String>): Unit
+    func setAttributes(node: Node, tagName: String, attributes: HashMap<String, String>): Unit
 }
 
 /**
@@ -412,7 +412,7 @@ class CoreHtmlNodeRenderer <: AbstractVisitor & NodeRenderer {
 
     public override func visit(fencedCodeBlock: FencedCodeBlock): Unit {
         let literal: String = fencedCodeBlock.getLiteral()
-        let attributes: Map<String, String> = HashMap<String, String>()
+        let attributes: HashMap<String, String> = HashMap<String, String>()
         let info: String = fencedCodeBlock.getInfo()
         if (info.size > 0) {
             let language: String = if (let Some(space) <- info.indexOf(" ")) {
@@ -420,7 +420,7 @@ class CoreHtmlNodeRenderer <: AbstractVisitor & NodeRenderer {
             } else {
                 info
             }
-            attributes.put("class", "language-${language}")
+            attributes.add("class", "language-${language}")
         }
         renderCodeBlock(literal, fencedCodeBlock, attributes)
     }
@@ -448,11 +448,11 @@ class CoreHtmlNodeRenderer <: AbstractVisitor & NodeRenderer {
     }
 
     public override func visit(link: Link): Unit {
-        let attrs: Map<String, String> = HashMap<String, String>()
+        let attrs: HashMap<String, String> = HashMap<String, String>()
         let url: String = context.encodeUrl(link.getDestination())
-        attrs.put("href", url)
+        attrs.add("href", url)
         if (let Some(v) <- link.getTitle()) {
-            attrs.put("title", v)
+            attrs.add("title", v)
         }
         html.tag("a", getAttrs(link, "a", attrs))
         visitChildren(link)
@@ -468,9 +468,9 @@ class CoreHtmlNodeRenderer <: AbstractVisitor & NodeRenderer {
 
     public override func visit(orderedList: OrderedList): Unit {
         let start: Int = orderedList.getStartNumber()
-        let attrs: Map<String, String> = HashMap<String, String>()
+        let attrs: HashMap<String, String> = HashMap<String, String>()
         if (start != 1) {
-            attrs.put("start", start.toString())
+            attrs.add("start", start.toString())
         }
         renderListBlock(orderedList, "ol", getAttrs(orderedList, "ol", attrs))
     }
@@ -482,11 +482,11 @@ class CoreHtmlNodeRenderer <: AbstractVisitor & NodeRenderer {
         image.accept(altTextVisitor)
         let altText: String = altTextVisitor.getAltText()
 
-        let attrs: Map<String, String> = HashMap<String, String>()
-        attrs.put("src", url)
-        attrs.put("alt", altText)
+        let attrs: HashMap<String, String> = HashMap<String, String>()
+        attrs.add("src", url)
+        attrs.add("alt", altText)
         if (let Some(v) <- image.getTitle()) {
-            attrs.put("title", v)
+            attrs.add("title", v)
         }
 
         html.tag("img", getAttrs(image, "img", attrs), true)
@@ -540,7 +540,7 @@ class CoreHtmlNodeRenderer <: AbstractVisitor & NodeRenderer {
         }
     }
 
-    private func renderCodeBlock(literal: String, node: Node, attributes: Map<String, String>): Unit {
+    private func renderCodeBlock(literal: String, node: Node, attributes: HashMap<String, String>): Unit {
         html.line()
         html.tag("pre", getAttrs(node, "pre"))
         html.tag("code", getAttrs(node, "code", attributes))
@@ -550,7 +550,7 @@ class CoreHtmlNodeRenderer <: AbstractVisitor & NodeRenderer {
         html.line()
     }
 
-    private func renderListBlock(listBlock: ListBlock, tagName: String, attributes: Map<String, String>): Unit {
+    private func renderListBlock(listBlock: ListBlock, tagName: String, attributes: HashMap<String, String>): Unit {
         html.line()
         html.tag(tagName, attributes)
         html.line()
@@ -571,11 +571,11 @@ class CoreHtmlNodeRenderer <: AbstractVisitor & NodeRenderer {
         return false
     }
 
-    private func getAttrs(node: Node, tagName: String): Map<String, String> {
+    private func getAttrs(node: Node, tagName: String): HashMap<String, String> {
         return getAttrs(node, tagName, EMPTY_MAP)
     }
 
-    private func getAttrs(node: Node, tagName: String, defaultAttributes: Map<String, String>): Map<String, String> {
+    private func getAttrs(node: Node, tagName: String, defaultAttributes: HashMap<String, String>): HashMap<String, String> {
         return context.extendAttributes(node, tagName, defaultAttributes)
     }
 }
@@ -616,7 +616,7 @@ public interface HtmlNodeRendererContext {
      * @param attributes the attributes that were calculated by the renderer
      * @return the extended attributes with added/updated/removed entries
      */
-    func extendAttributes(node: Node, tagName: String, attributes: Map<String, String>): Map<String, String>
+    func extendAttributes(node: Node, tagName: String, attributes: HashMap<String, String>): HashMap<String, String>
 
     /**
      * @return the HTML writer to use

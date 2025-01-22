@@ -12,9 +12,9 @@ public class TextContentRenderer <: Renderer {
         this.stripNewlines = builder.stripNewlines
 
         this.nodeRendererFactories = ArrayList<TextContentNodeRendererFactory>(builder.nodeRendererFactories.size + 1)
-        this.nodeRendererFactories.appendAll(builder.nodeRendererFactories)
+        this.nodeRendererFactories.add(all: builder.nodeRendererFactories)
         // Add as last. This means clients can override the rendering of core nodes if they want.
-        this.nodeRendererFactories.append(
+        this.nodeRendererFactories.add(
             {context: TextContentNodeRendererContext => CoreTextContentNodeRenderer(context)})
     }
 
@@ -82,7 +82,7 @@ public class TextContentRendererBuilder {
      * @return {@code this}
      */
     public func nodeRendererFactory(nodeRendererFactory: TextContentNodeRendererFactory): TextContentRendererBuilder {
-        this.nodeRendererFactories.append(nodeRendererFactory)
+        this.nodeRendererFactories.add(nodeRendererFactory)
         return this
     }
 

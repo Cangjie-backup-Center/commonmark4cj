@@ -181,11 +181,11 @@ class TableHtmlNodeRenderer <: TableNodeRenderer {
         htmlWriter.line()
     }
 
-    private func getAttributes(node: Node, tagName: String): Map<String, String> {
+    private func getAttributes(node: Node, tagName: String): HashMap<String, String> {
         return context.extendAttributes(node, tagName, HashMap<String, String>())
     }
 
-    private func getCellAttributes(tableCell: TableCell, tagName: String): Map<String, String> {
+    private func getCellAttributes(tableCell: TableCell, tagName: String): HashMap<String, String> {
         if (tableCell.getAlignment().isSome()) {
             let singletonMap: HashMap<String, String> = HashMap<String, String>(
                 [("align", getAlignValue(tableCell.getAlignment()()))])

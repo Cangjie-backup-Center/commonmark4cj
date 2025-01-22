@@ -32,7 +32,7 @@ public class BitSet {
         if (wordIndex < ARRSIZE) {
             words[wordIndex] = word
         } else {
-            wordsMap.put(wordIndex, word)
+            wordsMap.add(wordIndex, word)
         }
     }
 
