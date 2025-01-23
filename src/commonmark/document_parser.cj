@@ -85,9 +85,9 @@ class DocumentParser <: ParserState {
     ): ArrayList<BlockParserFactory> {
         var list: ArrayList<BlockParserFactory> = ArrayList<BlockParserFactory>()
         // By having the custom factories come first, extensions are able to change behavior of core syntax.
-        list.appendAll(customBlockParserFactories)
+        list.add(all: customBlockParserFactories)
         for (blockType in enabledBlockTypes) {
-            list.append(NODES_TO_CORE_FACTORIES.get(blockType).getOrThrow())
+            list.add(NODES_TO_CORE_FACTORIES.get(blockType).getOrThrow())
         }
         return list
     }
@@ -391,7 +391,7 @@ class DocumentParser <: ParserState {
             var label: String = definition.getLabel().getOrThrow()
             // spec: When there are multiple matching link reference definitions, the first is used
             if (!definitions.contains(label)) {
-                definitions.put(label, definition)
+                definitions.add(label, definition)
             }
         }
     }
@@ -424,12 +424,12 @@ class DocumentParser <: ParserState {
     }
 
     private func activateBlockParser(blockParser: AbstractBlockParser): Unit {
-        activeBlockParsers.append(blockParser)
-        allBlockParsers.append(blockParser)
+        activeBlockParsers.add(blockParser)
+        allBlockParsers.add(blockParser)
     }
 
     private func deactivateBlockParser(): Unit {
-        activeBlockParsers.remove(activeBlockParsers.size - 1)
+        activeBlockParsers.remove(at: activeBlockParsers.size - 1)
     }
 
     private func prepareActiveBlockParserForReplacement(): Unit {
@@ -437,7 +437,7 @@ class DocumentParser <: ParserState {
         deactivateBlockParser()
         for (i in 0..allBlockParsers.size) {
             if (refEq(allBlockParsers[i], oldParser)) {
-                allBlockParsers.remove(i)
+                allBlockParsers.remove(at: i)
             }
         }
 

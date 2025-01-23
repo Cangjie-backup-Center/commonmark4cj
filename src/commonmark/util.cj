@@ -42,16 +42,16 @@ public class Escaping {
                 case '\"' => quot
                 case byte =>
                     if (let Some(s) <- sb) {
-                        s.append(byte)
+                        s.add(byte)
                     }
                     i++
                     continue
             }
             if (sb.isNone()) {
                 sb = ArrayList<Byte>(arr.size + 16)
-                sb?.appendAll(arr[..i])
+                sb?.add(all: arr[..i])
             }
-            sb?.appendAll(replacement)
+            sb?.add(all: replacement)
             i++
         }
         if (let Some(s) <- sb) {
@@ -157,7 +157,7 @@ public interface Replacer {
 }
 
 public class Html5Entities {
-    private static let NAMED_CHARACTER_REFERENCES: Map<String, String> = readEntities()
+    private static let NAMED_CHARACTER_REFERENCES: HashMap<String, String> = readEntities()
     private static let NUMERIC_PATTERN = Regex("^&#[Xx]?")
 
     public static func entityToString(input: String): String {
