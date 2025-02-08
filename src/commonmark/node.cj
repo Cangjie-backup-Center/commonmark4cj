@@ -5,11 +5,11 @@
 package commonmark4cj.commonmark
 
 public abstract class Node <: Context & ToString & Equatable<Node> & Hashable {
-    private var parent: ?Node = None
-    private var firstChild: ?Node = None
-    private var lastChild: ?Node = None
-    private var prev: ?Node = None
-    private var next: ?Node = None
+    protected var parent: ?Node = None
+    protected var firstChild: ?Node = None
+    protected var lastChild: ?Node = None
+    protected var prev: ?Node = None
+    protected var next: ?Node = None
 
     public open func accept(visitor: Visitor): Unit
 
