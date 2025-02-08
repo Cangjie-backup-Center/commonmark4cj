@@ -45,13 +45,9 @@ public abstract class EmphasisDelimiterProcessor <: DelimiterProcessor {
             StrongEmphasis(singleDelimiter + singleDelimiter)
         }
         var tmp: ?Node = opener.getNext()
-        while (let Some(v) <- tmp) {
-            if (v == closer) {
-                break
-            }
-            let next: ?Node = v.getNext()
+        while (let Some(v) <- tmp && v != closer) {
+            tmp = v.getNext()
             emphasis.appendChild(v)
-            tmp = next
         }
 
         opener.insertAfter(emphasis)

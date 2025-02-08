@@ -58,10 +58,9 @@ class StrikethroughDelimiterProcessor <: DelimiterProcessor {
         var strikethrough: Node = Strikethrough()
 
         var tmp: ?Node = opener.getNext()
-        while (tmp.isSome() && tmp() != closer) {
-            let next: ?Node = tmp().getNext()
-            strikethrough.appendChild(tmp())
-            tmp = next
+        while (let Some(v) <- tmp && v != closer) {
+            tmp = v.getNext()
+            strikethrough.appendChild(v)
         }
 
         opener.insertAfter(strikethrough)
@@ -87,9 +86,8 @@ class StrikethroughHtmlNodeRenderer <: StrikethroughNodeRenderer {
     private func renderChildren(parent: Node): Unit {
         var node: ?Node = parent.getFirstChild()
         while (let Some(v) <- node) {
-            let next: ?Node = v.getNext()
+            node = v.getNext()
             context.render(v)
-            node = next
         }
     }
 }
@@ -112,9 +110,8 @@ class StrikethroughTextContentNodeRenderer <: StrikethroughNodeRenderer {
     private func renderChildren(parent: Node): Unit {
         var node: ?Node = parent.getFirstChild()
         while (let Some(v) <- node) {
-            let next: ?Node = v.getNext()
+            node = v.getNext()
             context.render(v)
-            node = next
         }
     }
 }

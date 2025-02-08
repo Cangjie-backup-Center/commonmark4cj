@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2025. All rights reserved.
  */
 
 package commonmark4cj.commonmark
@@ -18,6 +18,10 @@ public class Parser {
     private let delimiterProcessors: ArrayList<DelimiterProcessor>
     private let inlineParserFactory: InlineParserFactory
     private let postProcessors: ArrayList<PostProcessor>
+    private let inlineContentParserFactories: ArrayList<InlineContentParserFactory>
+    private let linkProcessors: ArrayList<LinkProcessor>
+    private let linkMarkers: HashSet<Rune>
+    private let inlineParserContext: InlineParserContext
 
     Parser(builder: ParserBuilder) {
         this.blockParserFactories = DocumentParser.calculateBlockParserFactories(
@@ -28,11 +32,16 @@ public class Parser {
         this.postProcessors = builder.postProcessors
         this.delimiterProcessors = builder.delimiterProcessors
 
+        this.inlineContentParserFactories = builder.inlineContentParserFactories
+        this.linkProcessors = builder.linkProcessors
+        this.linkMarkers = builder.linkMarkers
+
         // Try to construct an inline parser.
         // Invalid configuration might result in an exception,
         // which we want to detect as soon as possible.
-        this.inlineParserFactory.create(
-            InlineParserContextImpl(delimiterProcessors, HashMap<String, LinkReferenceDefinition>()))
+        var context = InlineParserContextImpl(inlineContentParserFactories, delimiterProcessors, HashMap<String, LinkReferenceDefinition>(), linkProcessors, linkMarkers)
+        this.inlineParserContext = context
+        this.inlineParserFactory.create(context)
     }
 
     /**
@@ -83,7 +92,7 @@ public class Parser {
     }
 
     private func createDocumentParser(): DocumentParser {
-        return DocumentParser(blockParserFactories, inlineParserFactory, delimiterProcessors)
+        return DocumentParser(blockParserFactories, inlineParserFactory, delimiterProcessors, inlineParserContext)
     }
 
     private func postProcess(document: Node): Node {
@@ -104,6 +113,10 @@ public class ParserBuilder {
     let postProcessors: ArrayList<PostProcessor> = ArrayList<PostProcessor>()
     var _enabledBlockTypes: HashSet<NodeType> = DocumentParser.getDefaultBlockParserTypes()
     var _inlineParserFactory: ?InlineParserFactory = None
+
+    let inlineContentParserFactories: ArrayList<InlineContentParserFactory> = ArrayList()
+    let linkProcessors: ArrayList<LinkProcessor> = ArrayList()
+    let linkMarkers: HashSet<Rune> = HashSet()
 
     /**
      * @return the configured {@link Parser}
@@ -218,11 +231,54 @@ public class ParserBuilder {
     public func getInlineParserFactory(): InlineParserFactory {
         return _inlineParserFactory ?? DefaultInlineParserFactory()
     }
+
+    /**
+     * Add a factory for a custom inline content parser, for extending inline parsing or overriding built-in parsing.
+     * <p>
+     * Note that parsers are triggered based on a special character as specified by
+     * {@link InlineContentParserFactory#getTriggerCharacters()}. It is possible to register multiple parsers for the same
+     * character, or even for some built-in special character such as {@code `}. The custom parsers are tried first
+     * in order in which they are registered, and then the built-in ones.
+     */
+    public func customInlineContentParserFactory(inlineContentParserFactory: InlineContentParserFactory): This{
+        inlineContentParserFactories.add(inlineContentParserFactory)
+        return this
+    }
+    
+    /**
+     * Add a custom link/image processor for inline parsing.
+     * <p>
+     * Multiple link processors can be added, and will be tried in order in which they were added. If no link
+     * processor applies, the normal behavior applies. That means these can override built-in link parsing.
+     *
+     * @param linkProcessor a link processor implementation
+     * @return {@code this}
+     */
+    public func linkProcessor(linkProcessor: LinkProcessor): This{
+        linkProcessors.add(linkProcessor)
+        return this
+    }
+    
+    /**
+     * Add a custom link marker for link processing. A link marker is a character like {@code !} which, if it
+     * appears before the {@code [} of a link, changes the meaning of the link.
+     * <p>
+     * If a link marker followed by a valid link is parsed, the {@link org.commonmark.parser.beta.LinkInfo}
+     * that is passed to {@link LinkProcessor} will have its {@link LinkInfo#marker()} set. A link processor should
+     * check the {@link Text#getLiteral()} and then do any processing, and will probably want to use {@link LinkResult#includeMarker()}.
+     *
+     * @param linkMarker a link marker character
+     * @return {@code this}
+     */
+    public func linkMarker(linkMarker: Rune): This{
+        linkMarkers.add(linkMarker)
+        return this
+    }
 }
 
 class DefaultInlineParserFactory <: InlineParserFactory {
     public override func create(inlineParserContext: InlineParserContext): InlineParser {
-        return InlineParserImpl(inlineParserContext)
+        return InlineParserImplV2(inlineParserContext)
     }
 }
 

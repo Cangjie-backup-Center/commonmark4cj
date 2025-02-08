@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2025. All rights reserved.
  */
 
 package commonmark4cj.commonmark
@@ -456,4 +456,37 @@ public abstract class Context {
         }
     }
     public func getNodeType(): NodeType
+
+    private var sourceSpans: ?ArrayList<SourceSpan> = None
+    /**
+     * @return the source spans of this node if included by the parser, an empty list otherwise
+     */
+    public func getSourceSpans(): ArrayList<SourceSpan> {
+        return sourceSpans ?? ArrayList()
+    }
+
+    /**
+     * Replace the current source spans with the provided list.
+     *
+     * @param sourceSpans the new source spans to set
+     */
+    public func setSourceSpans(sourceSpans: ArrayList<SourceSpan>): Unit {
+        if (sourceSpans.isEmpty()) {
+            this.sourceSpans = None
+        } else {
+            this.sourceSpans = ArrayList(sourceSpans)
+        }
+    }
+
+    /**
+     * Add a source span to the end of the list.
+     *
+     * @param sourceSpan the source span to add
+     */
+    public func addSourceSpan(sourceSpan: SourceSpan): Unit {
+        if (sourceSpans == None) {
+            this.sourceSpans = ArrayList()
+        }
+        this.sourceSpans?.add(sourceSpan)
+    }
 }
