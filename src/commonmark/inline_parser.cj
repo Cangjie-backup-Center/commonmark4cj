@@ -352,6 +352,15 @@ class InlineParserImpl <: InlineParser {
         if (peek() == r'\n') {
             nodes = HardLineBreak()
             index++
+        } else if (peek() == r'(') {
+            let str = inputArr[index..]
+            if (let Some((n, size)) <- matchLatexInline(str)) {
+                nodes = n
+                index += size
+            } else {
+                nodes = text("(")
+                index++
+            }
         } else if (index < inputArr.size && ESCAPABLE.matcher(inputArr[index..(index + 1)]).find().isSome()) {
             nodes = text(inputArr[index..(index + 1)])
             index++
