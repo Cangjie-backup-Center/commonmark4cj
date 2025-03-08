@@ -18,14 +18,26 @@ public open class LatexInlineText <: CustomNode {
     }
 }
 
-let LATEX_INLINE_REGEX = Regex(#"\(.+?\\\)"#)
+public let needLatexInlineParse = [false]
+
+func tryLatexInlineStart(r: Rune): Bool {
+    needLatexInlineParse[0] && (r == r"(" || r == r"[")
+}
+
+let LATEX_INLINE_REGEX_1 = Regex(#"\(.+?\\\)"#)
+let LATEX_INLINE_REGEX_2 = Regex(#"\[.+?\\\]"#)
 
 func matchLatexInline(str: String): ?(Node, Int) {
-    println(1.1)
-    let matcher = LATEX_INLINE_REGEX.matcher(str)
+    var matcher = LATEX_INLINE_REGEX_1.matcher(str)
     if (let Some(data) <- matcher.find()) {
         let pos = data.matchPosition()
-        println("1.2 ${pos.start} ${pos.end} ${data.matchStr()}")
+        let latex = str[(pos.start + 1)..(pos.end - 2)]
+        let latexInline = LatexInlineText(latex)
+        return (latexInline, pos.end)
+    }
+    matcher = LATEX_INLINE_REGEX_2.matcher(str)
+    if (let Some(data) <- matcher.find()) {
+        let pos = data.matchPosition()
         let latex = str[(pos.start + 1)..(pos.end - 2)]
         let latexInline = LatexInlineText(latex)
         return (latexInline, pos.end)

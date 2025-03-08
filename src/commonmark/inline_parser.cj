@@ -352,13 +352,13 @@ class InlineParserImpl <: InlineParser {
         if (peek() == r'\n') {
             nodes = HardLineBreak()
             index++
-        } else if (peek() == r'(') {
+        } else if (tryLatexInlineStart(peek())) {
             let str = inputArr[index..]
             if (let Some((n, size)) <- matchLatexInline(str)) {
                 nodes = n
                 index += size
             } else {
-                nodes = text("(")
+                nodes = text(peek().toString())
                 index++
             }
         } else if (index < inputArr.size && ESCAPABLE.matcher(inputArr[index..(index + 1)]).find().isSome()) {
@@ -386,8 +386,8 @@ class InlineParserImpl <: InlineParser {
                 content = content.replace("\n", " ")
                 // spec: If the resulting string both begins and ends with a space character, but does not consist
                 // entirely of space characters, a single space character is removed from the front and back.
-                if (content.size >= 3 && content[0] == ' '.b && content[content.size - 1] == ' '.b && Parsing.hasNonSpace(
-                    content)) {
+                if (content.size >= 3 && content[0] == ' '.b && content[content.size - 1] == ' '.b &&
+                    Parsing.hasNonSpace(content)) {
                     content = content[1..(content.size - 1)]
                 }
 
