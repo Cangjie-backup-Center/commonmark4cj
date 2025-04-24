@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2025. All rights resvered.
  */
 
 package commonmark4cj.commonmark
@@ -61,17 +61,20 @@ class DocumentParser <: ParserState {
     // LinkedHashSet to have a deterministic order
     private var allBlockParsers: ArrayList<AbstractBlockParser> = ArrayList<AbstractBlockParser>()
     // private var allBlockParsers: HashSet<AbstractBlockParser> = HashSet<AbstractBlockParser>()
+    private let inlineParserContext: InlineParserContext
 
     public init(
         blockParserFactories: ArrayList<BlockParserFactory>,
         inlineParserFactory: InlineParserFactory,
-        delimiterProcessors: ArrayList<DelimiterProcessor>
+        delimiterProcessors: ArrayList<DelimiterProcessor>,
+        inlineParserContext: InlineParserContext
     ) {
         this.blockParserFactories = blockParserFactories
         this.inlineParserFactory = inlineParserFactory
         this.delimiterProcessors = delimiterProcessors
 
         this.documentBlockParser = DocumentBlockParser()
+        this.inlineParserContext = inlineParserContext
         activateBlockParser(this.documentBlockParser)
     }
 
@@ -400,7 +403,13 @@ class DocumentParser <: ParserState {
      * Walk through a block & children recursively, parsing string content into inline content where appropriate.
      */
     private func processInlines(): Unit {
-        var context: InlineParserContextImpl = InlineParserContextImpl(delimiterProcessors, definitions)
+        var context = InlineParserContextImpl(
+            inlineParserContext.getCustomInlineContentParserFactories(),
+            delimiterProcessors,
+            definitions,
+            inlineParserContext.getCustomLinkProcessors(),
+            inlineParserContext.getCustomLinkMarkers()
+        )
         var inlineParser: InlineParser = inlineParserFactory.create(context)
 
         for (blockParser in allBlockParsers) {

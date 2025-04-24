@@ -16,22 +16,6 @@ extend<T> Option<T> {
     }
 }
 
-public type CharSequence = Array<Rune>
-
-extend Rune{
-    prop b: Byte {
-        get(){
-            UInt8(UInt32(this))
-        }
-    }
-}
-extend Byte{
-    prop b: Byte {
-        get(){
-            this
-        }
-    }
-}
 extend String{
     prop b: Byte {
         get(){
