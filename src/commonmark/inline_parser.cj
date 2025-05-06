@@ -71,11 +71,11 @@ class InlineParserImpl <: InlineParser {
     private static let ASCII_PUNCTUATION: String = ##"!"#\$%&'\(\)\*\+,\-\./:;<=>\?@\[\\\]\^_`\{\|\}~"##
     private static let PUNCTUATION: Regex = Regex("^[${ASCII_PUNCTUATION}]")
 
-    private static let HTML_TAG: Regex = Regex("^" + HTMLTAG, RegexOption().ignoreCase())
+    private static let HTML_TAG: Regex = Regex("^" + HTMLTAG, IgnoreCase)
 
     // private static let ESCAPABLE: Regex = Regex("^" + Escaping.ESCAPABLE)
 
-    private static let ENTITY_HERE: Regex = Regex("^" + Escaping.ENTITY, RegexOption().ignoreCase())
+    private static let ENTITY_HERE: Regex = Regex("^" + Escaping.ENTITY, IgnoreCase)
 
     private static let TICKS: Regex = Regex("`+")
 
@@ -280,12 +280,11 @@ class InlineParserImpl <: InlineParser {
         if (index >= size) {
             return Option<String>.None
         }
-        var matcher: Matcher = re.matcher(input[index..])
-        let m = matcher.find()
+        var m: ?MatchData = re.find(input[index..])
         match (m) {
             case Some(d) =>
                 index += d.matchPosition().end
-                return d.matchStr()
+                return d.matchString()
             case None => return Option<String>.None
         }
     }
@@ -324,9 +323,9 @@ class InlineParserImpl <: InlineParser {
             if (previous is Text && (previous as Text)().getLiteral().endsWith(" ")) {
                 let text: Text = (previous as Text)()
                 var literal: String = text.getLiteral()
-                var matcher: Matcher = FINAL_SPACE.matcher(literal)
+                var matcher: ?MatchData = FINAL_SPACE.find(literal)
                 var spaces: Int64 = 0
-                match (matcher.find()) {
+                match (matcher) {
                     case Some(s) => spaces = s.matchPosition().end - s.matchPosition().start
                     case None => spaces = 0
                 }
@@ -493,7 +492,7 @@ class InlineParserImpl <: InlineParser {
             if (dest.isSome()) {
                 spnl()
                 // titleStr needs a whitespace before
-                if (WHITESPACE.matcher(input[newIndex..index]).find().isSome()) {
+                if (WHITESPACE.matches(input[newIndex..index])) {
                     titleStr = parseLinkTitle()
                     spnl()
                 }
@@ -747,10 +746,10 @@ class InlineParserImpl <: InlineParser {
         }
 
         // We could be more lazy here, in most cases we don't need to do every match case.
-        let beforeIsPunctuation: Bool = PUNCTUATION.matcher(before).find().isSome()
-        let beforeIsWhitespace: Bool = UNICODE_WHITESPACE_CHAR.matches(before).isSome()
-        let afterIsPunctuation: Bool = PUNCTUATION.matcher(after).find().isSome()
-        let afterIsWhitespace: Bool = UNICODE_WHITESPACE_CHAR.matches(after).isSome()
+        let beforeIsPunctuation: Bool = PUNCTUATION.matches(before)
+        let beforeIsWhitespace: Bool = UNICODE_WHITESPACE_CHAR.matches(before)
+        let afterIsPunctuation: Bool = PUNCTUATION.matches(after)
+        let afterIsWhitespace: Bool = UNICODE_WHITESPACE_CHAR.matches(after)
 
         let leftFlanking: Bool = !afterIsWhitespace && (!afterIsPunctuation || beforeIsWhitespace || beforeIsPunctuation)
         let rightFlanking: Bool = !beforeIsWhitespace && (!beforeIsPunctuation || afterIsWhitespace || afterIsPunctuation)

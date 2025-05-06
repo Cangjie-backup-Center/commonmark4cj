@@ -16,7 +16,7 @@ public class Escaping {
 
     private static let ENTITY_OR_ESCAPED_CHAR = Regex(
         "\\\\" + ESCAPABLE + '|'.toString() + ENTITY,
-        RegexOption().ignoreCase()
+        IgnoreCase
     )
 
     // From RFC 3986 (see "reserved", "unreserved") except don't escape '[' or ']' to be compatible with JS encodeURI
@@ -65,7 +65,7 @@ public class Escaping {
      * Replace entities and backslash escapes with literal characters.
      */
     public static func unescapeString(s: String): String {
-        match (BACKSLASH_OR_AMP.matcher(s).find()) {
+        match (BACKSLASH_OR_AMP.find(s)) {
             case None => return s
             case _ => return replaceAll(ENTITY_OR_ESCAPED_CHAR, s, UnescapeReplacer())
         }
@@ -91,13 +91,13 @@ public class Escaping {
     protected static func normalizeLabelContent(input: String): String {
         let trimmed: String = input.trimAscii()
         let lowercase: String = trimmed.toAsciiLower()
-        return WHITESPACE.matcher(lowercase).replaceAll(" ")
+        return WHITESPACE.replaceAll(lowercase, " ")
     }
 
     private static func replaceAll(p: Regex, s: String, replacer: Replacer): String {
-        let matcher: Matcher = p.matcher(s)
+        let matcher: Array<MatchData> = p.findAll(s)
 
-        if (matcher.allCount() < 1) {
+        if (matcher.size < 1) {
             return s
         }
 
@@ -105,11 +105,13 @@ public class Escaping {
         var lastEnd: Int64 = 0
 
         var pos: Position
-        while (let Some(md: MatchData) <- matcher.find()) {
-            pos = md.matchPosition()
+        var i: Int64 = 0
+        while (i < matcher.size) {
+            pos = matcher[i].matchPosition()
             sb.append(s[lastEnd..pos.start])
-            replacer.replace(md.matchStr(), sb)
+            replacer.replace(matcher[i].matchString(), sb)
             lastEnd = pos.end
+            i++
         }
 
         if (lastEnd != s.size) {
@@ -161,8 +163,7 @@ public class Html5Entities {
     private static let NUMERIC_PATTERN = Regex("^&#[Xx]?")
 
     public static func entityToString(input: String): String {
-        let matcher: Matcher = NUMERIC_PATTERN.matcher(input)
-        let md: ?MatchData = matcher.find()
+        let md: ?MatchData = NUMERIC_PATTERN.find(input)
         if (md.isSome()) {
             try {
                 let codePointString: String = input[md.getOrThrow().matchPosition().end..input.size - 1]

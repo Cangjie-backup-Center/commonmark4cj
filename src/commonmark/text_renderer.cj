@@ -449,7 +449,7 @@ public class TextContentWriter {
 
     public func writeStripped(str: String): Unit {
         if (str.size > 0) {
-            append(Regex("[\\r\\n\\s]+").matcher(str).replaceAll(" "))
+            append(Regex("[\\r\\n\\s]+").replaceAll(str, " "))
         }
     }
 
