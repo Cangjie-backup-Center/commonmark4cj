@@ -568,8 +568,8 @@ class HtmlBlockParser <: AbstractBlockParser {
     public static var BLOCK_PATTERNS: Array<Array<Regex>> = [
         [Regex(""), Regex("")], // not used (no type 0)
         [
-            Regex("^<(?:script|pre|style)(?:\\s|>|$)", RegexOption().ignoreCase()),
-            Regex("</(?:script|pre|style)>", RegexOption().ignoreCase())
+            Regex("^<(?:script|pre|style)(?:\\s|>|$)", IgnoreCase),
+            Regex("</(?:script|pre|style)>", IgnoreCase)
         ],
         [
             Regex("^<!--"),
@@ -594,12 +594,12 @@ class HtmlBlockParser <: AbstractBlockParser {
                     "h1|h2|h3|h4|h5|h6|head|header|hr|html|" + "iframe|" + "legend|li|link|" + "main|menu|menuitem|" +
                     "nav|noframes|" + "ol|optgroup|option|" + "p|param|" + "section|source|summary|" +
                     "table|tbody|td|tfoot|th|thead|title|tr|track|" + "ul" + ")(?:\\s|[/]?[>]|$)",
-                RegexOption().ignoreCase()
+                IgnoreCase
             ),
             Regex("") // terminated by blank line
         ],
         [
-            Regex("^(?:" + Parsing.OPENTAG + "|" + Parsing.CLOSETAG + ")\\s*$", RegexOption().ignoreCase()),
+            Regex("^(?:" + Parsing.OPENTAG + "|" + Parsing.CLOSETAG + ")\\s*$", IgnoreCase),
             Regex("") // terminated by blank line
         ]
     ]
@@ -638,7 +638,7 @@ class HtmlBlockParser <: AbstractBlockParser {
     public func addLine(line: String): Unit {
         content.add(line)
 
-        if (closingPattern.isSome() && closingPattern.getOrThrow().matcher(line).find().isSome()) {
+        if (closingPattern.isSome() && closingPattern.getOrThrow().matches(line)) {
             finished = true
         }
     }
@@ -662,7 +662,7 @@ public class HtmlBlockParserFactory <: BlockParserFactory {
                 }
                 var opener: Regex = HtmlBlockParser.BLOCK_PATTERNS[blockType][0]
                 var closer: Regex = HtmlBlockParser.BLOCK_PATTERNS[blockType][1]
-                var matches: Bool = opener.matcher(line[nextNonSpace..line.size]).find().isSome()
+                var matches: Bool = opener.matches(line[nextNonSpace..line.size])
                 if (matches) {
                     return BlockStart.of4Cj(HtmlBlockParser(closer)).atIndex(state.getIndex())
                 }

@@ -10,7 +10,7 @@ package commonmark4cj.commonmark
 internal import std.collection.{ArrayList, HashMap, HashSet, Map, EquatableCollection, Set, LinkedList, map, collectString, collectHashSet}
 internal import std.convert.*
 internal import std.io.{StringReader, InputStream, IOException}
-internal import std.regex.{Regex, Matcher, MatchData, RegexOption, Position}
+internal import std.regex.{Regex, RegexFlag, MatchData, Position, Matcher}
 
 extend<T> Option<T> {
     operator func ()(): T {
