@@ -206,7 +206,7 @@ class BlockContent {
     }
 }
 
-class BlockContinueImpl <: BlockContinue {
+public class BlockContinueImpl <: BlockContinue {
     private var newIndex: Int64
     private var newColumn: Int64
     private var finalize: Bool
