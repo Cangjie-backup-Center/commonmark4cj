@@ -140,6 +140,7 @@ public interface ParserState {
      * @return the current line
      */
     func getLine(): String
+    func getNextLine(): String
 
     /**
      * @return the current index within the line (0-based)

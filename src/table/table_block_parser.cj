@@ -10,7 +10,7 @@ class TableBlockParser <: AbstractBlockParser {
     private let columns: ArrayList<?Alignment>
     private let headerCells: ArrayList<String>
 
-    private var nextIsSeparatorLine: Bool = true
+    private var lineState: Int = 0 // 行状态 0:head 0:column 2:body
 
     init(columns: ArrayList<?Alignment>, headerCells: ArrayList<String>) {
         this.columns = columns
@@ -34,8 +34,8 @@ class TableBlockParser <: AbstractBlockParser {
     }
 
     public func addLine(line: String): Unit {
-        if (nextIsSeparatorLine) {
-            nextIsSeparatorLine = false
+        if (lineState != 2) {
+            lineState++
         } else {
             bodyLines.append(line)
         }
@@ -105,16 +105,17 @@ class TableBlockParser <: AbstractBlockParser {
         while (i < arr.size) {
             let c = arr[i]
             match (c) {
-                case '\\' => if (i + 1 < arr.size && arr[i + 1] == '|'.b) {
-                    // Pipe is special for table parsing. An escaped pipe doesn't result in a new cell, but is
-                    // passed down to inline parsing as an unescaped pipe. Note that that applies even for the `\|`
-                    // in an input like `\\|` - in other words, table parsing doesn't support escaping backslashes.
-                    sb.append('|')
-                    i++
-                } else {
-                    // Preserve backslash before other characters or at end of line.
-                    sb.append('\\')
-                }
+                case '\\' =>
+                    if (i + 1 < arr.size && arr[i + 1] == '|'.b) {
+                        // Pipe is special for table parsing. An escaped pipe doesn't result in a new cell, but is
+                        // passed down to inline parsing as an unescaped pipe. Note that that applies even for the `\|`
+                        // in an input like `\\|` - in other words, table parsing doesn't support escaping backslashes.
+                        sb.append('|')
+                        i++
+                    } else {
+                        // Preserve backslash before other characters or at end of line.
+                        sb.append('\\')
+                    }
                 case '|' =>
                     cells.append(sb.toString())
                     sb.reset()
@@ -213,16 +214,16 @@ class TableBlockParser <: AbstractBlockParser {
 
 class tableBlockFactory <: AbstractBlockParserFactory {
     public func tryStart(state: ParserState, matchedBlockParser: MatchedBlockParser): ?BlockStart {
-        var line: String = state.getLine()
-        var paragraph: ?String = matchedBlockParser.getParagraphContent()
-        if (paragraph.isSome() && paragraph().contains("|") && !paragraph().contains("\n")) {
-            var separatorLine: String = line[state.getIndex()..line.size]
-            var columns: ?ArrayList<?Alignment> = TableBlockParser.parseSeparator(separatorLine)
-            if (columns.isSome() && !columns().isEmpty()) {
-                var headerCells: ArrayList<String> = TableBlockParser.split(paragraph())
-                if (columns().size >= headerCells.size) {
-                    return BlockStart.of4Cj(TableBlockParser(columns(), headerCells)).atIndex(state.getIndex()).
-                        replaceActiveBlockParser()
+        let line: String = state.getLine()
+        let nextLine = state.getNextLine()
+        if (line.contains("|") && nextLine.contains("|")) {
+            let headLine: String = line[state.getIndex()..line.size]
+            let columnLine: String = nextLine[state.getIndex()..nextLine.size] // 考虑到列表中 每行前有固定缩进
+            let columns: ArrayList<?Alignment> = TableBlockParser.parseSeparator(columnLine) ?? return BlockStart.none()
+            if (columns.size > 0) {
+                let headerCells: ArrayList<String> = TableBlockParser.split(headLine)
+                if (columns.size >= headerCells.size) {
+                    return BlockStart.of4Cj(TableBlockParser(columns, headerCells)).atIndex(state.getIndex())
                 }
             }
         }

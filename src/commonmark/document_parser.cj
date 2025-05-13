@@ -99,19 +99,22 @@ class DocumentParser <: ParserState {
      * The main parsing function. Returns a parsed document AST.
      */
     public func parse(inputStr: String): Document {
-        let input = inputStr.replace("\0", "\u{FFFD}")
-        var lineStart: Int64 = 0
-        var lineBreak: Int64 = Parsing.findLineBreak(input, lineStart)
+        input = inputStr.replace("\0", "\u{FFFD}")
+        lineStart = 0
+        lineBreak = Parsing.findLineBreak(input, lineStart)
 
         while (lineBreak != -1) {
             var line = input[lineStart..lineBreak]
-            incorporateLine(line)
+
+            // 预处理lineStart/lineBreak 便于getNextLine
             if (lineBreak + 1 < input.size && input[lineBreak] == '\r'.b && input[lineBreak + 1] == '\n'.b) {
                 lineStart = lineBreak + 2
             } else {
                 lineStart = lineBreak + 1
             }
             lineBreak = Parsing.findLineBreak(input, lineStart)
+
+            incorporateLine(line)
         }
         if (input.size > 0 && (lineStart == 0 || lineStart < input.size)) {
             var line = input[lineStart..input.size]
@@ -136,6 +139,17 @@ class DocumentParser <: ParserState {
 
     public func getLine(): String {
         return line
+    }
+
+    private var input: String = "" // 所有行的内容
+    private var lineStart: Int = -1
+    private var lineBreak: Int = -1
+    public func getNextLine(): String {
+        if (lineStart <= lineBreak) {
+            input[lineStart..lineBreak]
+        } else {
+            ""
+        }
     }
 
     public func getIndex(): Int64 {
