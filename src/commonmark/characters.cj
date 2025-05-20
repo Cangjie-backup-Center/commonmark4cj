@@ -68,10 +68,40 @@ public class Characters {
         //         // General category "S" (symbol)
         //         return true
         // }
-        match (codePoint) {
-            case '$' | '+' | '<' | '=' | '>' | '^' | '`' | '|' | '~' => return true
-            case _ => return false
+        // match (codePoint) {
+        //     case '$' | '+' | '<' | '=' | '>' | '^' | '`' | '|' | '~' => return true
+        //     case _ => return false
+        // }
+        if (codePoint.isLetter() || codePoint.isNumber() || codePoint.isWhiteSpace()) {
+            return false
         }
+        let code = UInt32(codePoint)
+        if (code < 128) {
+            return true
+        }
+        // 补充一些常用中文标点
+        if (0x3000 <= code && code <= 0x303F) {
+            return true
+        }
+        // 补充一些全角标点
+        if (0xFF00 <= code && code <= 0xFFEF) {
+            if (0xFF01 <= code && code <= 0xFF0F) {
+                return true
+            }
+            if (0xFF1A <= code && code <= 0xFF20) {
+                return true
+            }
+            if (0xFF3B <= code && code <= 0xFF40) {
+                return true
+            }
+            if (0xFF5B <= code && code <= 0xFF64) {
+                return true
+            }
+            if (0xFFE0 <= code && code <= 0xFFEE) {
+                return true
+            }
+        }
+        return false
     }
 
     /**
