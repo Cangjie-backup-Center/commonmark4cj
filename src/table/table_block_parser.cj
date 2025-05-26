@@ -10,7 +10,7 @@ class TableBlockParser <: AbstractBlockParser {
     private let columns: ArrayList<?Alignment>
     private let headerCells: ArrayList<String>
 
-    private var lineState: Int = 0 // 行状态 0:head 0:column 2:body
+    var lineState: Int = 0 // 行状态 0:head 0:column 2:body
 
     init(columns: ArrayList<?Alignment>, headerCells: ArrayList<String>) {
         this.columns = columns
@@ -216,15 +216,32 @@ class tableBlockFactory <: AbstractBlockParserFactory {
     public func tryStart(state: ParserState, matchedBlockParser: MatchedBlockParser): ?BlockStart {
         let line: String = state.getLine()
         let nextLine = state.getNextLine()
-        if (line.contains("|") && nextLine.contains("|")) {
-            let headLine: String = line[state.getIndex()..line.size]
-            let columnLine: String = nextLine[state.getIndex()..nextLine.size] // 考虑到列表中 每行前有固定缩进
-            let columns: ArrayList<?Alignment> = TableBlockParser.parseSeparator(columnLine) ?? return BlockStart.none()
-            if (columns.size > 0) {
-                let headerCells: ArrayList<String> = TableBlockParser.split(headLine)
-                if (columns.size >= headerCells.size) {
-                    return BlockStart.of4Cj(TableBlockParser(columns, headerCells)).atIndex(state.getIndex())
+        let preLine = matchedBlockParser.getParagraphContent() ?? ""
+
+        if (line.contains("|")) {
+            if (nextLine.contains("|")) {
+                let headLine: String = line[state.getIndex()..]
+                let columnLine: String = nextLine[state.getIndex()..] // 考虑到列表中 每行前有固定缩进
+                if (let Some(blockStart) <- col(headLine, columnLine, state, 0)) {
+                    return blockStart
                 }
+            }
+            if (!preLine.contains("\n") && preLine.contains("|")) {
+                let headLine: String = preLine
+                let columnLine: String = line[state.getIndex()..]
+                return col(headLine, columnLine, state, 1)?.replaceActiveBlockParser()
+            }
+        }
+        return BlockStart.none()
+    }
+    private func col(headLine: String, columnLine: String, state: ParserState, currentLineState: Int): ?BlockStart {
+        let columns: ArrayList<?Alignment> = TableBlockParser.parseSeparator(columnLine) ?? return BlockStart.none()
+        if (columns.size > 0) {
+            let headerCells: ArrayList<String> = TableBlockParser.split(headLine)
+            if (columns.size >= headerCells.size) {
+                let parser = TableBlockParser(columns, headerCells)
+                parser.lineState = currentLineState
+                return BlockStart.of4Cj(parser).atIndex(state.getIndex())
             }
         }
         return BlockStart.none()
