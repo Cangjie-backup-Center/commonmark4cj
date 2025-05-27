@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2025. All rights reserved.
  */
 
 package commonmark4cj.commonmark
@@ -61,17 +61,20 @@ class DocumentParser <: ParserState {
     // LinkedHashSet to have a deterministic order
     private var allBlockParsers: ArrayList<AbstractBlockParser> = ArrayList<AbstractBlockParser>()
     // private var allBlockParsers: HashSet<AbstractBlockParser> = HashSet<AbstractBlockParser>()
+    private let inlineParserContext: InlineParserContext
 
     public init(
         blockParserFactories: ArrayList<BlockParserFactory>,
         inlineParserFactory: InlineParserFactory,
-        delimiterProcessors: ArrayList<DelimiterProcessor>
+        delimiterProcessors: ArrayList<DelimiterProcessor>,
+        inlineParserContext: InlineParserContext
     ) {
         this.blockParserFactories = blockParserFactories
         this.inlineParserFactory = inlineParserFactory
         this.delimiterProcessors = delimiterProcessors
 
         this.documentBlockParser = DocumentBlockParser()
+        this.inlineParserContext = inlineParserContext
         activateBlockParser(this.documentBlockParser)
     }
 
@@ -96,19 +99,22 @@ class DocumentParser <: ParserState {
      * The main parsing function. Returns a parsed document AST.
      */
     public func parse(inputStr: String): Document {
-        let input = inputStr.replace("\0", "\u{FFFD}")
-        var lineStart: Int64 = 0
-        var lineBreak: Int64 = Parsing.findLineBreak(input, lineStart)
+        input = inputStr.replace("\0", "\u{FFFD}")
+        lineStart = 0
+        lineBreak = Parsing.findLineBreak(input, lineStart)
 
         while (lineBreak != -1) {
             var line = input[lineStart..lineBreak]
-            incorporateLine(line)
+
+            // 预处理lineStart/lineBreak 便于getNextLine
             if (lineBreak + 1 < input.size && input[lineBreak] == b'\r' && input[lineBreak + 1] == b'\n') {
                 lineStart = lineBreak + 2
             } else {
                 lineStart = lineBreak + 1
             }
             lineBreak = Parsing.findLineBreak(input, lineStart)
+
+            incorporateLine(line)
         }
         if (input.size > 0 && (lineStart == 0 || lineStart < input.size)) {
             var line = input[lineStart..input.size]
@@ -133,6 +139,17 @@ class DocumentParser <: ParserState {
 
     public func getLine(): String {
         return line
+    }
+
+    private var input: String = "" // 所有行的内容
+    private var lineStart: Int = -1
+    private var lineBreak: Int = -1
+    public func getNextLine(): String {
+        if (lineStart <= lineBreak) {
+            input[lineStart..lineBreak]
+        } else {
+            ""
+        }
     }
 
     public func getIndex(): Int64 {
@@ -400,7 +417,13 @@ class DocumentParser <: ParserState {
      * Walk through a block & children recursively, parsing string content into inline content where appropriate.
      */
     private func processInlines(): Unit {
-        var context: InlineParserContextImpl = InlineParserContextImpl(delimiterProcessors, definitions)
+        var context = InlineParserContextImpl(
+            inlineParserContext.getCustomInlineContentParserFactories(),
+            delimiterProcessors,
+            definitions,
+            inlineParserContext.getCustomLinkProcessors(),
+            inlineParserContext.getCustomLinkMarkers()
+        )
         var inlineParser: InlineParser = inlineParserFactory.create(context)
 
         for (blockParser in allBlockParsers) {

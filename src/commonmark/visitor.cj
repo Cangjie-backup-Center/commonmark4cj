@@ -161,13 +161,12 @@ public abstract class AbstractVisitor <: Visitor {
      */
     protected open func visitChildren(parent: Node): Unit {
         var node: ?Node = parent.getFirstChild()
-        while (node.isSome()) {
+        while (let Some(v) <- node) {
             // A subclass of this visitor might modify the node, 
             // resulting in getNext returning a different node or no node after visiting it. 
             // So get the next node before visiting.
-            let next: ?Node = node.getOrThrow().getNext()
-            node.getOrThrow().accept(this)
-            node = next
+            node = v.getNext()
+            v.accept(this)
         }
     }
 }

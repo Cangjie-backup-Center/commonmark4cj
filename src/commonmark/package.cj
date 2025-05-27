@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2025. All rights reserved.
  */
 
 /**
@@ -11,6 +11,7 @@ internal import std.collection.{ArrayList, HashMap, HashSet, Map, EquatableColle
 internal import std.convert.*
 internal import std.io.{StringReader, InputStream, IOException}
 internal import std.regex.{Regex, RegexFlag, MatchData, Position, Matcher}
+internal import std.unicode.*
 
 extend<T> Option<T> {
     operator func ()(): T {
@@ -37,33 +38,5 @@ let NULL_CHAR: Rune = '\u{0}'
 let EMPTY_STRING: String = ""
 let EMPTY_MAP: HashMap<String, String> = HashMap()
 let STRINGBUILDER_CAPACITY: Int64 = 256
-public type CharSequence = Array<Rune>
 
-extend Array<Rune> {
-    func trim(): Array<Rune> {
-        var (a, b) = (0, this.size - 1)
-        while (a <= b) {
-            if (this[a].isAsciiWhiteSpace()) {
-                a++
-            } else {
-                break
-            }
-        }
-        while (b >= a) {
-            if (this[b].isAsciiWhiteSpace()) {
-                b--
-            } else {
-                break
-            }
-        }
-        this[a..=b]
-    }
-
-    func replace(old: Rune, new: Rune): Unit {
-        for (i in 0..this.size) {
-            if (this[i] == old) {
-                this[i] = new
-            }
-        }
-    }
-}
+type CharSequence = String

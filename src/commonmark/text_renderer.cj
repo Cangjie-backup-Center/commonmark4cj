@@ -319,10 +319,9 @@ class CoreTextContentNodeRenderer <: AbstractVisitor & NodeRenderer {
 
     protected override func visitChildren(parent: Node): Unit {
         var node: ?Node = parent.getFirstChild()
-        while (node.isSome()) {
-            let next: ?Node = node().getNext()
-            context.render(node())
-            node = next
+        while (let Some(v) <- node) {
+            node = v.getNext()
+            context.render(v)
         }
     }
 

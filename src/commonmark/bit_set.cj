@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2025. All rights reserved.
  */
 
 package commonmark4cj.commonmark
@@ -77,7 +77,7 @@ public class BitSet {
     /*
      * or
      */
-    func or(set: BitSet): Unit {
+    public func or(set: BitSet): Unit {
         for (i in 0..ARRSIZE) {
             this.words[i] |= set.words[i]
         }
@@ -85,5 +85,16 @@ public class BitSet {
             let newWord = this.getWord(wordIndex) | word
             this.setWord(wordIndex, newWord)
         }
+    }
+
+    public func clone(): BitSet {
+        let newSet = BitSet(this.maxIndex + 1)
+        for (i in 0..ARRSIZE) {
+            newSet.words[i] = this.words[i]
+        }
+        for ((wordIndex, word) in this.wordsMap) {
+            newSet.setWord(wordIndex, word)
+        }
+        return newSet
     }
 }

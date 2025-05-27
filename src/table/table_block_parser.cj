@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2025. All rights reserved.
  */
 
 package commonmark4cj.table
@@ -10,7 +10,7 @@ class TableBlockParser <: AbstractBlockParser {
     private let columns: ArrayList<?Alignment>
     private let headerCells: ArrayList<String>
 
-    private var nextIsSeparatorLine: Bool = true
+    var lineState: Int = 0 // 行状态 0:head 0:column 2:body
 
     init(columns: ArrayList<?Alignment>, headerCells: ArrayList<String>) {
         this.columns = columns
@@ -34,8 +34,8 @@ class TableBlockParser <: AbstractBlockParser {
     }
 
     public func addLine(line: String): Unit {
-        if (nextIsSeparatorLine) {
-            nextIsSeparatorLine = false
+        if (lineState != 2) {
+            lineState++
         } else {
             bodyLines.add(line)
         }
@@ -105,16 +105,17 @@ class TableBlockParser <: AbstractBlockParser {
         while (i < arr.size) {
             let c = arr[i]
             match (c) {
-                case '\\' => if (i + 1 < arr.size && arr[i + 1] == b'|') {
-                    // Pipe is special for table parsing. An escaped pipe doesn't result in a new cell, but is
-                    // passed down to inline parsing as an unescaped pipe. Note that that applies even for the `\|`
-                    // in an input like `\\|` - in other words, table parsing doesn't support escaping backslashes.
-                    sb.append('|')
-                    i++
-                } else {
-                    // Preserve backslash before other characters or at end of line.
-                    sb.append('\\')
-                }
+                case '\\' =>
+                    if (i + 1 < arr.size && arr[i + 1] == b'|') {
+                        // Pipe is special for table parsing. An escaped pipe doesn't result in a new cell, but is
+                        // passed down to inline parsing as an unescaped pipe. Note that that applies even for the `\|`
+                        // in an input like `\\|` - in other words, table parsing doesn't support escaping backslashes.
+                        sb.append('|')
+                        i++
+                    } else {
+                        // Preserve backslash before other characters or at end of line.
+                        sb.append('\\')
+                    }
                 case '|' =>
                     cells.add(sb.toString())
                     sb.reset()
@@ -213,17 +214,34 @@ class TableBlockParser <: AbstractBlockParser {
 
 class tableBlockFactory <: AbstractBlockParserFactory {
     public func tryStart(state: ParserState, matchedBlockParser: MatchedBlockParser): ?BlockStart {
-        var line: String = state.getLine()
-        var paragraph: ?String = matchedBlockParser.getParagraphContent()
-        if (paragraph.isSome() && paragraph().contains("|") && !paragraph().contains("\n")) {
-            var separatorLine: String = line[state.getIndex()..line.size]
-            var columns: ?ArrayList<?Alignment> = TableBlockParser.parseSeparator(separatorLine)
-            if (columns.isSome() && !columns().isEmpty()) {
-                var headerCells: ArrayList<String> = TableBlockParser.split(paragraph())
-                if (columns().size >= headerCells.size) {
-                    return BlockStart.of4Cj(TableBlockParser(columns(), headerCells)).atIndex(state.getIndex()).
-                        replaceActiveBlockParser()
+        let line: String = state.getLine()
+        let nextLine = state.getNextLine()
+        let preLine = matchedBlockParser.getParagraphContent() ?? ""
+
+        if (line.contains("|")) {
+            if (nextLine.contains("|")) {
+                let headLine: String = line[state.getIndex()..]
+                let columnLine: String = nextLine[state.getIndex()..] // 考虑到列表中 每行前有固定缩进
+                if (let Some(blockStart) <- col(headLine, columnLine, state, 0)) {
+                    return blockStart
                 }
+            }
+            if (!preLine.contains("\n") && preLine.contains("|")) {
+                let headLine: String = preLine
+                let columnLine: String = line[state.getIndex()..]
+                return col(headLine, columnLine, state, 1)?.replaceActiveBlockParser()
+            }
+        }
+        return BlockStart.none()
+    }
+    private func col(headLine: String, columnLine: String, state: ParserState, currentLineState: Int): ?BlockStart {
+        let columns: ArrayList<?Alignment> = TableBlockParser.parseSeparator(columnLine) ?? return BlockStart.none()
+        if (columns.size > 0) {
+            let headerCells: ArrayList<String> = TableBlockParser.split(headLine)
+            if (columns.size >= headerCells.size) {
+                let parser = TableBlockParser(columns, headerCells)
+                parser.lineState = currentLineState
+                return BlockStart.of4Cj(parser).atIndex(state.getIndex())
             }
         }
         return BlockStart.none()
