@@ -1,0 +1,17 @@
+import { InlineContentParser } from "./src/main/ets/InlineContentParser"
+import { cjLib, JsNode } from "./src/main/ets/JsNode"
+
+// 导入仓颉运行时启动器和加载器，该名称为默认，不可以更改
+export { requireCJLib } from "libark_interop_loader.so"
+
+// 导入在ArkTS侧对于仓颉接口的映射，该名称可在ark_interop_api下的oh_package.json5中更改
+export { CustomLib } from "libark_interop_api.so"
+
+export { JsNode } from './src/main/ets/JsNode'
+
+export { InlineContentParser, Scanner, JsInlineCustomNode, ParsedInline } from './src/main/ets/InlineContentParser'
+
+@Concurrent
+export async function parseIntoJsNode(md: string, ...customParsers: Array<InlineContentParser>): Promise<JsNode> {
+  return cjLib.parseIntoJsNode(md, JsNode, customParsers) as JsNode
+}
