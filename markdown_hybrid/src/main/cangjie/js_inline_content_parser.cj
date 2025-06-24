@@ -1,7 +1,7 @@
-/**
- * Created on 006 25/6/6
+/*
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
  */
-package ohos_app_cangjie_library
+package markdown_hybrid
 
 import ohos.ark_interop_macro.*
 import ohos.component.Position

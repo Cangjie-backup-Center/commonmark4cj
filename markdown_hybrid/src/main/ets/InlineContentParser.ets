@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
+ */
 export class Scanner {
   lines: Array<string> = [] // context
   lineIndex: number // Which line we're at.
@@ -19,9 +22,6 @@ export interface ParsedInline {
   lineIndex: number
   index: number
 }
-
-@Sendable
-export type getInlineContentParser = () => InlineContentParser
 
 export interface InlineContentParser {
   /**

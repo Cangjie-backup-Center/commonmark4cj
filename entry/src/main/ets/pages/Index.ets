@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
+ */
 import {
   requireCJLib,
   CustomLib,
@@ -5,12 +8,13 @@ import {
   parseIntoJsNode,
   ParsedInline,
   Scanner,
-  InlineContentParser
-} from "library"
+  InlineContentParser,
+  printNode
+} from "@cangjie-tpc/markdown_hybrid"
 import { hilog } from "@kit.PerformanceAnalysisKit";
 import { systemDateTime } from "@kit.BasicServicesKit";
 
-const cjLib: CustomLib = requireCJLib("libohos_app_cangjie_library.so") as CustomLib
+const cjLib: CustomLib = requireCJLib("libmarkdown_hybrid.so") as CustomLib
 
 @Entry
 @Component
@@ -52,38 +56,17 @@ struct Index {
           md = '0123a56a89'
           const myParser: InlineContentParser = new MyParser()
           let t0 = systemDateTime.getTime()
-          let node = await parseIntoJsNode(md, myParser)
-          let t1 = systemDateTime.getTime() - t0
-          this.message = `${t1} \n${printNode(node)}`;
+          parseIntoJsNode(md, myParser).then(node => {
+            let t1 = systemDateTime.getTime() - t0
+            let nodeTreeStr = printNode(node)
+            hilog.error(0, '', nodeTreeStr)
+            this.message = `${t1} \n${nodeTreeStr}`;
+          })
         })
       Text(this.message)
     }
     .height('100%')
     .width('100%')
-  }
-}
-
-function printNode(node: Node | undefined): string {
-  if (node) {
-    let current: Node | undefined = node
-    while (current?.getParent()) {
-      current = current.getParent()
-    }
-    let builder = Array<string>()
-    printNodeDep(current, 0, builder)
-    return builder.join('')
-  }
-  return ''
-}
-
-function printNodeDep(node: Node | undefined, dep: number, builder: Array<string>) {
-  if (node) {
-    let str = node.toString()
-    builder.push(`${' '.repeat(dep)}${str}\n`)
-    let child = node.getFirstChild()
-    printNodeDep(child, dep + 4, builder)
-    let next = node.getNext()
-    printNodeDep(next, dep, builder)
   }
 }
 

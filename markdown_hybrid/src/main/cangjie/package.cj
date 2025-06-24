@@ -1,7 +1,7 @@
-/**
- * Created on 009 25/6/9
+/*
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
  */
-package ohos_app_cangjie_library
+package markdown_hybrid
 
 internal import commonmark4cj.commonmark.*
 internal import commonmark4cj.commonmark.Node as MdNode

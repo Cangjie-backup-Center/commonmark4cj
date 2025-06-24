@@ -6,7 +6,7 @@
   "author": "",
   "license": "",
   "dependencies": {
-    "library": "file:../library"
+    "@cangjie-tpc/markdown_hybrid": "file:../markdown_hybrid"
   },
   "devDependencies": {},
   "dynamicDependencies": {}

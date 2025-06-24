@@ -1,6 +1,6 @@
 {
   "module": {
-    "name": "library",
+    "name": "markdown_hybrid",
     "type": "har",
     "deviceTypes": [
       "default"

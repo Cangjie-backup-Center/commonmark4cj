@@ -1,10 +1,10 @@
 {
-  "name": "library",
-  "version": "1.0.0",
-  "description": "Please describe the basic information.",
+  "name": "@cangjie-tpc/markdown_hybrid",
+  "version": "0.0.2",
+  "description": "根据CommonMark规范（以及一些扩展）解析和呈现Markdown文本",
   "main": "Index.ets",
-  "author": "",
-  "license": "Apache-2.0",
+  "author": "cangjie-tpc",
+  "license": "BSD-2-Clause",
   "dependencies": {
     "libark_interop_loader.so": "file:./src/main/cangjie/loader",
     "libark_interop_api.so": "file:./src/main/cangjie/ark_interop_api",

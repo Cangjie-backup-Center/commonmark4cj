@@ -1,8 +1,11 @@
+/*
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
+ */
 import { CustomLib } from 'libark_interop_api.so';
 import { requireCJLib } from 'libark_interop_loader.so';
 import collections from '@arkts.collections';
 
-export const cjLib: CustomLib = requireCJLib("libohos_app_cangjie_library.so") as CustomLib
+export const cjLib: CustomLib = requireCJLib("libmarkdown_hybrid.so") as CustomLib
 
 @Sendable
 export class JsNode {
@@ -219,5 +222,29 @@ export class JsNode {
     let m = this.props ?? new collections.Map()
     m.set(k, v)
     this.props = m
+  }
+}
+
+export function printNode(node: JsNode | undefined): string {
+  if (node) {
+    let current: JsNode | undefined = node
+    while (current?.getParent()) {
+      current = current.getParent()
+    }
+    let builder = Array<string>()
+    printNodeDep(current, 0, builder)
+    return builder.join('')
+  }
+  return ''
+}
+
+function printNodeDep(node: JsNode | undefined, dep: number, builder: Array<string>) {
+  if (node) {
+    let str = node.toString()
+    builder.push(`${' '.repeat(dep)}${str}\n`)
+    let child = node.getFirstChild()
+    printNodeDep(child, dep + 4, builder)
+    let next = node.getNext()
+    printNodeDep(next, dep, builder)
   }
 }

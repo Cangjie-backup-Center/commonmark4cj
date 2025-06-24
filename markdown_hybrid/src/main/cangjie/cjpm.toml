@@ -25,16 +25,16 @@
     path = "../../../../commonmark4cj"
   [dependencies.markdown]
     path = "../../../../markdown4cj"
-  [dependencies.cj_res_library]
+  [dependencies.cj_res_markdown_hybrid]
     path = "./cj_res"
     version = "1.0.0"
 
 [package]
   cjc-version = "0.48.2"
   compile-option = ""
-  description = "CangjieUI Application"
+  description = "markdown hybrid"
   link-option = ""
-  name = "ohos_app_cangjie_library"
+  name = "markdown_hybrid"
   output-type = "dynamic"
   src-dir = "."
   target-dir = ""
