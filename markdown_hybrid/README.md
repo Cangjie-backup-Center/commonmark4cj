@@ -1,5 +1,5 @@
 <div align="center">
-<h1>commonmark4cj</h1>
+<h1>markdown hybrid</h1>
 </div>
 
 <p align="center">
@@ -13,6 +13,7 @@
 ## 介绍
 
 用于根据CommonMark规范（以及一些扩展）解析和呈现Markdown文本。
+主页 [markdown_hybrid](https://gitcode.com/Cangjie-TPC/commonmark4cj/tree/markdown_hybrid_cangjie-plugin-5.0.13.200)
 
 ### 特性
 
