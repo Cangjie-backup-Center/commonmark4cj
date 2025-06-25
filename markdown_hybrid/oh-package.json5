@@ -1,13 +1,13 @@
 {
   "name": "@cangjie-tpc/markdown_hybrid",
-  "version": "0.0.2",
+  "version": "1.1.0",
   "description": "根据CommonMark规范（以及一些扩展）解析和呈现Markdown文本",
   "main": "Index.ets",
   "author": "cangjie-tpc",
   "license": "BSD-2-Clause",
   "dependencies": {
     "libark_interop_loader.so": "file:./src/main/cangjie/loader",
-    "libark_interop_api.so": "file:./src/main/cangjie/ark_interop_api",
+    "commonmark_interop_api.so": "file:./src/main/cangjie/commonmark_interop_api",
     "cjhyapiregister": "file:./har/CJHyAPIRegister-v1.0.1.har"
   }
 }

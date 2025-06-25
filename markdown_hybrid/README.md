@@ -3,7 +3,7 @@
 </div>
 
 <p align="center">
-<img alt="" src="https://img.shields.io/badge/release-v0.0.2-brightgreen" style="display: inline-block;" />
+<img alt="" src="https://img.shields.io/badge/release-v1.1.0-brightgreen" style="display: inline-block;" />
 <img alt="" src="https://img.shields.io/badge/build-pass-brightgreen" style="display: inline-block;" />
 <img alt="" src="https://img.shields.io/badge/cjc-v0.53.20-brightgreen" style="display: inline-block;" />
 <img alt="" src="https://img.shields.io/badge/cjcov-95.6%25-brightgreen" style="display: inline-block;" />
@@ -137,7 +137,7 @@ Document{}
 
 ## 开源协议
 
-本项目基于 [BSD-2-Clause](./LICENSE) ，请自由的享受和参与开源。
+本项目基于 [BSD-2-Clause](https://gitcode.com/Cangjie-TPC/commonmark4cj/blob/develop/LICENSE) ，请自由的享受和参与开源。
 
 ## 参与贡献
 

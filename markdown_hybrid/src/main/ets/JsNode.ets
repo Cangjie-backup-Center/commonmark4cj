@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
  */
-import { CustomLib } from 'libark_interop_api.so';
+import { CustomLib } from 'commonmark_interop_api.so';
 import { requireCJLib } from 'libark_interop_loader.so';
 import collections from '@arkts.collections';
 

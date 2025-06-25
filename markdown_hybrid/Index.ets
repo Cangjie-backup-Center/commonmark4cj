@@ -8,7 +8,7 @@ import { cjLib, JsNode } from "./src/main/ets/JsNode"
 export { requireCJLib } from "libark_interop_loader.so"
 
 // 导入在ArkTS侧对于仓颉接口的映射，该名称可在ark_interop_api下的oh_package.json5中更改
-export { CustomLib } from "libark_interop_api.so"
+export { CustomLib } from "commonmark_interop_api.so"
 
 export { JsNode, printNode } from './src/main/ets/JsNode'
 
