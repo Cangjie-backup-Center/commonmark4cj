@@ -22,7 +22,8 @@
 
 [dependencies]
   [dependencies.commonmark4cj]
-    path = "../../../../commonmark4cj"
+    tag = "cjc_0.53.18"
+    git = "https://gitcode.com/Cangjie-TPC/commonmark4cj.git"
   [dependencies.markdown]
     path = "../../../../markdown4cj"
   [dependencies.cj_res_markdown_hybrid]
