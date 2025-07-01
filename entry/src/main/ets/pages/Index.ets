@@ -13,6 +13,7 @@ import {
 } from "@cangjie-tpc/markdown_hybrid"
 import { hilog } from "@kit.PerformanceAnalysisKit";
 import { systemDateTime } from "@kit.BasicServicesKit";
+import { sample_label } from "./sample_label";
 
 const cjLib: CustomLib = requireCJLib("libmarkdown_hybrid.so") as CustomLib
 
@@ -41,7 +42,7 @@ struct Index {
       //     printNode(node)
       //     this.message = 'Welcome' + node.toString();
       //   })
-      Text('md -> sendable Node')
+      Text('sample:custom inline parser')
         .fontSize($r('app.float.page_text_font_size'))
         .fontWeight(FontWeight.Bold)
         .alignRules({
@@ -61,6 +62,20 @@ struct Index {
             let nodeTreeStr = printNode(node)
             hilog.error(0, '', nodeTreeStr)
             this.message = `${t1} \n${nodeTreeStr}`;
+          })
+        })
+      Text('sample:label')
+        .fontSize($r('app.float.page_text_font_size'))
+        .fontWeight(FontWeight.Bold)
+        .alignRules({
+          center: { anchor: '__container__', align: VerticalAlign.Center },
+          middle: { anchor: '__container__', align: HorizontalAlign.Center }
+        })
+        .onClick(async () => {
+          setTimeout(() => {
+            sample_label().then(str => {
+              this.message = `${str}`;
+            })
           })
         })
       Text(this.message)
