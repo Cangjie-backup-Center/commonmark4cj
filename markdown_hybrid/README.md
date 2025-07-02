@@ -90,7 +90,7 @@ class MyParser implements InlineContentParser {
     // hilog.error(0, 'mod', 'MyParser.tryParse')
     let str = ''
     let line = scanner.lines[scanner.lineIndex]
-    let i = scanner.index + 1
+    let i = scanner.runeIndex + 1
     for (; i < line.length; i++) {
       if (line[i] == 'a') {
         i++
@@ -105,11 +105,12 @@ class MyParser implements InlineContentParser {
         nodeType: 'anode',
         props: props
       },
-      index: i,
+      runeIndex: i,
       lineIndex: scanner.lineIndex
     }
   }
 }
+
 
 let markdownString = "0123a56a89"
 let myParser: InlineContentParser = new MyParser()
