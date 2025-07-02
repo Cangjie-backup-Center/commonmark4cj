@@ -54,7 +54,7 @@ struct Index {
           let manager = context.resourceManager
           let content = manager.getRawFileContentSync('spec.md')
           let md = utf8arr2string(content)
-          md = '0123a56a89'
+          md = '我0123a56a89'
           const myParser: InlineContentParser = new MyParser()
           let t0 = systemDateTime.getTime()
           parseIntoJsNode(md, myParser).then(node => {
@@ -102,7 +102,7 @@ class MyParser implements InlineContentParser {
     // hilog.error(0, 'mod', 'MyParser.tryParse')
     let str = ''
     let line = scanner.lines[scanner.lineIndex]
-    let i = scanner.index + 1
+    let i = scanner.runeIndex + 1
     for (; i < line.length; i++) {
       if (line[i] == 'a') {
         i++
@@ -117,7 +117,7 @@ class MyParser implements InlineContentParser {
         nodeType: 'anode',
         props: props
       },
-      index: i,
+      runeIndex: i,
       lineIndex: scanner.lineIndex
     }
   }

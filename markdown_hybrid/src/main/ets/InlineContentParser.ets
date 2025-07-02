@@ -4,11 +4,11 @@
 export class Scanner {
   lines: Array<string> = [] // context
   lineIndex: number // Which line we're at.
-  index: number // The index within the line.
-  constructor(lines: Array<string>, lineIndex: number, index: number) {
+  runeIndex: number // The Rune index within the line.
+  constructor(lines: Array<string>, lineIndex: number, runeIndex: number) {
     this.lines = lines
     this.lineIndex = lineIndex
-    this.index = index
+    this.runeIndex = runeIndex
   }
 }
 
@@ -20,7 +20,7 @@ export interface JsInlineCustomNode {
 export interface ParsedInline {
   node: JsInlineCustomNode // 必须设置nodeType/props 其他属性会忽略
   lineIndex: number
-  index: number
+  runeIndex: number
 }
 
 export interface InlineContentParser {
