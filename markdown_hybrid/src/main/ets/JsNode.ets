@@ -226,11 +226,12 @@ export class JsNode {
   }
 }
 
-export function printNode(node: JsNode | undefined): string {
+export function printNode(node: JsNode): string {
+  node = node as JsNode
   if (node) {
     let current: JsNode | undefined = node
     while (current?.getParent()) {
-      current = current.getParent()
+      current = (current as JsNode).getParent()
     }
     let builder = Array<string>()
     printNodeDep(current, 0, builder)
@@ -240,6 +241,7 @@ export function printNode(node: JsNode | undefined): string {
 }
 
 function printNodeDep(node: JsNode | undefined, dep: number, builder: Array<string>) {
+  node = node as JsNode
   if (node) {
     let str = node.toString()
     builder.push(`${' '.repeat(dep)}${str}\n`)

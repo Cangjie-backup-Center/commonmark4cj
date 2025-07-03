@@ -4,6 +4,7 @@
 package markdown_hybrid
 
 import ohos.ark_interop_macro.*
+import std.time.DateTime
 
 extend JSObject {
     func set<T>(name: String, value: Option<T>, context: JSContext): Unit {
@@ -96,6 +97,7 @@ class JsNodeBuilder {
 }
 
 public func parseIntoJsNode(context: JSContext, callInfo: JSCallInfo): JSValue {
+    //    let t0 = DateTime.now()
     let md = callInfo[0].toString(context)
     let jsNodeConstructor = callInfo[1].asClass()
     let markdownBuilder: MarkdownBuilder = Markdown
@@ -130,8 +132,14 @@ public func parseIntoJsNode(context: JSContext, callInfo: JSCallInfo): JSValue {
     }
     let parser = markdownBuilder.build()
 
+    //    let t1 = DateTime.now()
     let doc: MdNode = parser.parse(md)
+
+    //    let t2 = DateTime.now()
     let builder = JsNodeBuilder(jsNodeConstructor, context)
     let RET = builder.buildNode(doc).toJSValue()
+
+    //    let t3 = DateTime.now()
+    //    Hilog.error(0, 'mdebug', "pre:${t1-t0}, parse:${t2-t1}, build:${t3-t2}")
     return RET
 }

@@ -31,5 +31,21 @@ extend Alignment {
 }
 
 let EXPORT_MODULE = JSModule.registerModule {
-    runtime, exports => exports["parseIntoJsNode"] = runtime.function(parseIntoJsNode).toJSValue()
+    runtime, exports =>
+    exports["parseIntoJsNode"] = runtime.function(parseIntoJsNode).toJSValue()
+    exports["parse2Json"] = runtime.function(parse2Json).toJSValue()
+}
+
+func getStackTrace(thrown: ?Exception): String {
+    var res: String = ""
+    match (thrown) {
+        case None => return res
+        case Some(v) =>
+            res = "\n${v.toString()}\n"
+            var arr = v.getStackTrace()
+            for (line in arr) {
+                res += "      at ${line.declaringClass}.${line.methodName}(${line.fileName}:${line.lineNumber})\n"
+            }
+            return res
+    }
 }

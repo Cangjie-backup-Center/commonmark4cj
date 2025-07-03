@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
+ */
 import { parseIntoJsNode, printNode, JsNode } from '@cangjie-tpc/markdown_hybrid';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
