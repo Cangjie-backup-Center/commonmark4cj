@@ -15,12 +15,12 @@ public class Scanner {
 
     // Lines without newlines at the end. The scanner will yield `\n` between lines because they're significant for
     // parsing and the let output. There is no `\n` after the last line.
-    let lines: ArrayList<SourceLine>
+    public let lines: ArrayList<SourceLine>
     // Which line we're at.
-    private var lineIndex: Int
+    public var lineIndex: Int
     // The index within the line. let index : If == length(), we pretend that there's a `\n` and only advance after we yield
     // that.
-    private var index: Int
+    public var index: Int
     private var index_rune: Rune = END // 当前index的Rune
     private var index_next = (-1, -1) // (lineIndex, index) 下一个index的坐标(计算了Rune长度) 用于判断是否已进行peek
 
