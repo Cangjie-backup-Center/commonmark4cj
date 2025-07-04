@@ -40,6 +40,7 @@ export class JsNode {
   props: collections.Map<string, string> | undefined = undefined // 用于存放Js行内自定义解析插件所产生的数据
   isdone: boolean | undefined = undefined
   latex: string | undefined = undefined
+  isClosed: boolean | undefined = undefined
   noteid: string | undefined = undefined
   blockIndex: number | undefined = undefined
   headIndex: number | undefined = undefined

@@ -29,7 +29,9 @@ class JsNodeBuilder {
                 jsNode.callMethod('putProp', context.string(k).toJSValue(), context.string(v).toJSValue())
             }
             case v: TaskListItem => jsNode.set('isdone', v.isDone(), context)
-            case v: LatexMathBlock => jsNode.set('latex', v.latex, context)
+            case v: LatexMathBlock =>
+                jsNode.set('latex', v.latex, context)
+                jsNode.set('isClosed', v.isClosed, context)
             case v: LatexMathNode => jsNode.set('latex', v.latex, context)
             case v: Footnote =>
                 jsNode.set('noteid', v.noteid, context)
