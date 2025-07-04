@@ -11,7 +11,6 @@ internal import std.collection.{ArrayList, HashMap, HashSet, Map, EquatableColle
 internal import std.convert.{Parsable}
 internal import std.format.{Formatter}
 internal import std.io.{StringReader, InputStream, IOException}
-internal import std.os.{getEnv}
 internal import std.regex.{Regex, Matcher, MatchData, RegexOption, Position}
 internal import std.unicode.*
 
