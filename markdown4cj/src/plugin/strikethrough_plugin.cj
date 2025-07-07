@@ -23,7 +23,7 @@ public class StrikethroughPlugin <: AbstractMarkdownPlugin {
             {
                 visitor, strikethrough =>
                 let view = buildView(strikethrough, false, needProps: true)
-                view.props?.put("strikethrough", true)
+                view.props?.add("strikethrough", true)
                 visitor.visitChildren(strikethrough)
                 strikethrough.flat()
             }

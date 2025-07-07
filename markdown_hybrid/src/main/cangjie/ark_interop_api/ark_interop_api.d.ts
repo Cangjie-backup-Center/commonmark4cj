@@ -27,9 +27,7 @@ export declare class CjNode {
     getDelimiter(): string | undefined
 }
 
-
 export declare interface CustomLib {
-    parseIntoJsNode(md: string, JsNode: new () => object, ...customParsers: Array<object>): object
     CjNode: {new (): CjNode}
     printNode(node: CjNode | undefined): void
     parseIntoCjNode(md: string): Promise<CjNode>

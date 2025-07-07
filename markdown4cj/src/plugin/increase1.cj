@@ -29,7 +29,7 @@ public class IncreaseParser1 {
             let node = md.parse(str[safeInputSize..])
             let view = md.render(node)
             docView.children.remove(safeViewSize..docView.children.size)
-            docView.children.appendAll(view.children)
+            docView.children.add(all:view.children)
         } else {
             doc = md.parse(str)
             docView = md.render(doc)
@@ -43,11 +43,11 @@ public class IncreaseParser1 {
         }
         match (last.node) {
             case v: FencedCodeBlock =>
-                let closed = v.getLiteral().size > 0 && input.trimAsciiRight().endsWith("```")
+                let closed = v.getLiteral().size > 0 && input.trimAsciiEnd().endsWith("```")
                 if (last.props.isNone()) {
                     last.props = HashMap()
                 }
-                last.props?.put("closed", closed)
+                last.props?.add("closed", closed)
                 if (closed && input.endsWith("\n\n")) {
                     safeInputSize = input.size
                     safeViewSize = docView.children.size

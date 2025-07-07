@@ -25,13 +25,13 @@ export declare class CjNode {
     getBulletMarker(): string | undefined
     getStartNumber(): number | undefined
     getDelimiter(): string | undefined
+    constructor ()
 }
 
 
-export declare interface CustomLib {
-    parseIntoJsNode(md: string, JsNode: new () => object, ...customParsers: Array<object>): object
-    parse2Json(md: string, JsNode: new () => object, ...customParsers: Array<object>): string
-    CjNode: {new (): CjNode}
-    printNode(node: CjNode | undefined): void
-    parseIntoCjNode(md: string): Promise<CjNode>
-}
+export declare function printNode(node: CjNode | undefined): void
+
+export declare function parseIntoCjNode(md: string): Promise<CjNode>
+
+export declare function parseIntoJsNode(md: string, JsNode: new () => object, ...customParsers: Array<object>): object
+export declare function parse2Json(md: string, JsNode: new () => object, ...customParsers: Array<object>): string

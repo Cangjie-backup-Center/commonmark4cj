@@ -41,7 +41,7 @@ class LatexBlockParser <: AbstractBlockParser {
             builder.append('\n')
         }
         if (block.isClosed) {
-            let str = line.trimAsciiRight()
+            let str = line.trimAsciiEnd()
             builder.append(str[..str.size - 2])
         } else {
             builder.append(line)
@@ -103,7 +103,7 @@ func isLatexEnd(lineStr: String): Bool {
 let LATEX_IN_LIST = Regex(#"\s{0,3}(\$\$|\\\[)"#)
 
 func isLatexInList(line: String): ?Int {
-    return LATEX_IN_LIST.matches(line)?.matchPosition().end
+    return LATEX_IN_LIST.find(line)?.matchPosition().end
 }
 
 type CharSequence = String

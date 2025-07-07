@@ -72,7 +72,7 @@ class CodeListVisitor <: AbstractVisitor {
                     }
                     code.setInfo(lang)
                     code.unlink()
-                    list.tabs.append(tabName)
+                    list.tabs.add(tabName)
                     list.appendChild(code)
                 case _ => codeList = None
             }

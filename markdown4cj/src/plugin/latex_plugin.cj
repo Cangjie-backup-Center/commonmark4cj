@@ -94,7 +94,7 @@ class LatexInlineDelimiterProcessor <: DelimiterProcessor {
     let reg = Regex(#"^[\s\S]+"#)
     public func process(opener: Text, _: Text, _: Int): Unit {
         if (let Some(latexTextNode: Text) <- opener.getNext()) {
-            if (reg.matches(latexTextNode.getLiteral()).isSome()) {
+            if (reg.matches(latexTextNode.getLiteral())) {
                 latexTextNode.unlink()
                 opener.insertBefore(LatexMathNode(latexTextNode.getLiteral()))
             }

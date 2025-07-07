@@ -231,13 +231,13 @@ class MarkdownBuilderImpl <: MarkdownBuilder {
     private var _fallbackToRawInputWhenEmpty: Bool = true
 
     public override func usePlugin(plugin: MarkdownPlugin): MarkdownBuilder {
-        this.plugins.append(plugin)
+        this.plugins.add(plugin)
         return this
     }
 
     public override func usePlugins(plugins: Iterable<MarkdownPlugin>): MarkdownBuilder {
         for (plugin in plugins) {
-            this.plugins.append(plugin)
+            this.plugins.add(plugin)
         }
         return this
     }

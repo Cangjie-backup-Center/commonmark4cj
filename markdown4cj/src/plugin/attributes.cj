@@ -29,10 +29,10 @@ public class Attributes <: Iterable<Attribute> & Hashable & Equatable<Attributes
     // number of slots used (not total capacity, which is keys.length)
     private var length: Int64 = 0
 
-    var keys: Array<String> = Array<String>(InitialCapacity, item: "")
+    var keys: Array<String> = Array<String>(InitialCapacity, repeat: "")
 
     // Genericish: all non-internal attribute values must be Strings and are cast on access.
-    var vals: Array<?Any> = Array<?Any>(InitialCapacity, item: Option<Any>.None)
+    var vals: Array<?Any> = Array<?Any>(InitialCapacity, repeat: Option<Any>.None)
 
     public prop size: Int64 {
         get() {
@@ -72,8 +72,8 @@ public class Attributes <: Iterable<Attribute> & Hashable & Equatable<Attributes
         if (minNewSize > newCap) {
             newCap = minNewSize
         }
-        var keysNew: Array<String> = Array<String>(newCap, item: "")
-        var valsNew: Array<?Any> = Array<?Any>(newCap, item: Option<Any>.None)
+        var keysNew: Array<String> = Array<String>(newCap, repeat: "")
+        var valsNew: Array<?Any> = Array<?Any>(newCap, repeat: Option<Any>.None)
         keys.copyTo(keysNew, 0, 0, keys.size)
         vals.copyTo(valsNew, 0, 0, keys.size)
         keys = keysNew
@@ -422,8 +422,8 @@ public class Attributes <: Iterable<Attribute> & Hashable & Equatable<Attributes
     public func clone(): Attributes {
         var clone: Attributes = Attributes()
         clone.length = length
-        var keysNew: Array<String> = Array<String>(length, item: "")
-        var valsNew: Array<?Any> = Array<?Any>(length, item: Option<Any>.None)
+        var keysNew: Array<String> = Array<String>(length, repeat: "")
+        var valsNew: Array<?Any> = Array<?Any>(length, repeat: Option<Any>.None)
         keys.copyTo(keysNew, 0, 0, length)
         vals.copyTo(valsNew, 0, 0, length)
         clone.keys = keysNew
@@ -529,7 +529,7 @@ public class Attributes <: Iterable<Attribute> & Hashable & Equatable<Attributes
         var intList: ArrayList<String> = ArrayList<String>()
         for (i in 0..length) {
             if (!this.isInternalKey(keys[i])) {
-                intList.append(keys[i])
+                intList.add(keys[i])
             }
         }
         for (i in 0..intList.size) {

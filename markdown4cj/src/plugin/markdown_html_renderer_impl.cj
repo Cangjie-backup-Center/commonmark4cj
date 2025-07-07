@@ -43,7 +43,7 @@ public class MarkdownHtmlRendererImplBuilder {
     public func addHandler(tagHandler: TagHandler): Unit {
         checkState()
         for (tag in tagHandler.supportedTags()) {
-            tagHandlers.put(tag, tagHandler)
+            tagHandlers.add(tag, tagHandler)
         }
     }
 
@@ -80,7 +80,7 @@ public class MarkdownHtmlRendererImplBuilder {
     public func addDefaultTagHandler(tagHandler: TagHandler): Unit {
         for (tag in tagHandler.supportedTags()) {
             if (!tagHandlers.contains(tag)) {
-                tagHandlers.put(tag, tagHandler)
+                tagHandlers.add(tag, tagHandler)
             }
         }
     }

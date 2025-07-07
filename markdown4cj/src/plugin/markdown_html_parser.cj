@@ -220,7 +220,7 @@ public class MarkdownHtmlParserImpl <: MarkdownHtmlParser {
             }
             inline.closeAt(-1)
         }
-        inlineTags.append(inline)
+        inlineTags.add(inline)
         parent?.appendChild(inline)
         inline
     }
@@ -319,7 +319,7 @@ public class MarkdownHtmlParserImpl <: MarkdownHtmlParser {
             children = ArrayList<BlockImpl>(2)
             parent._children = children
         }
-        children?.append(child)
+        children?.add(child)
     }
 
     protected func findOpenInlineTag(name: String): ?InlineImpl {
@@ -374,7 +374,7 @@ public class MarkdownHtmlParserImpl <: MarkdownHtmlParser {
         if (size > 0) {
             map = HashMap<String, String>(size)
             for (attribute in attributes()) {
-                map.put(attribute.getKey().toAsciiLower(), attribute.getValue())
+                map.add(attribute.getKey().toAsciiLower(), attribute.getValue())
             }
         } else {
             map = HashMap<String, String>()

@@ -1,3 +1,22 @@
+[package]
+  compile-option = "--dy-std --cfg=\"${COMPILE_CONDITION}\""
+  name = "markdown_hybrid"
+  description = "markdown hybrid"
+  output-type = "dynamic"
+  src-dir = "./src/main/cangjie"
+  link-option = ""
+  cjc-version = "1.0.0"
+  version = "1.2.0"
+  target-dir = ""
+
+[profile]
+  [profile.build]
+    lto = ""
+    incremental = true
+  [profile.customized-option]
+    debug = "-g -Woff all -Won apilevel-check"
+    release = "--fast-math -O2 -s -Woff all -Won apilevel-check"
+
 [target]
   [target.aarch64-linux-ohos]
     compile-option = "-B \"${DEVECO_CANGJIE_HOME}/compiler/third_party/llvm/bin\" -B \"${DEVECO_OH_NATIVE_HOME}/sysroot/usr/lib/aarch64-linux-ohos\" -L \"${DEVECO_OH_NATIVE_HOME}/sysroot/usr/lib/aarch64-linux-ohos\" -L \"${DEVECO_OH_NATIVE_HOME}/llvm/lib/clang/15.0.4/lib/aarch64-linux-ohos\" -L \"${DEVECO_OH_NATIVE_HOME}/llvm/lib/aarch64-linux-ohos\" -L \"${DEVECO_CANGJIE_HOME}/build/linux_ohos_aarch64_llvm/openssl\" --sysroot \"${DEVECO_OH_NATIVE_HOME}/sysroot\""
@@ -14,27 +33,8 @@
       [target.x86_64-unknown-windows-gnu.bin-dependencies.package-option]
 
 [dependencies]
+  [dependencies.markdown]
+    path = "../markdown4cj"
   [dependencies.commonmark4cj]
-    tag = "v1.0.3"
     git = "https://gitcode.com/Cangjie-TPC/commonmark4cj.git"
-
-[package]
-  cjc-version = "1.0.0"
-  compile-option = ""
-  description = "Markdown"
-  link-option = ""
-  name = "markdown"
-  output-type = "dynamic"
-  src-dir = "src"
-  target-dir = ""
-  version = "1.0.0"
-  [package.package-configuration]
-  [package.scripts]
-
-[profile]
-  [profile.build]
-    lto = ""
-    incremental = true
-  [profile.customized-option]
-    debug = "-g -Woff all -Won apilevel-check"
-    release = "--fast-math -O2 -s -Woff all -Won apilevel-check"
+    tag = "v1.0.3"

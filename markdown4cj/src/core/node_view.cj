@@ -141,7 +141,7 @@ public class NodeView <: ToString {
         while (let Some(n) <- tmp) {
             let isListNode = n is BlockQuote || n is OrderedList || n is BulletList
             if (isListNode && (list.size == 0 || n.getNodeType() != list[0].node.getNodeType())) {
-                list.prepend(n.getView())
+                list.add(n.getView(),at:0)
             }
             if (n == end) {
                 break
@@ -228,7 +228,7 @@ public func buildView(node: Node, needCollect: Bool, needProps!: Bool = false): 
         view.props = HashMap<String, Any>()
     }
     if (needCollect) {
-        view.collector?.children.append(view)
+        view.collector?.children.add(view)
         view.collector = view
     }
     node.custom = view
@@ -242,7 +242,7 @@ public func buildFlatView(node: Node, nodeVisitor: (Node) -> Unit, needProps!: B
             list.depth = -1
             list.bulletListDepth = -1
             list.blockQuoteDepth = -1
-            list.collector?.children.append(list)
+            list.collector?.children.add(list)
             list.collector = list
             (NodeView(node, list), NodeView(node, list))
         } else {
@@ -257,12 +257,12 @@ public func buildFlatView(node: Node, nodeVisitor: (Node) -> Unit, needProps!: B
     }
     node.custom = start
 
-    start.collector?.children.append(start)
+    start.collector?.children.add(start)
 
     nodeVisitor(node)
 
     end.startend = 1
-    start.collector?.children.append(end)
+    start.collector?.children.add(end)
 }
 
 public func buildListView(node: Node, needProps!: Bool = false): NodeView {

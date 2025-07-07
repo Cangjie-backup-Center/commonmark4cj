@@ -75,7 +75,7 @@ public class TaskListPlugin <: AbstractMarkdownPlugin {
                 } else {
                     0
                 }
-                view.props?.put(TaskListItem.TASK_DEPTH, taskDepth)
+                view.props?.add(TaskListItem.TASK_DEPTH, taskDepth)
                 visitor.visitChildren(taskListItem)
             }
         )

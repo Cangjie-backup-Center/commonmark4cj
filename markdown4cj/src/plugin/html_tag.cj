@@ -63,7 +63,7 @@ public interface HtmlTag <: ToString {
     mut prop parentTag: ?HtmlTag
     func getChildren(): ArrayList<HtmlTag>
     func appendChild(tag: HtmlTag): Unit {
-        getChildren().append(tag)
+        getChildren().add(tag)
         tag.parentTag = this
     }
 }
@@ -156,7 +156,7 @@ public abstract class HtmlTagImpl <: HtmlTag {
         }
     }
     public override func appendChild(tag: HtmlTag): Unit {
-        getChildren().append(tag)
+        getChildren().add(tag)
         tag.parentTag = this
     }
 }

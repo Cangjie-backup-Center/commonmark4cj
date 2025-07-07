@@ -106,7 +106,7 @@ public class RenderProps {
         if (value.isNone()) {
             values.remove(po.name())
         } else {
-            values.put(po.name(), value)
+            values.add(po.name(), value)
         }
     }
 

@@ -228,7 +228,7 @@ class MarkdownVisitorBuilderImpl <: MarkdownVisitorBuilder {
         // we should allow `None` to exclude node from being visited (for example to disable
         // some functionality)
         if (let Some(v) <- nodeVisitor) {
-            nodes.put(node, v)
+            nodes.add(node, v)
         } else {
             nodes.remove(node)
         }

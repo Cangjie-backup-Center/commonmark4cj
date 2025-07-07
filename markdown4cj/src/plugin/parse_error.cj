@@ -74,7 +74,7 @@ public class ParseErrorList <: Iterable<ParseError> {
     }
 
     func add(err: ParseError): Unit {
-        arr.append(err)
+        arr.add(err)
     }
 
     func getMaxSize(): Int64 {

@@ -124,7 +124,7 @@ public class HtmlPlugin <: AbstractMarkdownPlugin {
                 {
                     visitor, node =>
                     let view = buildView(node, false, needProps: true)
-                    view.props?.put("FontNode", node)
+                    view.props?.add("FontNode", node)
                     visitor.visitChildren(node)
                 }
             )
@@ -267,7 +267,7 @@ public class HtmlPlugin <: AbstractMarkdownPlugin {
                 continue
             }
             let pv = NodeView(Paragraph())
-            pv.children.append(nv)
+            pv.children.add(nv)
             docView.children[i] = pv
         }
     }

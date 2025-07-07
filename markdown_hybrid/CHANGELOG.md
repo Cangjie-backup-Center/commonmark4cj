@@ -1,3 +1,7 @@
+## 1.2.0
+
+- cangjie plugin 5.1.0.828
+
 ## 1.1.1
 
 - cangjie plugin 5.0.13.210

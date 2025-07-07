@@ -49,7 +49,7 @@ public class Registry {
             }
 
             // start tracking plugins that are pending for configuration
-            pending.put(plugin)
+            pending.add(plugin)
 
             plugin.configure(this)
 
@@ -63,9 +63,9 @@ public class Registry {
             if (!plugins.contains(plugin)) {
                 // core-plugin must always be the first one (if it's present)
                 if (plugin is CorePlugin) {
-                    plugins.prepend(plugin)
+                    plugins.add(plugin,at:0)
                 } else {
-                    plugins.append(plugin)
+                    plugins.add(plugin)
                 }
             }
         }

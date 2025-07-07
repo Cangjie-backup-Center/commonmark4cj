@@ -123,7 +123,7 @@ class FootnoteVisitor <: AbstractVisitor {
                     pnode = v
                 }
                 f.blockIndex = preSize
-                blockMap.put(f.noteid, f)
+                blockMap.add(f.noteid, f)
             case _ => ()
         }
         visitChildren(n)
@@ -138,7 +138,7 @@ class FootnoteVisitor <: AbstractVisitor {
                 n.insertBefore(text)
                 let footnote = Footnote(line[pos.start + 2..pos.end - 1])
                 n.insertBefore(footnote)
-                notes.append(footnote)
+                notes.add(footnote)
                 i = pos.end
             }
             n.setLiteral(line[i..])

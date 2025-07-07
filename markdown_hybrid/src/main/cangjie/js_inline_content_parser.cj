@@ -74,7 +74,7 @@ let JsInlineContentParserFactories = ArrayList<InlineContentParserFactory>()
 public func registerGlobalInlineContentParser(context: JSContext, callInfo: JSCallInfo): JSValue {
     let parser = callInfo[0].asObject()
     let inlineParser = JsInlineContentParserFactory(parser, context)
-    JsInlineContentParserFactories.append(inlineParser)
+    JsInlineContentParserFactories.add(inlineParser)
     context.null().toJSValue()
 }
 

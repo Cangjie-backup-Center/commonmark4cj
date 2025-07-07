@@ -50,7 +50,7 @@ public class CorePlugin <: AbstractMarkdownPlugin {
      * @see OnTextAddedListener
      */
     public func addOnTextAddedListener(onTextAddedListener: OnTextAddedListener): CorePlugin {
-        onTextAddedListeners.append(onTextAddedListener)
+        onTextAddedListeners.add(onTextAddedListener)
         return this
     }
 

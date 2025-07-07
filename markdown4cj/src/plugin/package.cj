@@ -25,12 +25,11 @@ internal import std.regex.Regex
 internal import std.regex.RegexOption
 internal import std.collection.contains
 internal import std.io.IOException
-internal import std.unicode.UnicodeExtension
+internal import std.unicode.UnicodeRuneExtension
+internal import std.unicode.UnicodeStringExtension
 internal import std.math.abs
-internal import std.math.max
-internal import std.math.min
 internal import std.convert.Parsable
-internal import std.format.Formatter
+internal import std.convert.Formattable
 
 /**
  * 扩展Option，getOrThrow()方法直接用()

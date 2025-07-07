@@ -3,9 +3,9 @@
 </div>
 
 <p align="center">
-<img alt="" src="https://img.shields.io/badge/release-v1.1.1-brightgreen" style="display: inline-block;" />
+<img alt="" src="https://img.shields.io/badge/release-v1.2.0-brightgreen" style="display: inline-block;" />
 <img alt="" src="https://img.shields.io/badge/build-pass-brightgreen" style="display: inline-block;" />
-<img alt="" src="https://img.shields.io/badge/cjc-v0.53.21-brightgreen" style="display: inline-block;" />
+<img alt="" src="https://img.shields.io/badge/cjc-v1.0.0-brightgreen" style="display: inline-block;" />
 <img alt="" src="https://img.shields.io/badge/cjcov-95.6%25-brightgreen" style="display: inline-block;" />
 <img alt="" src="https://img.shields.io/badge/project-open-brightgreen" style="display: inline-block;" />
 </p>
@@ -117,7 +117,7 @@ let myParser: InlineContentParser = new MyParser()
 parseIntoJsNode(markdownString, myParser).then(node => {
   let nodeTreeStr = printNode(node)
   hilog.info(0, '', nodeTreeStr)
-}
+})
 ```
 
 执行结果如下：
@@ -133,8 +133,8 @@ Document{}
 ## 约束与限制
 
     在下述版本验证通过：    
-        IDE: DevEco Studio 5.0.5 Release(Build Version:5.0.13.210)  
-        Cangjie Plugin: DevEco Studio-Cangjie Plugin 5.0.13.210 Canary (Build Version:5.0.13.210)
+        DevEco Studio 5.1.0 Release(Build Version:5.1.0.828SP1)  
+        Cangjie Support Plugin 5.1.0.828
 
 ## 开源协议
 

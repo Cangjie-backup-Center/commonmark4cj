@@ -64,7 +64,7 @@ class TocVisitor <: AbstractVisitor {
                 p.insertAfter(nextPart)
             }
 
-            needReplace.append(p)
+            needReplace.add(p)
         }
     }
 

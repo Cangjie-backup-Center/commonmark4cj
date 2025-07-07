@@ -36,7 +36,7 @@ public class LinkifyPlugin <: AbstractMarkdownPlugin {
                         }
                         i = data.matchPosition().end
                         if (i <= fulltext.size) {
-                            let snippet = data.matchStr()
+                            let snippet = data.matchString()
                             let link = Link(snippet, snippet)
                             link.appendChild(Text(snippet))
                             if (i == fulltext.size) {

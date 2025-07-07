@@ -1,30 +1,14 @@
 /*
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
  */
-import {
-  requireCJLib,
-  CustomLib,
-  JsNode as Node,
-  parseIntoJsNode,
-  ParsedInline,
-  Scanner,
-  InlineContentParser,
-  printNode,
-  parse2Json,
-  printJsonNode
-} from "@cangjie-tpc/markdown_hybrid"
-import { hilog } from "@kit.PerformanceAnalysisKit";
-import { systemDateTime } from "@kit.BasicServicesKit";
 import { sample_label } from "./sample_label";
-import { router } from "@kit.ArkUI";
-import { ArkTSUtils, collections, util } from "@kit.ArkTS";
+import { util } from "@kit.ArkTS";
 import { sample_spec } from "./sample_spec";
 import { sample_custom_inline_parser } from "./sample_custom_inline_parser";
 import { sample_parse2Json } from "./sample_parse2Json";
 import { sample_parse2Json_bench } from "./sample_parse2Json_bench";
 import { sample_oom } from "./sample_oom";
 
-const cjLib: CustomLib = requireCJLib("libmarkdown_hybrid.so") as CustomLib
 let textDecoder = new util.TextDecoder();
 
 @Entry

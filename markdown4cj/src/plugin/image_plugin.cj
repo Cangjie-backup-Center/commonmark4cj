@@ -87,7 +87,7 @@ class StyleDelimiterProcessor <: DelimiterProcessor {
                 // 处理style前的Image
                 if (let Some(image: Image) <- opener.getPrevious()) {
                     match (image) {
-                        case v: StyleImage => v.styles.append(str)
+                        case v: StyleImage => v.styles.add(str)
                         case _ =>
                             let styleImage = StyleImage(str, image)
                             image.replaceWith(styleImage)
@@ -163,7 +163,7 @@ class ImageVisitor <: AbstractVisitor {
             if (wantImg) {
                 // Image node
                 if (n is Image) {
-                    collector.append(n)
+                    collector.add(n)
                     wantImg = !wantImg
                 } else {
                     return
@@ -209,7 +209,7 @@ public class StyleImage <: Image {
     public let styles: ArrayList<String> = ArrayList<String>()
     init(style: String, img: Image) {
         super(img.getDestination(), img.getTitle())
-        this.styles.append(style)
+        this.styles.add(style)
     }
     protected func toStringAttributes(): String {
         return "${super.toStringAttributes()}, styles=${styles}"
@@ -234,6 +234,6 @@ public class ImgVideo <: Image {
     static let typeinfo = "ImgVideo"
     static let reg = Regex("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
     static func isImgVideo(dest: String): Bool {
-        reg.matches(dest).isSome()
+        reg.matches(dest)
     }
 }

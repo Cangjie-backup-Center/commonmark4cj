@@ -72,7 +72,7 @@ class ImageSlideVisitor <: AbstractVisitor {
             if (wantImg) {
                 // Image node
                 if (n is Image) {
-                    collector.append(n)
+                    collector.add(n)
                     wantImg = !wantImg
                 } else {
                     return

@@ -81,7 +81,7 @@ extend Node <: NodeExt {
         let list: ArrayList<Node> = ArrayList<Node>()
         var node: ?Node = getFirstChild()
         while (!node.isNone()) {
-            list.append(node.getOrThrow())
+            list.add(node.getOrThrow())
             node = node.getOrThrow().getNext()
         }
         return list
