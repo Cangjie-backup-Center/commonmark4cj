@@ -39,8 +39,8 @@
       ]
     },
     {
-      "name": "markdown_hybrid",
-      "srcPath": "./markdown_hybrid"
+      "name": "commonmark",
+      "srcPath": "./commonmark"
     }
   ]
 }

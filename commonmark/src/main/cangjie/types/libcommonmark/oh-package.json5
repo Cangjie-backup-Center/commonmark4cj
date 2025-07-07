@@ -1,5 +1,5 @@
 {
-  "name": "libmarkdown_hybrid.so",
+  "name": "libcommonmark.so",
   "types": "./Index.d.ts",
   "version": "1.0.0",
   "description": ""

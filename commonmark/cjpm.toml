@@ -1,7 +1,7 @@
 [package]
   compile-option = "--dy-std --cfg=\"${COMPILE_CONDITION}\""
-  name = "markdown_hybrid"
-  description = "markdown hybrid"
+  name = "commonmark"
+  description = "commonmark hybrid"
   output-type = "dynamic"
   src-dir = "./src/main/cangjie"
   link-option = ""

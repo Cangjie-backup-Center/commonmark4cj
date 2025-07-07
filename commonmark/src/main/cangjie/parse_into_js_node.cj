@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
  */
-package markdown_hybrid
+package commonmark
 
 import ohos.ark_interop_macro.*
 import std.time.DateTime

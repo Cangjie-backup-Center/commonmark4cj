@@ -1,11 +1,11 @@
 {
-  "name": "@cangjie-tpc/markdown_hybrid",
+  "name": "@cangjie-tpc/commonmark",
   "version": "1.2.0",
   "description": "根据CommonMark规范（以及一些扩展）解析和呈现Markdown文本",
   "main": "Index.ets",
   "author": "cangjie-tpc",
   "license": "BSD-2-Clause",
   "dependencies": {
-    "libmarkdown_hybrid.so": "file:./src/main/cangjie/types/libmarkdown_hybrid"
+    "libcommonmark.so": "file:./src/main/cangjie/types/libcommonmark"
   }
 }

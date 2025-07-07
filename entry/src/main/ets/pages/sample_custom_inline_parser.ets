@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
  */
-import { InlineContentParser, ParsedInline, parseIntoJsNode, printNode, Scanner } from '@cangjie-tpc/markdown_hybrid';
+import { InlineContentParser, ParsedInline, parseIntoJsNode, printNode, Scanner } from '@cangjie-tpc/commonmark';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { systemDateTime } from '@kit.BasicServicesKit';
 

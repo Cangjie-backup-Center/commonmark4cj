@@ -1,6 +1,6 @@
 {
   "app": {
-    "bundleName": "com.cangjietpc.markdown.hybrid",
+    "bundleName": "com.cangjietpc.commonmark.hybrid",
     "vendor": "example",
     "versionCode": 1000000,
     "versionName": "1.0.0",

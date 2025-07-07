@@ -1,11 +1,7 @@
 /*
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
  */
-import { CustomLib } from 'commonmark_interop_api.so';
-import { requireCJLib } from 'libark_interop_loader.so';
 import collections from '@arkts.collections';
-
-export const cjLib: CustomLib = requireCJLib("libmarkdown_hybrid.so") as CustomLib
 
 @Sendable
 export class JsNode {

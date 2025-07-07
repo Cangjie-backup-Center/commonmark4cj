@@ -8,6 +8,7 @@ import { sample_custom_inline_parser } from "./sample_custom_inline_parser";
 import { sample_parse2Json } from "./sample_parse2Json";
 import { sample_parse2Json_bench } from "./sample_parse2Json_bench";
 import { sample_oom } from "./sample_oom";
+import { resourceManager } from "@kit.LocalizationKit";
 
 let textDecoder = new util.TextDecoder();
 
@@ -15,7 +16,7 @@ let textDecoder = new util.TextDecoder();
 @Component
 struct Index {
   @State message: string = 'Hello World';
-  manager = getContext(this).resourceManager
+  manager = resourceManager.getSystemResourceManager()
   spec: string = textDecoder.decodeToString(this.manager.getRawFileContentSync('spec.md'))
   testmd: string = textDecoder.decodeToString(this.manager.getRawFileContentSync('test.md'))
 

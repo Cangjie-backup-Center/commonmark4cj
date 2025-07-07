@@ -1,6 +1,6 @@
 {
   "module": {
-    "name": "markdown_hybrid",
+    "name": "commonmark",
     "type": "har",
     "deviceTypes": [
       "default"

@@ -4,7 +4,7 @@
 import { InlineContentParser } from "./src/main/ets/InlineContentParser"
 import { JsNode } from "./src/main/ets/JsNode"
 import { json2Node, JsonNode } from "./src/main/ets/JsonNode";
-import { parseIntoJsNode as cj_parseIntoJsNode, parse2Json as cj_parse2Json } from 'libmarkdown_hybrid.so'
+import { parseIntoJsNode as cj_parseIntoJsNode, parse2Json as cj_parse2Json } from 'libcommonmark.so'
 
 
 export { JsNode, printNode } from './src/main/ets/JsNode'

@@ -1,5 +1,5 @@
 <div align="center">
-<h1>markdown hybrid</h1>
+<h1>commonmark hybrid</h1>
 </div>
 
 <p align="center">
@@ -28,7 +28,7 @@
 
 ```shell
 ├── entry                  # 示例模块
-├── markdown_hybrid        # markdown互操作模块
+├── commonmark             # commonmark互操作模块
 └── README.md              # 整体介绍
 ```
 

@@ -1,12 +1,8 @@
 /*
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
  */
-import { CustomLib } from 'commonmark_interop_api.so';
-import { requireCJLib } from 'libark_interop_loader.so';
 import collections from '@arkts.collections';
-import { ArkTSUtils, JSON, lang } from '@kit.ArkTS'
-
-export const cjLib: CustomLib = requireCJLib("libmarkdown_hybrid.so") as CustomLib
+import { JSON } from '@kit.ArkTS'
 
 export interface JsonNodeLike {
   /* node info */

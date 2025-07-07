@@ -1,5 +1,5 @@
 <div align="center">
-<h1>markdown hybrid</h1>
+<h1>commonmark hybrid</h1>
 </div>
 
 <p align="center">
@@ -13,7 +13,7 @@
 ## 介绍
 
 用于根据CommonMark规范（以及一些扩展）解析和呈现Markdown文本。
-主页 [markdown_hybrid](https://gitcode.com/Cangjie-TPC/commonmark4cj/tree/markdown_hybrid_cangjie-plugin-5.0.13.210)
+主页 [commonmark](https://gitcode.com/Cangjie-TPC/commonmark4cj/tree/commonmark_cangjie-plugin-5.1.0.828)
 
 ### 特性
 
@@ -60,7 +60,7 @@ flowchart LR
 
 ```shell
 # ohpm 安装
-ohpm install @cangjie-tpc/markdown_hybrid
+ohpm install @cangjie-tpc/commonmark
 ```
 
 ### 功能示例
@@ -77,7 +77,7 @@ import {
   Scanner,
   InlineContentParser,
   printNode
-} from "@cangjie-tpc/markdown_hybrid"
+} from "@cangjie-tpc/commonmark"
 import { hilog } from "@kit.PerformanceAnalysisKit";
 
 /* 自定义行内解析 */
