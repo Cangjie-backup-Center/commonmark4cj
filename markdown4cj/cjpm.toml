@@ -26,7 +26,7 @@
     git = "https://gitcode.com/Cangjie-TPC/commonmark4cj.git"
 
 [package]
-  cjc-version = "0.53.20"
+  cjc-version = "0.53.21"
   compile-option = ""
   description = "Markdown"
   link-option = ""

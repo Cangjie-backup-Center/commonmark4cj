@@ -1,6 +1,6 @@
 {
   "name": "@cangjie-tpc/markdown_hybrid",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "根据CommonMark规范（以及一些扩展）解析和呈现Markdown文本",
   "main": "Index.ets",
   "author": "cangjie-tpc",

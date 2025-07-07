@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
  */
 import { InlineContentParser } from "./src/main/ets/InlineContentParser"
 import { cjLib, JsNode } from "./src/main/ets/JsNode"

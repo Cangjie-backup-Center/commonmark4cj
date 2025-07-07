@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
  */
 import { CustomLib } from 'commonmark_interop_api.so';
 import { requireCJLib } from 'libark_interop_loader.so';

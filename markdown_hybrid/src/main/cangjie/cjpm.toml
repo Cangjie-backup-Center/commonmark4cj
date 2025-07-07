@@ -31,7 +31,7 @@
     version = "1.0.0"
 
 [package]
-  cjc-version = "0.53.20"
+  cjc-version = "0.53.21"
   compile-option = ""
   description = "markdown hybrid"
   link-option = ""
@@ -39,7 +39,7 @@
   output-type = "dynamic"
   src-dir = "."
   target-dir = ""
-  version = "1.0.0"
+  version = "1.1.1"
   [package.package-configuration]
   [package.scripts]
 
