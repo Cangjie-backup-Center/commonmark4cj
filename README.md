@@ -34,9 +34,11 @@
 
 ## 约束与限制
 
-    在下述版本验证通过：    
+    在下述版本验证通过:
         IDE: DevEco Studio 5.0.5 Release(Build Version:5.0.13.200)  
         Cangjie Plugin: DevEco Studio-Cangjie Plugin 5.0.13.200 Canary (Build Version:5.0.13.200)
+    最低适配API版本:
+        5.0.0(12)
 
 ## 开源协议
 
