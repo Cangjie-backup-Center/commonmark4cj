@@ -132,9 +132,11 @@ Document{}
 
 ## 约束与限制
 
-    在下述版本验证通过：    
+    在下述版本验证通过：
         DevEco Studio 5.1.0 Release(Build Version:5.1.0.828SP1)  
         Cangjie Support Plugin 5.1.0.828
+    最低适配API版本：
+        5.0.3(15)
 
 ## 开源协议
 
