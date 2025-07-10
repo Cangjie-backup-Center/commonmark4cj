@@ -18,3 +18,5 @@ cjpm.lock
 oh-package-lock.json5
 
 tmp
+**/IDL_Dependencies_List~
+**/build-script-cache
