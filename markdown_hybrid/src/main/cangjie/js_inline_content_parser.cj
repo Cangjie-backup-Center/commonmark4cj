@@ -17,10 +17,7 @@ class JsInlineContentParser <: InlineContentParser {
         jsScanner.set<Int>('lineIndex', scanner.lineIndex, context)
         jsScanner['lines'] = JSArrayEx<String>(scanner.lines |> map {v => v.getContent()} |> collectArray).toJSValue(
             context)
-
-        let lineStr = scanner.lines[scanner.lineIndex].getContent()
-        let runeIndex = lineStr[..scanner.index].toRuneArray().size
-        jsScanner.set<Int>('runeIndex', runeIndex, context)
+        jsScanner.set<Int>('index', scanner.index, context)
 
         let res = parser.callMethod('tryParse', jsScanner.toJSValue())
         if (res.isUndefined()) {
@@ -32,9 +29,7 @@ class JsInlineContentParser <: InlineContentParser {
             let props = JSHashMapEx<String, String>.fromJSValue(context, jsnode.getProperty('props')).toHashMap()
             let node = JsInlineNode(nodeType, props)
             let lineIndex = Int64(resObj.getProperty('lineIndex').asNumber().toFloat64())
-            let runeIndex = Int64(resObj.getProperty('runeIndex').asNumber().toFloat64())
-            let index = lineStr.toRuneArray() |> take(runeIndex) |> map {r => Rune.utf8Size(r)} |>
-                fold(0) {r, t => r + t}
+            let index = Int64(resObj.getProperty('index').asNumber().toFloat64())
             let position = SourcePosition(lineIndex, index)
             ParsedInline.of(node, position)
         }

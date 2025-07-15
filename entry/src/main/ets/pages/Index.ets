@@ -23,6 +23,7 @@ import { sample_custom_inline_parser } from "./sample_custom_inline_parser";
 import { sample_parse2Json } from "./sample_parse2Json";
 import { sample_parse2Json_bench } from "./sample_parse2Json_bench";
 import { sample_oom } from "./sample_oom";
+import { index_test } from "./index_test";
 
 const cjLib: CustomLib = requireCJLib("libmarkdown_hybrid.so") as CustomLib
 let textDecoder = new util.TextDecoder();
@@ -59,6 +60,9 @@ struct Index {
         })
         Button('sample:oom').fontSize($r('app.float.page_text_font_size')).onClick(async () => {
           sample_oom(this.spec, this.msg)
+        })
+        Button('sample:index_test').fontSize($r('app.float.page_text_font_size')).onClick(async () => {
+          this.message = index_test()
         })
         Text(this.message)
       }

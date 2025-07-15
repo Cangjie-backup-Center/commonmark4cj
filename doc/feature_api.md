@@ -150,14 +150,9 @@ interface InlineContentParser {
  * markdown上下文, 指示parser的游标状态
  */
 class Scanner {
-  lines: Array<string> // 上下文 可能有多行
+  lines: Array<string> // 上下文
   lineIndex: number // 行号
-  runeIndex: number // 字符下标
-  constructor(lines: Array<string>, lineIndex: number, runeIndex: number) {
-    this.lines = lines
-    this.lineIndex = lineIndex
-    this.runeIndex = runeIndex
-  }
+  index: number // utf8字节下标
 }
 
 /**
@@ -173,8 +168,8 @@ interface JsInlineCustomNode {
  */
 interface ParsedInline {
   node: JsInlineCustomNode // 必须设置nodeType/props 其他属性会忽略
-  lineIndex: number
-  runeIndex: number
+  lineIndex: number // 行号
+  index: number // utf8字节下标
 }
 
 /**

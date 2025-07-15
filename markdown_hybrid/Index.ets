@@ -13,9 +13,15 @@ export { requireCJLib } from "libark_interop_loader.so"
 export { CustomLib } from "commonmark_interop_api.so"
 
 export { JsNode, printNode } from './src/main/ets/JsNode'
+
 export { JsonNode, printJsonNode } from './src/main/ets/JsonNode'
 
-export { InlineContentParser, Scanner, JsInlineCustomNode, ParsedInline } from './src/main/ets/InlineContentParser'
+export { InlineContentParser,
+  Scanner,
+  JsInlineCustomNode,
+  ParsedInline,
+  utf8Index2utf16Index,
+  utf16Index2utf8Index } from './src/main/ets/InlineContentParser'
 
 @Concurrent
 export async function parseIntoJsNode(md: string, ...customParsers: Array<InlineContentParser>): Promise<JsNode> {

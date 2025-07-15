@@ -1,12 +1,20 @@
 /*
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
  */
-import { InlineContentParser, ParsedInline, parseIntoJsNode, printNode, Scanner } from '@cangjie-tpc/markdown_hybrid';
+import {
+  InlineContentParser,
+  ParsedInline,
+  parseIntoJsNode,
+  printNode,
+  Scanner,
+  utf8Index2utf16Index,
+  utf16Index2utf8Index
+} from '@cangjie-tpc/markdown_hybrid';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { systemDateTime } from '@kit.BasicServicesKit';
 
 export async function sample_custom_inline_parser(): Promise<string> {
-  let md = '我0123a56a89'
+  let md = '😀我0123a56a89'
   const myParser: InlineContentParser = new MyParser()
   let t0 = systemDateTime.getTime()
   let node = await parseIntoJsNode(md, myParser)
@@ -25,7 +33,7 @@ class MyParser implements InlineContentParser {
     // hilog.error(0, 'mod', 'MyParser.tryParse')
     let str = ''
     let line = scanner.lines[scanner.lineIndex]
-    let i = scanner.runeIndex + 1
+    let i = utf8Index2utf16Index(line, scanner.index) + 1
     for (; i < line.length; i++) {
       if (line[i] == 'a') {
         i++
@@ -40,7 +48,7 @@ class MyParser implements InlineContentParser {
         nodeType: 'anode',
         props: props
       },
-      runeIndex: i,
+      index: utf16Index2utf8Index(line, i),
       lineIndex: scanner.lineIndex
     }
   }

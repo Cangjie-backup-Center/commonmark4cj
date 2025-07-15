@@ -76,7 +76,9 @@ import {
   ParsedInline,
   Scanner,
   InlineContentParser,
-  printNode
+  printNode,
+  utf8Index2utf16Index,
+  utf16Index2utf8Index
 } from "@cangjie-tpc/markdown_hybrid"
 import { hilog } from "@kit.PerformanceAnalysisKit";
 
@@ -90,7 +92,7 @@ class MyParser implements InlineContentParser {
     // hilog.error(0, 'mod', 'MyParser.tryParse')
     let str = ''
     let line = scanner.lines[scanner.lineIndex]
-    let i = scanner.runeIndex + 1
+    let i = utf8Index2utf16Index(line, scanner.index) + 1
     for (; i < line.length; i++) {
       if (line[i] == 'a') {
         i++
@@ -105,14 +107,14 @@ class MyParser implements InlineContentParser {
         nodeType: 'anode',
         props: props
       },
-      runeIndex: i,
+      index: utf16Index2utf8Index(line, i),
       lineIndex: scanner.lineIndex
     }
   }
 }
 
 
-let markdownString = "0123a56a89"
+let markdownString = "😀我0123a56a89"
 let myParser: InlineContentParser = new MyParser()
 parseIntoJsNode(markdownString, myParser).then(node => {
   let nodeTreeStr = printNode(node)
@@ -125,7 +127,7 @@ parseIntoJsNode(markdownString, myParser).then(node => {
 ```
 Document{}
     Paragraph{}
-        Text{literal=0123}
+        Text{literal=😀我0123}
         anode{[(str, 56)]}
         Text{literal=89}
 ```
