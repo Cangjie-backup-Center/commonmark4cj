@@ -24,6 +24,7 @@ import { sample_parse2Json } from "./sample_parse2Json";
 import { sample_parse2Json_bench } from "./sample_parse2Json_bench";
 import { sample_oom } from "./sample_oom";
 import { index_test } from "./index_test";
+import { sample_footnote } from "./sample_footnote";
 
 const cjLib: CustomLib = requireCJLib("libmarkdown_hybrid.so") as CustomLib
 let textDecoder = new util.TextDecoder();
@@ -63,6 +64,9 @@ struct Index {
         })
         Button('sample:index_test').fontSize($r('app.float.page_text_font_size')).onClick(async () => {
           this.message = index_test()
+        })
+        Button('sample:footnote').fontSize($r('app.float.page_text_font_size')).onClick(async () => {
+          this.message = await sample_footnote()
         })
         Text(this.message)
       }
