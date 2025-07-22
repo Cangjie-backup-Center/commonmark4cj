@@ -25,6 +25,8 @@ import { sample_parse2Json_bench } from "./sample_parse2Json_bench";
 import { sample_oom } from "./sample_oom";
 import { index_test } from "./index_test";
 import { sample_footnote } from "./sample_footnote";
+import { sample_cppcrash } from "./sample_cppcrash";
+import { sample_table } from "./sample_table";
 
 const cjLib: CustomLib = requireCJLib("libmarkdown_hybrid.so") as CustomLib
 let textDecoder = new util.TextDecoder();
@@ -36,6 +38,7 @@ struct Index {
   manager = getContext(this).resourceManager
   spec: string = textDecoder.decodeToString(this.manager.getRawFileContentSync('spec.md'))
   testmd: string = textDecoder.decodeToString(this.manager.getRawFileContentSync('test.md'))
+  cppcrash: string = textDecoder.decodeToString(this.manager.getRawFileContentSync('cppcrash.md'))
 
   msg(msg: string) {
     this.message = msg
@@ -67,6 +70,18 @@ struct Index {
         })
         Button('sample:footnote').fontSize($r('app.float.page_text_font_size')).onClick(async () => {
           this.message = await sample_footnote()
+        })
+        Button('sample:cppcrash').fontSize($r('app.float.page_text_font_size')).onClick(async () => {
+          sample_cppcrash(this.cppcrash)
+        })
+        Button('goto cppcrash page').fontSize($r('app.float.page_text_font_size')).onClick(async () => {
+          router.push({ url: 'pages/page_cppcrash' })
+        })
+        Button('goto typerr page').fontSize($r('app.float.page_text_font_size')).onClick(async () => {
+          router.push({ url: 'pages/page_typerr' })
+        })
+        Button('sample: table').fontSize($r('app.float.page_text_font_size')).onClick(async () => {
+          this.message = await sample_table()
         })
         Text(this.message)
       }
