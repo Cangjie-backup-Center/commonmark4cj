@@ -85,10 +85,12 @@ class FootnoteBlockParserFactory <: AbstractBlockParserFactory {
     static let FOOTNOTE_BLOCK = Regex(#"^\[\^.+?\]:"#)
     public func tryStart(state: ParserState, _: MatchedBlockParser): ?BlockStart {
         let line: String = state.getLine()
-        if (let Some(pos) <- FOOTNOTE_BLOCK.matcher(line).find()?.matchPosition()) {
-            return BlockStart
-                .of4Cj(FootnoteBlockParser(line[2..pos.end - 2], line[pos.end..]))
-                .atIndex(state.getIndex() + pos.end)
+        if (line.size >= 4 && line[0] == b'[' && line[1] == b'^') {
+            if (let Some(end) <- line.indexOf("]:", 2)) {
+                return BlockStart
+                    .of4Cj(FootnoteBlockParser(line[2..end], line[end + 2..]))
+                    .atIndex(state.getIndex() + end + 2)
+            }
         }
         return BlockStart.none()
     }
@@ -105,7 +107,6 @@ class FootnotePostProcessor <: PostProcessor {
 class FootnoteVisitor <: AbstractVisitor {
     let notes = ArrayList<Footnote>()
     let blockMap = HashMap<String, FootnoteBlock>()
-    static let FOOTNOTE = Regex(#"\[\^.+?\]"#)
     public func visit(n: Document): Unit {
         visitChildren(n)
         for (footnote in notes) {
@@ -131,22 +132,33 @@ class FootnoteVisitor <: AbstractVisitor {
     public func visit(n: Text): Unit {
         let line = n.getLiteral()
         var i = 0
-        if (let Some(ds) <- FOOTNOTE.matcher(line).findAll()) {
-            for (data in ds) {
-                let pos = data.matchPosition()
-                if (i < pos.start) {
-                    let text = Text(line[i..pos.start])
-                    n.insertBefore(text)
+
+        while (i <= line.size - 3) {
+            if (let Some(f0) <- line.indexOf("[^", i)) {
+                // 捕获footnote
+                if (let Some(f1) <- line.indexOf("]", f0 + 2)) {
+                    if (i < f0) {
+                        let text = Text(line[i..f0])
+                        n.insertBefore(text)
+                    }
+                    let footnote = Footnote(line[f0 + 2..f1])
+                    n.insertBefore(footnote)
+                    notes.append(footnote)
+                    i = f1 + 1
+                } else {
+                    // 搜索结束
+                    break
                 }
-                let footnote = Footnote(line[pos.start + 2..pos.end - 1])
-                n.insertBefore(footnote)
-                notes.append(footnote)
-                i = pos.end
+            } else {
+                // 搜索结束
+                break
             }
-            n.setLiteral(line[i..])
         }
-        if (n.getLiteral().isEmpty()) {
+        let newLine = line[i..]
+        if (newLine.size == 0) {
             n.unlink()
+        } else {
+            n.setLiteral(newLine)
         }
     }
 }
