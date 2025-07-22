@@ -29,7 +29,7 @@ export declare class CjNode {
 
 
 export declare interface CustomLib {
-    parseIntoJsNode(md: string, JsNode: new () => object, ...customParsers: Array<object>): object
+    parseIntoJsNode(md: string, JsNode: () => object, ...customParsers: Array<object>): object
     parse2Json(md: string, JsNode: new () => object, ...customParsers: Array<object>): string
     CjNode: {new (): CjNode}
     printNode(node: CjNode | undefined): void

@@ -20,9 +20,9 @@ extend JSObject {
 }
 
 class JsNodeBuilder {
-    JsNodeBuilder(let jsNodeConstructor: JSClass, let context: JSContext) {}
+    JsNodeBuilder(let jsNodeConstructor: JSFunction, let context: JSContext) {}
     func buildJsNode(instance: MdNode): JSObject {
-        let jsNode = jsNodeConstructor.new().asObject()
+        let jsNode = jsNodeConstructor.call().asObject()
         jsNode.set('nodeType', instance.getNodeType(), context)
         jsNode.set('toStr', instance.toString(), context)
         match (instance) {
@@ -99,7 +99,7 @@ class JsNodeBuilder {
 public func parseIntoJsNode(context: JSContext, callInfo: JSCallInfo): JSValue {
     //    let t0 = DateTime.now()
     let md = callInfo[0].toString(context)
-    let jsNodeConstructor = callInfo[1].asClass()
+    let jsNodeConstructor = callInfo[1].asFunction()
     let markdownBuilder: MarkdownBuilder = Markdown
         .builder()
         // 任务列表插件
