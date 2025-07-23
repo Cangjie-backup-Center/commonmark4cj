@@ -8,7 +8,6 @@ import { cjLib } from "./src/main/ets/JsNode"
 
 // import { CustomLib } from "commonmark_interop_api.so";
 // import { requireCJLib } from "libark_interop_loader.so";
-import { testCJ,parseIntoJsNode as parseIntoJsNodeInner } from 'libmarkdown_hybrid.so';
 
 export { JsNode, printNode } from './src/main/ets/JsNode'
 
