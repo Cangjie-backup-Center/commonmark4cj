@@ -1,0 +1,6 @@
+{
+  "name": "commonmark_interop_api.so",
+  "types": "./commonmark_interop_api.d.ts",
+  "version": "1.0.0",
+  "description": ""
+}
