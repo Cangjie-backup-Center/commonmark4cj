@@ -11,7 +11,7 @@ extend JSObject {
         match (value) {
             case Some(v: String) => this[name] = context.string(v).toJSValue()
             case Some(v: Rune) => this[name] = context.string(v.toString()).toJSValue()
-            case Some(v: Int64) => this[name] = context.number(Int32(v)).toJSValue()
+            case Some(v: Int64) => this[name] = context.number(Float64(v)).toJSValue()
             case Some(v: Bool) => this[name] = context.boolean(v).toJSValue()
             case Some(v: JSValue) => this[name] = v
             case _ => this[name] = context.undefined().toJSValue()
