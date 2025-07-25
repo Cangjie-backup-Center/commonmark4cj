@@ -1,23 +1,11 @@
 /*
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
  */
-import {
-  /*requireCJLib,
-  CustomLib,*/
-  JsNode as Node,
-  parseIntoJsNode,
-  ParsedInline,
-  Scanner,
-  InlineContentParser,
-  printNode,
-  /*parse2Json,*/
-  /*printJsonNode*/
-} from "@cangjie-tpc/markdown_hybrid"
 import { hilog } from "@kit.PerformanceAnalysisKit";
 import { systemDateTime } from "@kit.BasicServicesKit";
 import { sample_label } from "./sample_label";
 import { router } from "@kit.ArkUI";
-import { ArkTSUtils, collections, util } from "@kit.ArkTS";
+import { util } from "@kit.ArkTS";
 import { sample_spec } from "./sample_spec";
 import { sample_custom_inline_parser } from "./sample_custom_inline_parser";
 import { sample_parse2Json } from "./sample_parse2Json";
@@ -28,14 +16,14 @@ import { sample_footnote } from "./sample_footnote";
 import { sample_cppcrash } from "./sample_cppcrash";
 import { sample_table } from "./sample_table";
 import { sample_moon } from "./sample_moon";
+import { inc_cached } from "./sample_inc_cached";
 
-// const cjLib: CustomLib = requireCJLib("libmarkdown_hybrid.so") as CustomLib
 let textDecoder = new util.TextDecoder();
 
 @Entry
-@Component
+@ComponentV2
 struct Index {
-  @State message: string = 'Hello World';
+  @Local message: string = 'Hello World';
   manager = getContext(this).resourceManager
   spec: string = textDecoder.decodeToString(this.manager.getRawFileContentSync('spec.md'))
   testmd: string = textDecoder.decodeToString(this.manager.getRawFileContentSync('test.md'))
@@ -86,6 +74,10 @@ struct Index {
         })
         Button('sample: moon').fontSize($r('app.float.page_text_font_size')).onClick(async () => {
           this.message = await sample_moon()
+        })
+        Button('sample: inc_cached').fontSize($r('app.float.page_text_font_size')).onClick(() => {
+          let mdstr = 'aaa[^1^][^2^][^3^][^4^]\n[^1]:111\n[^]:\n[^2^]:'
+          inc_cached(mdstr, this)
         })
         Text(this.message)
       }
