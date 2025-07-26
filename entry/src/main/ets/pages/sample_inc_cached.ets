@@ -25,11 +25,11 @@ export async function inc_cached(mdstr: string, page:object) {
       let doc = await parseIntoJsNodeCached(str, nodepool)
       let docstr = printNode(doc)
       nodepool = new JsNodePoolImpl(doc)
-      page['message'] = docstr
+      page['message'] = docstr.length.toString()
     } catch (e) {
       hilog.error(0, '', `${e}: ${e.stack}`)
     } finally {
-      i++
+      i+=10
       if (i > mdstr.length) {
         clearInterval(tid)
       }

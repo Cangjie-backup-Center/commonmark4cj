@@ -77,7 +77,7 @@ struct Index {
         })
         Button('sample: inc_cached').fontSize($r('app.float.page_text_font_size')).onClick(() => {
           let mdstr = 'aaa[^1^][^2^][^3^][^4^]\n[^1]:111\n[^]:\n[^2^]:'
-          inc_cached(mdstr, this)
+          inc_cached(this.cppcrash, this)
         })
         Text(this.message)
       }
@@ -85,6 +85,6 @@ struct Index {
     // 设置滚动方法
     .scrollable(ScrollDirection.Vertical)
     // 设置滚动条状态
-    .scrollBar(BarState.Off)
+    .scrollBar(BarState.Auto)
   }
 }
