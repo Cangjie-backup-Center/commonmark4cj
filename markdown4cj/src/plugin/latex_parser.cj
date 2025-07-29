@@ -55,14 +55,17 @@ class LatexBlockParser <: AbstractBlockParser {
 
 class LatexBlockParserFactory <: AbstractBlockParserFactory {
     public func tryStart(state: ParserState, _: MatchedBlockParser): ?BlockStart {
-        let line: String = state.getLine()[state.getIndex()..]
+        var line: String = state.getLine()[state.getIndex()..]
         if (line == "$$" || line == "\\[") {
             return BlockStart.of4Cj(LatexBlockParser()).atIndex(state.getIndex() + 2)
         }
-        if (let Some(len) <- isLatexInList(line)) {
-            return BlockStart.of4Cj(LatexBlockParser()).atIndex(state.getIndex() + len)
-        }
-        if (line.startsWith(#"\["#) && line.endsWith(#"\]"#)) {
+        //        if (let Some(len) <- isLatexInList(line)) {
+        //            Hilog.error(0,'mdebug','1.6')
+        //            return BlockStart.of4Cj(LatexBlockParser()).atIndex(state.getIndex() + len)
+        //        }
+        line = line.trim()
+        if (line.startsWith(#"\["#) && line.endsWith(#"\]"#) ||
+            (line.startsWith(#"$$"#) && line.size > 3 && line.endsWith(#"$$"#))) {
             let parser = LatexBlockParser()
             parser.builder.append(line[2..line.size - 2])
             parser.isSingleLineLatex = true
