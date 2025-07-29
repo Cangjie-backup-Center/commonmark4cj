@@ -3,7 +3,7 @@
 </div>
 
 <p align="center">
-<img alt="" src="https://img.shields.io/badge/release-v1.2.5-brightgreen" style="display: inline-block;" />
+<img alt="" src="https://img.shields.io/badge/release-v1.2.6-brightgreen" style="display: inline-block;" />
 <img alt="" src="https://img.shields.io/badge/build-pass-brightgreen" style="display: inline-block;" />
 <img alt="" src="https://img.shields.io/badge/cjc-v1.0.1-brightgreen" style="display: inline-block;" />
 <img alt="" src="https://img.shields.io/badge/cjcov-95.6%25-brightgreen" style="display: inline-block;" />
@@ -137,7 +137,6 @@ Document{}
 - 在下述版本验证通过:
   - IDE: DevEco Studio 5.1.1 Beta1(Build Version:5.1.1.821)  
   - Cangjie Plugin: Cangjie Support Plugin 5.1.1.821
-- 最低适配API版本: 5.0.2(14)
 - 要求使用最终集成的HAP模块中hvigorfile.ts从 @ohos/cangjie-build-support 导入的hapTasks [参考](https://developer.huawei.com/consumer/cn/doc/cangjie-guides-V5/cj-hvigor-configuration-V5)
 
 ## 开源协议

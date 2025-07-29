@@ -1,3 +1,7 @@
+## 1.2.6
+
+- latex parse bugfix
+
 ## 1.2.5
 
 - cangjie support plugin 5.1.1.821
