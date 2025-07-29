@@ -28,6 +28,7 @@ struct Index {
   spec: string = textDecoder.decodeToString(this.manager.getRawFileContentSync('spec.md'))
   testmd: string = textDecoder.decodeToString(this.manager.getRawFileContentSync('test.md'))
   cppcrash: string = textDecoder.decodeToString(this.manager.getRawFileContentSync('cppcrash.md'))
+  parseerr: string = textDecoder.decodeToString(this.manager.getRawFileContentSync('parseerr.md'))
 
   msg(msg: string) {
     this.message = msg
@@ -77,7 +78,7 @@ struct Index {
         })
         Button('sample: inc_cached').fontSize($r('app.float.page_text_font_size')).onClick(() => {
           let mdstr = 'aaa[^1^][^2^][^3^][^4^]\n[^1]:111\n[^]:\n[^2^]:'
-          inc_cached(this.cppcrash, this)
+          inc_cached(this.parseerr, this)
         })
         Text(this.message)
       }
