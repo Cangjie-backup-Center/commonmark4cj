@@ -17,6 +17,7 @@ import { sample_cppcrash } from "./sample_cppcrash";
 import { sample_table } from "./sample_table";
 import { sample_moon } from "./sample_moon";
 import { inc_cached } from "./sample_inc_cached";
+import { sample_latex } from "./sample_latex";
 
 let textDecoder = new util.TextDecoder();
 
@@ -29,6 +30,7 @@ struct Index {
   testmd: string = textDecoder.decodeToString(this.manager.getRawFileContentSync('test.md'))
   cppcrash: string = textDecoder.decodeToString(this.manager.getRawFileContentSync('cppcrash.md'))
   parseerr: string = textDecoder.decodeToString(this.manager.getRawFileContentSync('parseerr.md'))
+  latex: string = textDecoder.decodeToString(this.manager.getRawFileContentSync('latex.md'))
 
   msg(msg: string) {
     this.message = msg
@@ -79,6 +81,9 @@ struct Index {
         Button('sample: inc_cached').fontSize($r('app.float.page_text_font_size')).onClick(() => {
           let mdstr = 'aaa[^1^][^2^][^3^][^4^]\n[^1]:111\n[^]:\n[^2^]:'
           inc_cached(this.parseerr, this)
+        })
+        Button('sample: sample_latex').fontSize($r('app.float.page_text_font_size')).onClick(() => {
+          sample_latex(this)
         })
         Text(this.message)
       }
