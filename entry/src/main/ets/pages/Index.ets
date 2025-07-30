@@ -18,6 +18,7 @@ import { sample_table } from "./sample_table";
 import { sample_moon } from "./sample_moon";
 import { inc_cached } from "./sample_inc_cached";
 import { sample_latex } from "./sample_latex";
+import { sample_test2 } from "./sample_test2";
 
 let textDecoder = new util.TextDecoder();
 
@@ -28,6 +29,7 @@ struct Index {
   manager = getContext(this).resourceManager
   spec: string = textDecoder.decodeToString(this.manager.getRawFileContentSync('spec.md'))
   testmd: string = textDecoder.decodeToString(this.manager.getRawFileContentSync('test.md'))
+  test2md: string = textDecoder.decodeToString(this.manager.getRawFileContentSync('test2.md'))
   cppcrash: string = textDecoder.decodeToString(this.manager.getRawFileContentSync('cppcrash.md'))
   parseerr: string = textDecoder.decodeToString(this.manager.getRawFileContentSync('parseerr.md'))
   latex: string = textDecoder.decodeToString(this.manager.getRawFileContentSync('latex.md'))
@@ -84,6 +86,9 @@ struct Index {
         })
         Button('sample: sample_latex').fontSize($r('app.float.page_text_font_size')).onClick(() => {
           sample_latex(this)
+        })
+        Button('sample: test2').fontSize($r('app.float.page_text_font_size')).onClick(() => {
+          sample_test2(this)
         })
         Text(this.message)
       }
