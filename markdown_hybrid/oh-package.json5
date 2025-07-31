@@ -9,6 +9,7 @@
   "dependencies": {
     "libark_interop_loader.so": "file:./src/main/cangjie/loader",
     "commonmark_interop_api.so": "file:./src/main/cangjie/commonmark_interop_api",
-    "cjhyapiregister": "file:./har/CJHyAPIRegister-v1.0.1.har"
+    "cjhyapiregister": "file:./har/CJHyAPIRegister-v1.0.1.har",
+    "libmarkdown_hybrid.so": "file:src/main/cangjie/types/libmarkdown_hybrid"
   }
 }
