@@ -4,6 +4,10 @@ internal import ohos.ark_interop.JSModule
 internal import ohos.ark_interop.JSContext
 internal import ohos.ark_interop.JSCallInfo
 internal import ohos.ark_interop.JSValue
+internal import ohos.ark_interop.JSObject
+internal import ohos.ark_interop.JSFunction
+internal import ohos.ark_interop.JSArrayEx
+internal import ohos.ark_interop.JSHashMapEx
 
 func testCJ(runtime: JSContext, callInfo: JSCallInfo): JSValue {
     let result = "Hello ${callInfo[0].toString(runtime)}"

@@ -3,9 +3,6 @@
  */
 package markdown_hybrid
 
-import ohos.ark_interop_macro.*
-import std.time.DateTime
-
 extend JSObject {
     func set<T>(name: String, value: Option<T>, context: JSContext): Unit {
         match (value) {

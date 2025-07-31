@@ -3,9 +3,6 @@
  */
 package markdown_hybrid
 
-import ohos.ark_interop_macro.*
-import ohos.component.Position
-
 class JsInlineContentParser <: InlineContentParser {
     JsInlineContentParser(let parser: JSObject, let context: JSContext) {}
 

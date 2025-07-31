@@ -34,5 +34,5 @@
     lto = ""
   [profile.customized-option]
     debug = "-g -Woff all -Won apilevel-check"
-    release = "--fast-math -Oz --discard-eh-frame --disable-reflection -s -Woff all -Won apilevel-check"
+    release = "--fast-math -Oz --discard-eh-frame --disable-reflection  -s -Woff all -Won apilevel-check"
   [profile.test]

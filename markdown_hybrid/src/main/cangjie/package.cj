@@ -13,10 +13,7 @@ internal import commonmark4cj.table.*
 internal import commonmark4cj.strikethrough.*
 internal import markdown.core.*
 internal import markdown.plugin.*
-internal import ohos.hilog.Hilog
-internal import ohos.ark_interop.*
 internal import std.collection.*
-import ohos.ark_interop_macro.*
 
 let PARSER = Parser.builder().extensions([TablesExtension.create()]).build()
 

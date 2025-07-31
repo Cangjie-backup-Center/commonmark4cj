@@ -32,12 +32,11 @@
     lto = ""
   [profile.customized-option]
     debug = "-g -Woff all -Won apilevel-check"
-    release = "--fast-math -Oz --discard-eh-frame --disable-reflection -s -Woff all -Won apilevel-check"
+    release = "--fast-math -Oz --discard-eh-frame --disable-reflection  -s -Woff all -Won apilevel-check"
   [profile.test]
 
 [dependencies]
   [dependencies.commonmark4cj]
-    tag = "v1.0.3"
-    git = "https://gitcode.com/Cangjie-TPC/commonmark4cj.git"
+    path = "../commonmark4cj"
   [dependencies.markdown]
     path = "../markdown4cj"

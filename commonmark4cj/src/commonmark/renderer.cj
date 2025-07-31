@@ -38,21 +38,3 @@ public interface NodeRenderer {
      */
     func render(node: Node): Unit
 }
-
-class NodeRendererMap {
-    private let renderers: HashMap<NodeType, NodeRenderer> = HashMap<NodeType, NodeRenderer>()
-
-    public func add(nodeRenderer: NodeRenderer): Unit {
-        for (nodeType in nodeRenderer.getNodeTypes()) {
-            // Overwrite existing renderer
-            renderers.add(nodeType, nodeRenderer)
-        }
-    }
-
-    public func render(node: Node): Unit {
-        let nodeRenderer: ?NodeRenderer = renderers.get(node.getNodeType())
-        if (nodeRenderer.isSome()) {
-            nodeRenderer?.render(node)
-        }
-    }
-}

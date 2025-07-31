@@ -63,7 +63,7 @@ class LatexBlockParserFactory <: AbstractBlockParserFactory {
         //            Hilog.error(0,'mdebug','1.6')
         //            return BlockStart.of4Cj(LatexBlockParser()).atIndex(state.getIndex() + len)
         //        }
-        line = line.trim()
+        line = line.trimAscii()
         if (line.startsWith(#"\["#) && line.endsWith(#"\]"#) ||
             (line.startsWith(#"$$"#) && line.size > 3 && line.endsWith(#"$$"#))) {
             let parser = LatexBlockParser()
