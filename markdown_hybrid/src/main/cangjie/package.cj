@@ -51,3 +51,16 @@ func getStackTrace(thrown: ?Exception): String {
             return res
     }
 }
+func getStackTrace(thrown: ?Error): String {
+    var res: String = ""
+    match (thrown) {
+        case None => return res
+        case Some(v) =>
+            res = "\n${v.toString()}\n"
+            var arr = v.getStackTrace()
+            for (line in arr) {
+                res += "      at ${line.declaringClass}.${line.methodName}(${line.fileName}:${line.lineNumber})\n"
+            }
+            return res
+    }
+}
