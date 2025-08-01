@@ -10,7 +10,7 @@ import { sample_spec } from "./sample_spec";
 import { sample_custom_inline_parser } from "./sample_custom_inline_parser";
 import { sample_parse2Json } from "./sample_parse2Json";
 import { sample_parse2Json_bench } from "./sample_parse2Json_bench";
-import { sample_oom } from "./sample_oom";
+import { OutOfMemoryError, SharedHeap_OOM } from "./sample_oom";
 import { index_test } from "./index_test";
 import { sample_footnote } from "./sample_footnote";
 import { sample_cppcrash } from "./sample_cppcrash";
@@ -56,8 +56,11 @@ struct Index {
         Button('sample: parse2Json bench').fontSize($r('app.float.page_text_font_size')).onClick(async () => {
           sample_parse2Json_bench(this.spec, this.msg)
         })
-        Button('sample:oom').fontSize($r('app.float.page_text_font_size')).onClick(async () => {
-          sample_oom(this.spec, this.msg)
+        Button('sample:OOM1').fontSize($r('app.float.page_text_font_size')).onClick(async () => {
+          OutOfMemoryError(this)
+        })
+        Button('sample:OOM2').fontSize($r('app.float.page_text_font_size')).onClick(async () => {
+          SharedHeap_OOM(this)
         })
         Button('sample:index_test').fontSize($r('app.float.page_text_font_size')).onClick(async () => {
           this.message = index_test()
