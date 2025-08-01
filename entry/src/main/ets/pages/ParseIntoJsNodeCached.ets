@@ -28,6 +28,9 @@ export class JsNodePoolImpl implements JsNodePool {
   constructor(nodeTree: JsNode) {
     traverseTree(nodeTree, this.generator)
   }
+  put(nodeTree: JsNode) {
+    traverseTree(nodeTree, this.generator)
+  }
 
   /**
    * 将节点树中的Node依次取出,若无则返回新Node

@@ -1,18 +1,30 @@
 /*
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
  */
-import { InlineContentParser, ParsedInline, parseIntoJsNode, printNode, Scanner } from '@cangjie-tpc/markdown_hybrid';
+import {
+  InlineContentParser,
+/*JsNode,cjLib,*/
+  ParsedInline,
+  parseIntoJsNode,
+  printNode,
+  Scanner
+} from '@cangjie-tpc/markdown_hybrid';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { systemDateTime } from '@kit.BasicServicesKit';
+import { JsNodePoolImpl } from './ParseIntoJsNodeCached';
+import { cjLib, JsNode } from "@cangjie-tpc/markdown_hybrid/src/main/ets/JsNode"
+
+let pool = new JsNodePoolImpl(new JsNode())
 
 export async function OutOfMemoryError(page: object): Promise<void> {
   let md = page['spec'] as string
   let i = 0
-  let tid = setInterval(() => {
-    if (i % 100 == 0) {
+  let tid = setInterval(async () => {
+    // if (i % 100 == 0) {
       page['message'] = `i:${i}`
-    }
-    parseIntoJsNode(md)
+    // }
+    let tree = await cjLib.parseIntoJsNode(md, pool.getJsNode) as JsNode
+    pool.put(tree)
     i += 1
     if (i >= md.length) {
       clearInterval(tid)
@@ -24,15 +36,16 @@ export async function SharedHeap_OOM(page: object): Promise<void> {
   let md = page['spec'] as string
 
   for (let i = 0; i < md.length; i++) {
-    if (i % 100 == 0) {
+    // if (i % 100 == 0) {
       page['message'] = `i:${i}`
-    }
-    await parseIntoJsNode(md)
+    // }
+    let tree = await cjLib.parseIntoJsNode(md, pool.getJsNode) as JsNode
+    pool.put(tree)
   }
 }
 
 /**
-cj parseIntoJsNode error: Error: OutOfMemoryError
+ cj parseIntoJsNode error: Error: OutOfMemoryError
  at ohos.ark_interop.JSString::readString(ohos.ark_interop::JSContext, ohos.ark_interop::JSValue_)(jsstring.cj:88)
  at ohos.ark_interop.JSValue::toString(ohos.ark_interop::JSContext)(js_raw.cj:468)
  at markdown_hybrid.parseIntoJsNode(ohos.ark_interop::JSContext, ohos.ark_interop::JSCallInfo)(D:\tmp\markdown511821\markdown_hybrid\src\main\cangjie/parse_into_js_node.cj:97)
