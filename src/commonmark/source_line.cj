@@ -48,6 +48,7 @@ public class SourceLines {
         return sb.toString()
     }
 
+    @Frozen
     public func getSourceSpans(): ArrayList<SourceSpan> {
         let sourceSpans: ArrayList<SourceSpan> = ArrayList()
         for (line in lines) {

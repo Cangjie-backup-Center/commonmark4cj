@@ -38,7 +38,7 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
     private let linkProcessors: ArrayList<LinkProcessor>
     private let linkMarkers: BitSet
 
-    private var inlineParsers: Map<Rune, ArrayList<InlineContentParser>> = unsafe { zeroValue() }
+    private var inlineParsers: HashMap<Rune, ArrayList<(InlineContentParserFactory, InlineContentParser)>> = HashMap()
     private var _scanner: Scanner = unsafe { zeroValue() }
     private var includeSourceSpans: Bool = false
     private var trailingSpaces: Int = 0
@@ -55,127 +55,41 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
     private var lastBracket: ?BracketV2 = None
 
     public init(context: InlineParserContext) {
+        let ctx = (context as InlineParserContextImpl).getOrThrow()
+        ctx.calc()
+        let calc = ctx.ctxCalc.getOrThrow()
         this.context = context
-        this.inlineContentParserFactories = calculateInlineContentParserFactories(
-            context.getCustomInlineContentParserFactories())
-        this.delimiterProcessors = calculateDelimiterProcessors(context.getCustomDelimiterProcessors())
-        this.linkProcessors = calculateLinkProcessors(context.getCustomLinkProcessors())
-        this.linkMarkers = calculateLinkMarkers(context.getCustomLinkMarkers())
-        this.specialCharacters = calculateSpecialCharacters(linkMarkers, this.delimiterProcessors.keys(),
-            this.inlineContentParserFactories)
+        this.inlineContentParserFactories = calc.inlineContentParserFactories
+        this.delimiterProcessors = calc.delimiterProcessors
+        this.linkProcessors = calc.linkProcessors
+        this.linkMarkers = calc.linkMarkers
+        this.specialCharacters = calc.specialCharacters
     }
 
-    private static func calculateInlineContentParserFactories(customFactories: ArrayList<InlineContentParserFactory>): ArrayList<InlineContentParserFactory> {
-        // Custom parsers can override built-in parsers if they want, so make sure they are tried first
-        var list = ArrayList(customFactories)
-        list.add(BackslashInlineParserFactory())
-        list.add(BackticksInlineParserFactory())
-        list.add(EntityInlineParserFactory())
-        list.add(AutolinkInlineParserFactory())
-        list.add(HtmlInlineParserFactory())
-        return list
-    }
-
-    private static func calculateLinkProcessors(linkProcessors: ArrayList<LinkProcessor>): ArrayList<LinkProcessor> {
-        // Custom link processors can override the built-in behavior, so make sure they are tried first
-        var list = ArrayList(linkProcessors)
-        list.add(CoreLinkProcessor())
-        return list
-    }
-
-    private static func calculateDelimiterProcessors(delimiterProcessors: ArrayList<DelimiterProcessor>): HashMap<Rune,
-        DelimiterProcessor> {
-        var map: HashMap<Rune, DelimiterProcessor> = HashMap<Rune, DelimiterProcessor>()
-        addDelimiterProcessors([AsteriskDelimiterProcessor(), UnderscoreDelimiterProcessor()], map)
-        addDelimiterProcessors(delimiterProcessors, map)
-        return map
-    }
-
-    private static func addDelimiterProcessors(
-        delimiterProcessors: Collection<DelimiterProcessor>,
-        hashMap: HashMap<Rune, DelimiterProcessor>
-    ): Unit {
-        for (delimiterProcessor in delimiterProcessors) {
-            let opening: Rune = delimiterProcessor.getOpeningCharacter()
-            let closing: Rune = delimiterProcessor.getClosingCharacter()
-            if (opening == closing) {
-                let old: Option<DelimiterProcessor> = hashMap.get(opening)
-                if (old.isSome() && old().getOpeningCharacter() == old().getClosingCharacter()) {
-                    var s: StaggeredDelimiterProcessor
-                    if (let Some(v: StaggeredDelimiterProcessor) <- old) {
-                        s = v
-                    } else {
-                        s = StaggeredDelimiterProcessor(opening)
-                        s.add(old())
-                    }
-                    s.add(delimiterProcessor)
-                    hashMap.add(opening, s)
-                } else {
-                    addDelimiterProcessorForChar(opening, delimiterProcessor, hashMap)
+    @Frozen
+    private func createInlineContentParsers(): Unit {
+        if (inlineParsers.size == 0) {
+            for (factory in inlineContentParserFactories) {
+                var parser = factory.create()
+                for (c in factory.getTriggerCharacters()) {
+                    let arr = inlineParsers.get(c) ??
+                        {
+                        =>
+                        let arr = ArrayList<(InlineContentParserFactory, InlineContentParser)>()
+                        inlineParsers.add(c, arr)
+                        arr
+                    }()
+                    arr.add((factory, parser))
                 }
-            } else {
-                addDelimiterProcessorForChar(opening, delimiterProcessor, hashMap)
-                addDelimiterProcessorForChar(closing, delimiterProcessor, hashMap)
+            }
+        } else {
+            for ((_, arr) in inlineParsers) {
+                for (i in 0..arr.size) {
+                    let (f, p) = arr[i]
+                    arr[i] = (f, f.create())
+                }
             }
         }
-    }
-
-    private static func addDelimiterProcessorForChar(
-        delimiterChar: Rune,
-        toAdd: DelimiterProcessor,
-        delimiterProcessors: HashMap<Rune, DelimiterProcessor>
-    ): Unit {
-        let existing: ?DelimiterProcessor = delimiterProcessors.add(delimiterChar, toAdd)
-        if (existing.isSome()) {
-            throw IllegalArgumentException("Delimiter processor conflict with delimiter char '${delimiterChar}'")
-        }
-    }
-
-    private static func calculateLinkMarkers(linkMarkers: Set<Rune>): BitSet {
-        var bitSet = BitSet(8)
-        for (c in linkMarkers) {
-            bitSet.set(Int64(UInt32(c)))
-        }
-        bitSet.set(Int64(b'!'))
-        return bitSet
-    }
-
-    private static func calculateSpecialCharacters(
-        linkMarkers: BitSet,
-        delimiterCharacters: Collection<Rune>,
-        inlineContentParserFactories: ArrayList<InlineContentParserFactory>
-    ): BitSet {
-        var bitSet: BitSet = linkMarkers.clone()
-        for (c in delimiterCharacters) {
-            bitSet.set(Int64(UInt32(c)))
-        }
-        for (factory in inlineContentParserFactories) {
-            for (c in factory.getTriggerCharacters()) {
-                bitSet.set(Int64(UInt32(c)))
-            }
-        }
-        bitSet.set(Int64(b'['))
-        bitSet.set(Int64(b']'))
-        bitSet.set(Int64(b'!'))
-        bitSet.set(Int64(b'\n'))
-        return bitSet
-    }
-
-    private func createInlineContentParsers(): HashMap<Rune, ArrayList<InlineContentParser>> {
-        var map = HashMap<Rune, ArrayList<InlineContentParser>>()
-        for (factory in inlineContentParserFactories) {
-            var parser = factory.create()
-            for (c in factory.getTriggerCharacters()) {
-                let arr = map.get(c) ?? {
-                    =>
-                    let arr = ArrayList<InlineContentParser>()
-                    map.add(c, arr)
-                    arr
-                }()
-                arr.add(parser)
-            }
-        }
-        return map
     }
 
     public func scanner(): Scanner {
@@ -185,6 +99,7 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
     /**
      * Parse content in block into inline children, appending them to the block node.
      */
+    @Frozen
     public override func parse(lines: String, node: Node): Unit {
         let sls = SourceLines.empty()
         for (l in lines.trimAscii().lines()) {
@@ -192,10 +107,15 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
         }
         parse(sls, node)
     }
+
+    @Frozen
     public func parse(lines: SourceLines, block: Node): Unit {
         reset(lines)
         while (true) {
-            let nodes = parseInline() ?? break
+            let nodes = parseInline()
+            if (nodes.size == 0) {
+                break
+            }
             for (node in nodes) {
                 block.appendChild(node)
             }
@@ -211,7 +131,7 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
         this.trailingSpaces = 0
         this.lastDelimiter = None
         this.lastBracket = None
-        this.inlineParsers = createInlineContentParsers()
+        this.createInlineContentParsers()
     }
 
     private func text(sourceLines: SourceLines): Text {
@@ -225,21 +145,22 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
      * On success, return the new inline node.
      * On failure, return null.
      */
-    private func parseInline(): ?Iterable<Node> {
+    @Frozen
+    private func parseInline(): Array<Node> {
         let c: Rune = _scanner.peek()
 
         match (c) {
             case '[' => return [parseOpenBracket()]
             case ']' => return [parseCloseBracket()]
             case '\n' => return [parseLineBreak()]
-            case '\0' => return None
+            case '\0' => return []
             case _ => ()
         }
 
         if (linkMarkers.get(Int64(UInt32(c)))) {
             var markerPosition = _scanner.position()
             var nodes = parseLinkMarker()
-            if (let Some(nodes) <- nodes) {
+            if (nodes.size > 0) {
                 return nodes
             }
             // Reset and try other things (e.g. inline parsers below)
@@ -253,7 +174,7 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
         let inlineParsers = this.inlineParsers.get(c)
         if (let Some(inlineParsers) <- inlineParsers) {
             let position: SourcePosition = _scanner.position()
-            for (inlineParser in inlineParsers) {
+            for ((_, inlineParser) in inlineParsers) {
                 let parsedInline = inlineParser.tryParse(this)
                 if (let Some(parsedInlineImpl) <- (parsedInline as ParsedInlineImpl)) {
                     let node = parsedInlineImpl.getNode()
@@ -272,8 +193,8 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
         let delimiterProcessor = delimiterProcessors.get(c)
         if (let Some(delimiterProcessor) <- delimiterProcessor) {
             let nodes = parseDelimiters(delimiterProcessor, c)
-            if (let Some(nodes) <- nodes) {
-                return nodes |> map {it => it}
+            if (nodes.size > 0) {
+                return nodes
             }
         }
 
@@ -284,8 +205,9 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
     /**
      * Attempt to parse delimiters like emphasis, strong emphasis or custom delimiters.
      */
-    private func parseDelimiters(delimiterProcessor: DelimiterProcessor, delimiterChar: Rune): ?Collection<Text> {
-        let res: DelimiterDataV2 = scanDelimiters(delimiterProcessor, delimiterChar) ?? return None
+    @Frozen
+    private func parseDelimiters(delimiterProcessor: DelimiterProcessor, delimiterChar: Rune): Array<Node> {
+        let res: DelimiterDataV2 = scanDelimiters(delimiterProcessor, delimiterChar) ?? return []
 
         // Add entry to stack for this opener
         let delimiter = Delimiter(res.delimiterNodeOld, delimiterChar, res.canOpen, res.canClose, lastDelimiter)
@@ -320,7 +242,8 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
      * If next character is {@code [}, add a bracket to the stack.
      * Otherwise, return null.
      */
-    private func parseLinkMarker(): ?Collection<Node> {
+    @Frozen
+    private func parseLinkMarker(): Array<Node> {
         var markerPosition = _scanner.position()
         _scanner.next()
         var bracketPosition = _scanner.position()
@@ -335,7 +258,7 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
                     lastBracket, lastDelimiter))
             return [bangNode, bracketNode]
         } else {
-            return None
+            return []
         }
     }
 
@@ -708,6 +631,7 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
         return DelimiterDataV2(delimiterNodeOld, delimiters, canOpen, canClose)
     }
 
+    @Frozen
     private func processDelimiters(stackBottom: ?Delimiter): Unit {
         var openersBottom: HashMap<Rune, ?Delimiter> = HashMap<Rune, ?Delimiter>()
 
@@ -847,6 +771,7 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
         mergeTextNodesInclusive(fromNode.getNext(), toNode.getPrevious())
     }
 
+    @Frozen
     private func mergeChildTextNodes(node: Node): Unit {
         // No children or just one child node, no need for merging
         if (node.getFirstChild().isNone()) {

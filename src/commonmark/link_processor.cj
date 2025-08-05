@@ -43,6 +43,7 @@ public interface LinkProcessor {
 public class CoreLinkProcessor <: LinkProcessor {
 
     // @Override
+    @Frozen
     public func process(linkInfo: LinkInfo, scanner: Scanner, context: InlineParserContext): ?LinkResult {
         if (let Some(dest) <- linkInfo.destination()) {
             // Inline link
