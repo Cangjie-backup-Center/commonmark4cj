@@ -95,6 +95,19 @@ class InlineParserContextImpl <: InlineParserContext {
     public func getCustomLinkMarkers(): HashSet<Rune> {
         return linkMarkers
     }
+
+    var ctxCalc: ?InlineParserContextCalc = None
+    func calc(): Unit {
+        if (ctxCalc.isNone()) {
+            ctxCalc = InlineParserContextCalc(this)
+        }
+    }
+}
+
+public class InlineParserV1Factory <: InlineParserFactory {
+    public override func create(inlineParserContext: InlineParserContext): InlineParser {
+        return InlineParserImpl(inlineParserContext)
+    }
 }
 
 class InlineParserImpl <: InlineParser {
@@ -119,8 +132,7 @@ class InlineParserImpl <: InlineParser {
     private static let TICKS_HERE: Regex = Regex("^`+")
 
     private static let EMAIL_AUTOLINK: Regex = Regex(
-        "^<([a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*)>"
-    )
+        "^<([a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*)>")
 
     private static let AUTOLINK: Regex = Regex("^<[a-zA-Z][a-zA-Z0-9.+-]{1,31}:[^<>\u{0001}-\u{0020}]*>")
 
@@ -202,10 +214,9 @@ class InlineParserImpl <: InlineParser {
                 let old: Option<DelimiterProcessor> = hashMap.get(opening)
                 if (old.isSome() && old().getOpeningCharacter() == old().getClosingCharacter()) {
                     var s: StaggeredDelimiterProcessor
-                    match(old) {
-                        case Some(v: StaggeredDelimiterProcessor) => 
-                            s = v
-                        case _ => 
+                    match (old) {
+                        case Some(v: StaggeredDelimiterProcessor) => s = v
+                        case _ =>
                             s = StaggeredDelimiterProcessor(opening)
                             s.add(old())
                     }
@@ -418,8 +429,8 @@ class InlineParserImpl <: InlineParser {
                 content = content.replace("\n", " ")
                 // spec: If the resulting string both begins and ends with a space character, but does not consist
                 // entirely of space characters, a single space character is removed from the front and back.
-                if (content.size >= 3 && content[0] == b' ' && content[content.size - 1] == b' ' &&
-                    Parsing.hasNonSpace(content)) {
+                if (content.size >= 3 && content[0] == b' ' && content[content.size - 1] == b' ' && Parsing
+                    .hasNonSpace(content)) {
                     content = content[1..(content.size - 1)]
                 }
 
@@ -957,20 +968,20 @@ class InlineParserImpl <: InlineParser {
 
         var node: ?Node = fromNode
         while (node.isSome()) {
-            match(node) {
-                case Some(text: Text) => 
+            match (node) {
+                case Some(text: Text) =>
                     if (first.isNone()) {
                         first = text
                     }
                     length += text.getLiteral().size
                     last = text
-                case _ => 
+                case _ =>
                     mergeIfNeeded(first, last, length)
                     first = Option<Text>.None
                     last = Option<Text>.None
                     length = 0
             }
- 
+
             if (node == toNode) {
                 break
             }
@@ -995,7 +1006,6 @@ class InlineParserImpl <: InlineParser {
                         unlink.unlink()
                     case _ => ()
                 }
-                
             }
             let literal: String = sb.toString()
             first().setLiteral(literal)
