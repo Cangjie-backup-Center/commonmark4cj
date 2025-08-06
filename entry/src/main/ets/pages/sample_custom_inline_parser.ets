@@ -9,7 +9,7 @@ import {
   Scanner,
   utf8Index2utf16Index,
   utf16Index2utf8Index
-} from '@cangjie-tpc/markdown_hybrid';
+} from '@cangjie-tpc/commonmark';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { systemDateTime } from '@kit.BasicServicesKit';
 

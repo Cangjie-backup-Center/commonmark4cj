@@ -60,7 +60,7 @@ flowchart LR
 
 ```shell
 # ohpm 安装
-ohpm install @cangjie-tpc/markdown_hybrid
+ohpm install @cangjie-tpc/commonmark
 ```
 
 ### 功能示例
@@ -79,7 +79,7 @@ import {
   printNode,
   utf8Index2utf16Index,
   utf16Index2utf8Index
-} from "@cangjie-tpc/markdown_hybrid"
+} from "@cangjie-tpc/commonmark"
 import { hilog } from "@kit.PerformanceAnalysisKit";
 
 /* 自定义行内解析 */

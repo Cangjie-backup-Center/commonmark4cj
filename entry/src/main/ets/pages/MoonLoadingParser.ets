@@ -5,7 +5,7 @@
  */
 import { InlineContentParser, ParsedInline, Scanner,
   utf16Index2utf8Index,
-  utf8Index2utf16Index } from '@cangjie-tpc/markdown_hybrid';
+  utf8Index2utf16Index } from '@cangjie-tpc/commonmark';
 
 export class MoonLoadingParser implements InlineContentParser {
   static MOON_LOADING = '<^moonLoading^>'
