@@ -424,6 +424,10 @@ class DocumentParser <: ParserState {
             inlineParserContext.getCustomLinkProcessors(),
             inlineParserContext.getCustomLinkMarkers()
         )
+        if (let Some(ctx) <- (this.inlineParserContext as InlineParserContextImpl)) {
+            ctx.calc()
+            context.ctxCalc = ctx.ctxCalc
+        }
         var inlineParser: InlineParser = inlineParserFactory.create(context)
 
         for (blockParser in allBlockParsers) {
