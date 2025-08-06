@@ -1,4 +1,5 @@
-import { cjLib, JsNode } from "@cangjie-tpc/markdown_hybrid/src/main/ets/JsNode"
+import { JsNode } from "@cangjie-tpc/markdown_hybrid/src/main/ets/JsNode"
+import { cjLib} from "@cangjie-tpc/markdown_hybrid/src/main/ets/interop_api"
 import { hilog } from "@kit.PerformanceAnalysisKit"
 
 /**

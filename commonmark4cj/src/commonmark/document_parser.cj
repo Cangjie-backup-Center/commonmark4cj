@@ -90,7 +90,9 @@ class DocumentParser <: ParserState {
         // By having the custom factories come first, extensions are able to change behavior of core syntax.
         list.add(all: customBlockParserFactories)
         for (blockType in enabledBlockTypes) {
-            list.add(NODES_TO_CORE_FACTORIES.get(blockType).getOrThrow())
+            list.add(NODES_TO_CORE_FACTORIES
+                .get(blockType)
+                .getOrThrow())
         }
         return list
     }
@@ -403,9 +405,13 @@ class DocumentParser <: ParserState {
     private func addDefinitionsFrom(paragraphParser: ParagraphParser): Unit {
         for (definition in paragraphParser.getDefinitions()) {
             // Add nodes into document before paragraph.
-            paragraphParser.getBlock().insertBefore(definition)
+            paragraphParser
+                .getBlock()
+                .insertBefore(definition)
 
-            var label: String = definition.getLabel().getOrThrow()
+            var label: String = definition
+                .getLabel()
+                .getOrThrow()
             // spec: When there are multiple matching link reference definitions, the first is used
             if (!definitions.contains(label)) {
                 definitions.add(label, definition)
@@ -424,6 +430,10 @@ class DocumentParser <: ParserState {
             inlineParserContext.getCustomLinkProcessors(),
             inlineParserContext.getCustomLinkMarkers()
         )
+        if (let Some(ctx) <- (this.inlineParserContext as InlineParserContextImpl)) {
+            ctx.calc()
+            context.ctxCalc = ctx.ctxCalc
+        }
         var inlineParser: InlineParser = inlineParserFactory.create(context)
 
         for (blockParser in allBlockParsers) {
@@ -440,7 +450,9 @@ class DocumentParser <: ParserState {
             finalize(getActiveBlockParser())
         }
 
-        getActiveBlockParser().getBlock().appendChild(blockParser.getBlock())
+        getActiveBlockParser()
+            .getBlock()
+            .appendChild(blockParser.getBlock())
         activateBlockParser(blockParser)
 
         return blockParser
@@ -469,7 +481,9 @@ class DocumentParser <: ParserState {
             addDefinitionsFrom(paragraphParser)
         }
 
-        oldParser.getBlock().unlink()
+        oldParser
+            .getBlock()
+            .unlink()
     }
 
     /**
@@ -493,7 +507,9 @@ class DocumentParser <: ParserState {
     private func finalizeAndProcess(): Document {
         finalizeBlocks(this.activeBlockParsers)
         this.processInlines()
-        return this.documentBlockParser.getBlock()
+        return this
+            .documentBlockParser
+            .getBlock()
     }
 }
 
@@ -511,7 +527,9 @@ class MatchedBlockParserImpl <: MatchedBlockParser {
     public func getParagraphContent(): ?String {
         if (matchedBlockParser is ParagraphParser) {
             var paragraphParser: ParagraphParser = (matchedBlockParser as ParagraphParser).getOrThrow()
-            var content: String = paragraphParser.getContentString().toString()
+            var content: String = paragraphParser
+                .getContentString()
+                .toString()
             if (content.size == 0) {
                 return None
             }

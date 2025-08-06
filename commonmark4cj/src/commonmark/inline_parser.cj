@@ -95,6 +95,13 @@ class InlineParserContextImpl <: InlineParserContext {
     public func getCustomLinkMarkers(): HashSet<Rune> {
         return linkMarkers
     }
+
+    var ctxCalc: ?InlineParserContextCalc = None
+    func calc(): Unit {
+        if (ctxCalc.isNone()) {
+            ctxCalc = InlineParserContextCalc(this)
+        }
+    }
 }
 
 class DelimiterData {

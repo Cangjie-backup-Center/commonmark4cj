@@ -292,6 +292,7 @@ class BlockStartImpl <: BlockStart {
         this.blockParsers = blockParsers
     }
 
+    @Frozen
     public func getBlockParsers(): Array<AbstractBlockParser> {
         return blockParsers
     }
@@ -790,6 +791,7 @@ public class LinkReferenceDefinitionParser {
         return paragraph
     }
 
+    @Frozen
     func getDefinitions(): ArrayList<LinkReferenceDefinition> {
         finishReference()
         return definitions

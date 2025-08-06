@@ -19,6 +19,7 @@ import { sample_moon } from "./sample_moon";
 import { inc_cached } from "./sample_inc_cached";
 import { sample_latex } from "./sample_latex";
 import { sample_test2 } from "./sample_test2";
+import { kimi, kimi_bench0, kimi_bench1 } from "./sample_kimi";
 
 let textDecoder = new util.TextDecoder();
 
@@ -92,6 +93,15 @@ struct Index {
         })
         Button('sample: test2').fontSize($r('app.float.page_text_font_size')).onClick(() => {
           sample_test2(this)
+        })
+        Button('sample: kimi').fontSize($r('app.float.page_text_font_size')).onClick(() => {
+          kimi(this)
+        })
+        Button('bench parse0').fontSize($r('app.float.page_text_font_size')).onClick(() => {
+          kimi_bench0(this)
+        })
+        Button('bench HybridParser').fontSize($r('app.float.page_text_font_size')).onClick(() => {
+          kimi_bench1(this)
         })
         Text(this.message)
       }

@@ -1,3 +1,8 @@
+export declare class HybridParser {
+    parse(md: string): string
+    constructor ()
+}
+
 export declare class CjNode {
     getNext(): CjNode | undefined
     getPrevious(): CjNode | undefined

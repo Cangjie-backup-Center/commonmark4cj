@@ -36,10 +36,8 @@ public class Parser {
         this.linkProcessors = builder.linkProcessors
         this.linkMarkers = builder.linkMarkers
 
-        // Try to construct an inline parser.
-        // Invalid configuration might result in an exception,
-        // which we want to detect as soon as possible.
         var context = InlineParserContextImpl(inlineContentParserFactories, delimiterProcessors, HashMap<String, LinkReferenceDefinition>(), linkProcessors, linkMarkers)
+        context.calc()
         this.inlineParserContext = context
         this.inlineParserFactory.create(context)
     }

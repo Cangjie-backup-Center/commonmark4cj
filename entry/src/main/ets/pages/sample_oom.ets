@@ -12,7 +12,8 @@ import {
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { systemDateTime } from '@kit.BasicServicesKit';
 import { JsNodePoolImpl } from './ParseIntoJsNodeCached';
-import { cjLib, JsNode } from "@cangjie-tpc/markdown_hybrid/src/main/ets/JsNode"
+import { JsNode } from "@cangjie-tpc/markdown_hybrid"
+import { cjLib} from "@cangjie-tpc/markdown_hybrid"
 
 let pool = new JsNodePoolImpl(new JsNode())
 
