@@ -20,6 +20,7 @@ class InlineParserContextCalc {
             this.inlineContentParserFactories)
     }
 
+    @Frozen
     private static func calculateInlineContentParserFactories(customFactories: ArrayList<InlineContentParserFactory>): ArrayList<InlineContentParserFactory> {
         // Custom parsers can override built-in parsers if they want, so make sure they are tried first
         var list = ArrayList(customFactories)
@@ -31,6 +32,7 @@ class InlineParserContextCalc {
         return list
     }
 
+    @Frozen
     private static func calculateLinkProcessors(linkProcessors: ArrayList<LinkProcessor>): ArrayList<LinkProcessor> {
         // Custom link processors can override the built-in behavior, so make sure they are tried first
         var list = ArrayList(linkProcessors)
@@ -38,6 +40,7 @@ class InlineParserContextCalc {
         return list
     }
 
+    @Frozen
     private static func calculateDelimiterProcessors(delimiterProcessors: ArrayList<DelimiterProcessor>): HashMap<Rune,
         DelimiterProcessor> {
         var map: HashMap<Rune, DelimiterProcessor> = HashMap<Rune, DelimiterProcessor>()
@@ -46,6 +49,7 @@ class InlineParserContextCalc {
         return map
     }
 
+    @Frozen
     private static func addDelimiterProcessors(
         delimiterProcessors: Collection<DelimiterProcessor>,
         hashMap: HashMap<Rune, DelimiterProcessor>
@@ -75,6 +79,7 @@ class InlineParserContextCalc {
         }
     }
 
+    @Frozen
     private static func addDelimiterProcessorForChar(
         delimiterChar: Rune,
         toAdd: DelimiterProcessor,
@@ -86,6 +91,7 @@ class InlineParserContextCalc {
         }
     }
 
+    @Frozen
     private static func calculateLinkMarkers(linkMarkers: Set<Rune>): BitSet {
         var bitSet = BitSet(8)
         for (c in linkMarkers) {
@@ -95,6 +101,7 @@ class InlineParserContextCalc {
         return bitSet
     }
 
+    @Frozen
     private static func calculateSpecialCharacters(
         linkMarkers: BitSet,
         delimiterCharacters: Collection<Rune>,
