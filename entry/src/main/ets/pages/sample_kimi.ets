@@ -1,12 +1,12 @@
 /*
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
  */
-import { JsNode } from "@cangjie-tpc/commonmark/src/main/ets/JsNode"
-import { cjLib } from "@cangjie-tpc/commonmark/src/main/ets/interop_api"
+import { JsNode } from "@cangjie-tpc/commonmark_hybrid/src/main/ets/JsNode"
+import { cjLib } from "@cangjie-tpc/commonmark_hybrid/src/main/ets/interop_api"
 import { JsNodePoolImpl } from './ParseIntoJsNodeCached';
 import { hilog } from "@kit.PerformanceAnalysisKit";
 import { printNodeStruct } from "./sample_inc_cached";
-import { printNode } from "@cangjie-tpc/commonmark";
+import { printNode } from "@cangjie-tpc/commonmark_hybrid";
 import { systemDateTime } from "@kit.BasicServicesKit";
 
 export async function kimi(page: object) {

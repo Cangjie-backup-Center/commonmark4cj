@@ -8,7 +8,7 @@ import {
   parseIntoJsNode,
   printNode,
   Scanner
-} from '@cangjie-tpc/commonmark';
+} from '@cangjie-tpc/commonmark_hybrid';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { systemDateTime } from '@kit.BasicServicesKit';
 import { InsertImageParser } from './InsertImageParser';

@@ -1,3 +1,9 @@
+## 1.3.0
+
+- cangjie support plugin 5.1.1.823
+- 库名称改为@cangjie-tpc/commonmark_hybrid
+- 新增HybridParser: 可复用的parser
+
 ## 1.2.6
 
 - latex parse bugfix

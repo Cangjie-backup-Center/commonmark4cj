@@ -1,0 +1,20 @@
+[
+    {
+        "Name": " commonmark-java",
+        "License": " BSD-2-Clause ",
+        "License File": " LICENSE ",
+        "Owner": "commonmark"
+        "Upstream URL": "https://github.com/commonmark/commonmark-java",
+        "Version Number": " v0.13.0 ",
+        "Description": " Parsing and rendering Markdown text according to the CommonMark specification (and some extensions)."
+    },
+    {
+        "Name": " Markwon ",
+        "License": " Apache License 2.0 ",
+        "License File": " LICENSE ",
+        "Owner": ""
+        "Upstream URL": " https://github.com/noties/Markwon ",
+        "Version Number": " v4.6.2 ",
+        "Description": " Android markdown library (no WebView) "
+    }
+]

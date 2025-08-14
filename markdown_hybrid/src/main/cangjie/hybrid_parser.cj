@@ -42,7 +42,7 @@ public class HybridParser <: SharedObject & JSInteropType<HybridParser> {
         return thisObject.toJSValue()
     }
 
-    public func parse(md: String, context: JSContext): JSPromiseCapability {
+    public func parse(md: String, context: JSContext): JSValue {
         let promise = context.promiseCapability()
         spawn {
             let doc: MdNode = parser.parse(md)
@@ -54,7 +54,7 @@ public class HybridParser <: SharedObject & JSInteropType<HybridParser> {
                 promise.resolve(RET)
             }
         }
-        return promise
+        return promise.toJSValue()
     }
 
     public static func parse_ArkTS_Interop_Identifier(context: JSContext, callInfo: JSCallInfo): JSValue {
@@ -68,7 +68,7 @@ public class HybridParser <: SharedObject & JSInteropType<HybridParser> {
         JSCurrentJSContext.set(context)
         let RET = clazz.parse(arg1754444626731223400, context)
         JSCurrentJSContext.unset()
-        RET.toJSValue()
+        RET
     }
 
     public func toJSValue(context: JSContext): JSValue {

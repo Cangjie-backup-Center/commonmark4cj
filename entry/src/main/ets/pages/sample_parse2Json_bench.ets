@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
  */
-import { /*parse2Json,*/ /*printJsonNode,*/ } from '@cangjie-tpc/commonmark';
+import { /*parse2Json,*/ /*printJsonNode,*/ } from '@cangjie-tpc/commonmark_hybrid';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { systemDateTime } from '@kit.BasicServicesKit';
 

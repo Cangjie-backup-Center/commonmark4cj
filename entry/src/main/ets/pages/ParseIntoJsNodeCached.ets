@@ -1,5 +1,5 @@
-import { JsNode } from "@cangjie-tpc/commonmark/src/main/ets/JsNode"
-import { cjLib} from "@cangjie-tpc/commonmark/src/main/ets/interop_api"
+import { JsNode } from "@cangjie-tpc/commonmark_hybrid/src/main/ets/JsNode"
+import { cjLib} from "@cangjie-tpc/commonmark_hybrid/src/main/ets/interop_api"
 import { hilog } from "@kit.PerformanceAnalysisKit"
 
 /**

@@ -6,3 +6,8 @@
 /.test
 **/IDL_Dependencies_List~
 **/build-script-cache
+
+/README.md
+/README.OpenSource
+/LICENSE
+/CHANGELOG.md
