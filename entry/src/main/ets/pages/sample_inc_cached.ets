@@ -4,6 +4,7 @@
 import {
   InlineContentParser,
   JsNode,
+  JsNodeSendableImpl,
   ParsedInline,
   parseIntoJsNode,
   printNode,
@@ -20,7 +21,7 @@ export async function inc_cached(mdstr: string, page:object) {
   let doc0 = await parseIntoJsNode(mdstr)
   let docstr0 = printNodeStruct(doc0)
 
-  let nodepool = new JsNodePoolImpl(new JsNode())
+  let nodepool = new JsNodePoolImpl(new JsNodeSendableImpl())
   let i = 0
   let tid = setInterval(async () => {
     try {

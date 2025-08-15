@@ -1,7 +1,6 @@
+import { JsNode } from './JsNode';
 import { requireCJLib } from 'libark_interop_loader.so';
 import { InlineContentParser } from './InlineContentParser'
-
-// import { JsNode } from './JsNode'
 
 /**
  * 可复用的MarkdownParser
@@ -12,7 +11,7 @@ export interface HybridParser {
    * @param md
    * @returns Promise<JsNode>
    */
-  parse(md: string): Promise<object>
+  parse(md: string): Promise<JsNode>
 }
 
 export declare interface CustomLib {
@@ -23,8 +22,8 @@ export declare interface CustomLib {
    * @param customParsers: Array<InlineContentParser>
    * @returns Promise<JsNode>
    */
-  parseIntoJsNode(md: string, jsNodeFactory: () => object,
-    ...customParsers: Array<InlineContentParser>): Promise<object>
+  parseIntoJsNode(md: string, jsNodeFactory: () => JsNode,
+    ...customParsers: Array<InlineContentParser>): Promise<JsNode>
 
   HybridParser: {
     /**
@@ -33,7 +32,7 @@ export declare interface CustomLib {
      * @param customParsers: Array<InlineContentParser>
      * @returns HybridParser
      */
-    new(jsNodeFactory: () => object /*JsNode*/, ...customParsers: Array<InlineContentParser>): HybridParser
+    new(jsNodeFactory: () => JsNode, ...customParsers: Array<InlineContentParser>): HybridParser
   }
 }
 

@@ -6,12 +6,12 @@ import { cjLib } from "@cangjie-tpc/commonmark_hybrid/src/main/ets/interop_api"
 import { JsNodePoolImpl } from './ParseIntoJsNodeCached';
 import { hilog } from "@kit.PerformanceAnalysisKit";
 import { printNodeStruct } from "./sample_inc_cached";
-import { printNode } from "@cangjie-tpc/commonmark_hybrid";
+import { JsNodeSendableImpl, printNode } from "@cangjie-tpc/commonmark_hybrid";
 import { systemDateTime } from "@kit.BasicServicesKit";
 
 export async function kimi(page: object) {
   let md: string = page['cppcrash'] as string
-  let pool = new JsNodePoolImpl(new JsNode())
+  let pool = new JsNodePoolImpl(new JsNodeSendableImpl())
   let parser = new cjLib.HybridParser(() => pool.getJsNode())
 
   let i = 5
@@ -35,7 +35,7 @@ export async function kimi(page: object) {
 
 export async function kimi_bench1(page: object) {
   let md: string = page['cppcrash'] as string
-  let pool = new JsNodePoolImpl(new JsNode())
+  let pool = new JsNodePoolImpl(new JsNodeSendableImpl())
   let parser = new cjLib.HybridParser(() => pool.getJsNode())
   let t0 = systemDateTime.getTime()
   let i = 5
@@ -57,7 +57,7 @@ export async function kimi_bench1(page: object) {
 }
 export async function kimi_bench0(page: object) {
   let md: string = page['cppcrash'] as string
-  let pool = new JsNodePoolImpl(new JsNode())
+  let pool = new JsNodePoolImpl(new JsNodeSendableImpl())
   // let parser = new cjLib.HybridParser(() => pool.getJsNode())
   let t0 = systemDateTime.getTime()
   let i = 5

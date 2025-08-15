@@ -3,7 +3,8 @@
  */
 import {
   InlineContentParser,
-/*JsNode,cjLib,*/
+  JsNodeSendableImpl,
+  /*JsNode,cjLib,*/
   ParsedInline,
   parseIntoJsNode,
   printNode,
@@ -15,7 +16,7 @@ import { JsNodePoolImpl } from './ParseIntoJsNodeCached';
 import { JsNode } from "@cangjie-tpc/commonmark_hybrid"
 import { cjLib} from "@cangjie-tpc/commonmark_hybrid"
 
-let pool = new JsNodePoolImpl(new JsNode())
+let pool = new JsNodePoolImpl(new JsNodeSendableImpl())
 
 export async function OutOfMemoryError(page: object): Promise<void> {
   let md = page['spec'] as string

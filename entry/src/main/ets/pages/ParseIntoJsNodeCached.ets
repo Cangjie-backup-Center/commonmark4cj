@@ -1,6 +1,7 @@
 import { JsNode } from "@cangjie-tpc/commonmark_hybrid/src/main/ets/JsNode"
 import { cjLib} from "@cangjie-tpc/commonmark_hybrid/src/main/ets/interop_api"
 import { hilog } from "@kit.PerformanceAnalysisKit"
+import { JsNodeSendableImpl } from "@cangjie-tpc/commonmark_hybrid"
 
 /**
  * 解析markdown 支持JsNode复用
@@ -8,7 +9,7 @@ import { hilog } from "@kit.PerformanceAnalysisKit"
  * @param nodepool Node缓存池
  * @returns
  * @example
- *  let nodepool = new JsNodePoolImpl(new JsNode())
+ *  let nodepool = new JsNodePoolImpl(new JsNodeSendableImpl())
  *  let doc = await parseIntoJsNodeCached(str, nodepool)
  */
 export async function parseIntoJsNodeCached(fullMdStr: string, nodepool: JsNodePool): Promise<JsNode> {
@@ -38,7 +39,7 @@ export class JsNodePoolImpl implements JsNodePool {
    * @returns
    */
   getJsNode(): JsNode {
-    return this.generator.pop() ?? new JsNode()
+    return this.generator.pop() ?? new JsNodeSendableImpl()
   }
 }
 
@@ -64,32 +65,32 @@ function traverseTree(node: JsNode | undefined, arr: Array<JsNode>) {
  */
 function cleanNode(n: JsNode) {
   n.unlink()
-  n.parent = undefined
-  n.firstChild = undefined
-  n.lastChild = undefined
-  n.prev = undefined
-  n.next = undefined
+  n['parent'] = undefined
+  n['firstChild'] = undefined
+  n['lastChild'] = undefined
+  n['prev'] = undefined
+  n['next'] = undefined
   /* node attr */
-  n.literal = undefined
-  n.destination = undefined
-  n.title = undefined
-  n.label = undefined
-  n.delimiter = undefined
-  n.fenceChar = undefined
-  n.fenceLength = undefined
-  n.fenceIndent = undefined
-  n.level = undefined
-  n.bulletMarker = undefined
-  n.startNumber = undefined
-  n.info = undefined
-  n.tight = undefined
-  n.header = undefined
-  n.alignment = undefined
-  n.props = undefined
-  n.isdone = undefined
-  n.latex = undefined
-  n.isClosed = undefined
-  n.noteid = undefined
-  n.blockIndex = undefined
-  n.headIndex = undefined
+  n['literal'] = undefined
+  n['destination'] = undefined
+  n['title'] = undefined
+  n['label'] = undefined
+  n['delimiter'] = undefined
+  n['fenceChar'] = undefined
+  n['fenceLength'] = undefined
+  n['fenceIndent'] = undefined
+  n['level'] = undefined
+  n['bulletMarker'] = undefined
+  n['startNumber'] = undefined
+  n['info'] = undefined
+  n['tight'] = undefined
+  n['header'] = undefined
+  n['alignment'] = undefined
+  n['props'] = undefined
+  n['isdone'] = undefined
+  n['latex'] = undefined
+  n['isClosed'] = undefined
+  n['noteid'] = undefined
+  n['blockIndex'] = undefined
+  n['headIndex'] = undefined
 }

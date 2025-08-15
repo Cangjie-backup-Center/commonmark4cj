@@ -1,10 +1,11 @@
 /*
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
  */
+import { JsNode } from './JsNode';
 import collections from '@arkts.collections';
 
 @Sendable
-export class JsNode {
+export class JsNodeSendableImpl implements JsNode {
   constructor() {
   }
 
@@ -12,11 +13,11 @@ export class JsNode {
   nodeType: string = ""
   toStr: string = ""
   /* node tree */
-  parent: JsNode | undefined = undefined
-  firstChild: JsNode | undefined = undefined
-  lastChild: JsNode | undefined = undefined
-  prev: JsNode | undefined = undefined
-  next: JsNode | undefined = undefined
+  parent: JsNodeSendableImpl | undefined = undefined
+  firstChild: JsNodeSendableImpl | undefined = undefined
+  lastChild: JsNodeSendableImpl | undefined = undefined
+  prev: JsNodeSendableImpl | undefined = undefined
+  next: JsNodeSendableImpl | undefined = undefined
   /* node attr */
   literal: string | undefined = undefined
   destination: string | undefined = undefined
@@ -41,47 +42,47 @@ export class JsNode {
   blockIndex: number | undefined = undefined
   headIndex: number | undefined = undefined
 
-  getNext(): JsNode | undefined {
+  getNext(): JsNodeSendableImpl | undefined {
     return this.next
   }
 
-  getPrevious(): JsNode | undefined {
+  getPrevious(): JsNodeSendableImpl | undefined {
     return this.prev
   }
 
-  getFirstChild(): JsNode | undefined {
+  getFirstChild(): JsNodeSendableImpl | undefined {
     return this.firstChild
   }
 
-  getLastChild(): JsNode | undefined {
+  getLastChild(): JsNodeSendableImpl | undefined {
     return this.lastChild
   }
 
-  getParent(): JsNode | undefined {
+  getParent(): JsNodeSendableImpl | undefined {
     return this.parent
   }
 
-  setParent(parent: JsNode | undefined) {
+  setParent(parent: JsNodeSendableImpl | undefined) {
     this.parent = parent
   }
 
-  setPrevious(prev: JsNode | undefined) {
+  setPrevious(prev: JsNodeSendableImpl | undefined) {
     this.prev = prev
   }
 
-  setNext(next: JsNode | undefined) {
+  setNext(next: JsNodeSendableImpl | undefined) {
     this.next = next
   }
 
-  setFirstChild(firstChild: JsNode | undefined) {
+  setFirstChild(firstChild: JsNodeSendableImpl | undefined) {
     this.firstChild = firstChild
   }
 
-  setLastChild(lastChild: JsNode | undefined) {
+  setLastChild(lastChild: JsNodeSendableImpl | undefined) {
     this.lastChild = lastChild
   }
 
-  appendChild(child: JsNode) {
+  appendChild(child: JsNodeSendableImpl) {
     child.unlink()
     child.setParent(this)
     if (this.lastChild) {
@@ -94,7 +95,7 @@ export class JsNode {
     }
   }
 
-  prependChild(child: JsNode) {
+  prependChild(child: JsNodeSendableImpl) {
     child.unlink()
     child.setParent(this)
     if (this.firstChild) {
@@ -123,7 +124,7 @@ export class JsNode {
     this.prev = undefined
   }
 
-  insertAfter(sibling: JsNode) {
+  insertAfter(sibling: JsNodeSendableImpl) {
     sibling.unlink()
     sibling.next = this.next
     if (sibling.next) {
@@ -137,7 +138,7 @@ export class JsNode {
     }
   }
 
-  insertBefore(sibling: JsNode) {
+  insertBefore(sibling: JsNodeSendableImpl) {
     sibling.unlink()
     sibling.prev = this.prev
     if (sibling.prev) {
@@ -219,31 +220,5 @@ export class JsNode {
     let m = this.props ?? new collections.Map()
     m.set(k, v)
     this.props = m
-  }
-}
-
-export function printNode(node: JsNode): string {
-  node = node as JsNode
-  if (node) {
-    let current: JsNode | undefined = node
-    while (current?.getParent()) {
-      current = (current as JsNode).getParent()
-    }
-    let builder = Array<string>()
-    printNodeDep(current, 0, builder)
-    return builder.join('')
-  }
-  return ''
-}
-
-function printNodeDep(node: JsNode | undefined, dep: number, builder: Array<string>) {
-  node = node as JsNode
-  if (node) {
-    let str = node.toString()
-    builder.push(`${' '.repeat(dep)}${str}\n`)
-    let child = node.getFirstChild()
-    printNodeDep(child, dep + 4, builder)
-    let next = node.getNext()
-    printNodeDep(next, dep, builder)
   }
 }
