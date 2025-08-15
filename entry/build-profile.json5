@@ -1,21 +1,29 @@
 {
   "apiType": "stageMode",
   "buildOption": {
-  },
-  "buildOptionSet": [
-    {
-      "name": "release",
-      "arkOptions": {
-        "obfuscation": {
-          "ruleOptions": {
-            "enable": false,
-            "files": [
-              "./obfuscation-rules.txt"
-            ]
-          }
+    "arkOptions": {
+      "obfuscation": {
+        "ruleOptions": {
+          "enable": false,
+          "files": [
+            "./obfuscation-rules.txt"
+          ]
         }
       }
     },
+    "nativeLib": {
+      "debugSymbol": {
+        "strip": false
+      }
+    }
+  },
+  "buildOptionSet": [
+    {
+      "name": "release"
+    },
+    {
+      "name": "debug"
+    }
   ],
   "targets": [
     {
