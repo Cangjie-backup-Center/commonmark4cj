@@ -9,12 +9,12 @@ import {
   parseIntoJsNode,
   printNode,
   Scanner
-} from '@cangjie-tpc/commonmark_hybrid';
+} from './md';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { systemDateTime } from '@kit.BasicServicesKit';
 import { JsNodePoolImpl } from './ParseIntoJsNodeCached';
-import { JsNode } from "@cangjie-tpc/commonmark_hybrid"
-import { cjLib} from "@cangjie-tpc/commonmark_hybrid"
+import { JsNode } from "./md"
+import { cjLib} from "./md"
 
 let pool = new JsNodePoolImpl(new JsNodeSendableImpl())
 
@@ -53,7 +53,7 @@ export async function SharedHeap_OOM(page: object): Promise<void> {
  at markdown_hybrid.parseIntoJsNode(ohos.ark_interop::JSContext, ohos.ark_interop::JSCallInfo)(D:\tmp\markdown511821\markdown_hybrid\src\main\cangjie/parse_into_js_node.cj:97)
  at ohos.ark_interop.cjLambdaInvoker(ohos.ark_interop::JSCallInfoPrivate, Int64)(js_func.cj:106)
  Cannot get SourceMap info, dump raw stack:
- at parseIntoJsNode (entry|@cangjie-tpc/commonmark_hybrid|1.2.6|Index.ts:10:1)
+ at parseIntoJsNode (entry|@cangjie-tpc/cmark_hybrid|1.2.6|Index.ts:10:1)
  at anonymous (entry|entry|1.0.0|src/main/ets/pages/sample_oom.ts:9:1)
 
  Reason:Signal:SIGABRT(SI_TKILL)@0x01317b4c000027fd from:10237:20020044

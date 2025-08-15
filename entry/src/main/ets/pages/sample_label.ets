@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
  */
-import { parseIntoJsNode, printNode, JsNode, JsNodeSendableImpl } from '@cangjie-tpc/commonmark_hybrid';
+import { parseIntoJsNode, printNode, JsNode, JsNodeSendableImpl } from './md';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
 export async function sample_label(): Promise<string> {

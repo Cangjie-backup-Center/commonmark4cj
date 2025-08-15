@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
  */
-import { Scanner, utf8Index2utf16Index } from '@cangjie-tpc/commonmark_hybrid';
+import { Scanner, utf8Index2utf16Index } from './md';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
 export function index_test(): string {

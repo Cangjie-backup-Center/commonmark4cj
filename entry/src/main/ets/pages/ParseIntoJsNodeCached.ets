@@ -1,7 +1,7 @@
-import { JsNode } from "@cangjie-tpc/commonmark_hybrid/src/main/ets/JsNode"
-import { cjLib} from "@cangjie-tpc/commonmark_hybrid/src/main/ets/interop_api"
+import { JsNode } from "./md"
+import { cjLib} from "./md"
 import { hilog } from "@kit.PerformanceAnalysisKit"
-import { JsNodeSendableImpl } from "@cangjie-tpc/commonmark_hybrid"
+import { JsNodeSendableImpl } from "./md"
 
 /**
  * 解析markdown 支持JsNode复用

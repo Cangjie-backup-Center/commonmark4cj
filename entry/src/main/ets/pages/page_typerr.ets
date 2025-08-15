@@ -4,7 +4,7 @@
 import { hilog } from "@kit.PerformanceAnalysisKit";
 import { taskpool, util } from "@kit.ArkTS";
 import { parseToJsNode } from "./sample_cppcrash";
-import { JsNode, printNode } from "@cangjie-tpc/commonmark_hybrid";
+import { JsNode, printNode } from "./md";
 
 let textDecoder = new util.TextDecoder();
 

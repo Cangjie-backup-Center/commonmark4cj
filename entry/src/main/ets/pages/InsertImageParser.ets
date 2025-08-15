@@ -5,7 +5,7 @@
  */
 import { InlineContentParser, ParsedInline, Scanner,
   utf16Index2utf8Index,
-  utf8Index2utf16Index } from '@cangjie-tpc/commonmark_hybrid';
+  utf8Index2utf16Index } from './md';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
 const TAG = 'InsertImageParser'
