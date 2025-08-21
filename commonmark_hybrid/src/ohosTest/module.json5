@@ -1,6 +1,6 @@
 {
   "module": {
-    "name": "markdown_hybrid_test",
+    "name": "commonmark_hybrid_test",
     "type": "feature",
     "deviceTypes": [
       "default"

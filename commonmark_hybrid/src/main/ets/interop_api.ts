@@ -36,4 +36,4 @@ export declare interface CustomLib {
   }
 }
 
-export const cjLib: CustomLib = requireCJLib("libmarkdown_hybrid.so") as CustomLib
+export const cjLib: CustomLib = requireCJLib("libcommonmark_hybrid.so") as CustomLib

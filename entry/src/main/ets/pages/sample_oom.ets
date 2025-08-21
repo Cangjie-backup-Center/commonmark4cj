@@ -50,7 +50,7 @@ export async function SharedHeap_OOM(page: object): Promise<void> {
  cj parseIntoJsNode error: Error: OutOfMemoryError
  at ohos.ark_interop.JSString::readString(ohos.ark_interop::JSContext, ohos.ark_interop::JSValue_)(jsstring.cj:88)
  at ohos.ark_interop.JSValue::toString(ohos.ark_interop::JSContext)(js_raw.cj:468)
- at markdown_hybrid.parseIntoJsNode(ohos.ark_interop::JSContext, ohos.ark_interop::JSCallInfo)(D:\tmp\markdown511821\markdown_hybrid\src\main\cangjie/parse_into_js_node.cj:97)
+ at commonmark_hybrid.parseIntoJsNode(ohos.ark_interop::JSContext, ohos.ark_interop::JSCallInfo)(D:\tmp\markdown511821\commonmark_hybrid\src\main\cangjie/parse_into_js_node.cj:97)
  at ohos.ark_interop.cjLambdaInvoker(ohos.ark_interop::JSCallInfoPrivate, Int64)(js_func.cj:106)
  Cannot get SourceMap info, dump raw stack:
  at parseIntoJsNode (entry|@cangjie-tpc/cmark_hybrid|1.2.6|Index.ts:10:1)

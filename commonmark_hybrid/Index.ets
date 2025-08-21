@@ -31,7 +31,7 @@ export async function parseIntoJsNode(md: string, ...customParsers: Array<Inline
 }
 
 // export async function parse2Json(md: string, ...customParsers: Array<InlineContentParser>): Promise<JsonNode> {
-//   // let cjLib: CustomLib = requireCJLib("libmarkdown_hybrid.so") as CustomLib
+//   // let cjLib: CustomLib = requireCJLib("libcommonmark_hybrid.so") as CustomLib
 //   let res = await cjLib.parse2Json(md, JsNode, customParsers)
 //   return json2Node(res)
 // }

@@ -13,7 +13,7 @@
 ## 介绍
 
 用于根据CommonMark规范（以及一些扩展）解析和呈现Markdown文本。
-主页 [markdown_hybrid](https://gitcode.com/Cangjie-TPC/commonmark4cj/tree/markdown_hybrid_cangjie-plugin-5.1.1.823)
+主页 [commonmark_hybrid](https://gitcode.com/Cangjie-TPC/commonmark4cj/tree/commonmark_hybrid_OHCangjie-5.1)
 
 ### 特性
 
@@ -137,8 +137,7 @@ Document{}
 - 在下述版本验证通过:
   - IDE: DevEco Studio 5.1.1 Beta1(Build Version:5.1.1.823)
   - Cangjie Plugin: Cangjie Support Plugin 5.1.1.823
-- 最低适配API版本: 5.0.2(14)
-- 要求使用最终集成的HAP模块中hvigorfile.ts从 @ohos/cangjie-build-support 导入的hapTasks [参考](https://developer.huawei.com/consumer/cn/doc/cangjie-guides-V5/cj-hvigor-configuration-V5)
+- 最低适配API版本: 5.0.0(12)
 
 ## 开源协议
 

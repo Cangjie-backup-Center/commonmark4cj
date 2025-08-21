@@ -6,7 +6,7 @@
   "author": "",
   "license": "",
   "dependencies": {
-    "@cangjie-tpc/commonmark_hybrid": "file:../markdown_hybrid",
+    "@cangjie-tpc/commonmark_hybrid": "file:../commonmark_hybrid"
     //"@cangjie-tpc/prism": "file:../../../repos/prism4cj_hybrid_cangjie-plugin_5.1.1.821/prism/build/default/outputs/default/prism.har",
     //"@cangjie-tpc/formula": "file:../../../repos/formula-ffi_hybrid_cangjie-plugin_5.1.1.821/formula/build/default/outputs/default/formula.har"
   },

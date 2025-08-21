@@ -33,19 +33,38 @@ function docCopyTask(currentNode: HvigorNode) {
   harContext?.targets((target: Target) => {
     const targetName = target.getTargetName();
     const outputPath = target.getBuildTargetOutputPath();
+    // var pkgTask = node.getTaskByName(`${targetName}@PackageHar`)
+    var artiTask = node.getTaskByName(`${targetName}@ProcessHarArtifacts`)
+    // pkgTask.setEnable(false)
+    // console.log(`ProcessHarArtifacts任务:\n${jsonStr(artiTask)}`)
+    var dest = artiTask.task.taskTmpDir as string
+
     node.registerTask({
       // 任务名称
       name: `${targetName}@docCopy`,
       // 任务执行逻辑主体函数
       run() {
         var fs = require('fs');
-        fs.copyFileSync('README.md', `${moduleName}/README.md`);
-        fs.copyFileSync('README.OpenSource', `${moduleName}/README.OpenSource`);
-        fs.copyFileSync('LICENSE', `${moduleName}/LICENSE`);
-        fs.copyFileSync('CHANGELOG.md', `${moduleName}/CHANGELOG.md`);
+        fs.copyFileSync('README.md', `${dest}/README.md`);
+        fs.copyFileSync('README.OpenSource', `${dest}/README.OpenSource`);
+        fs.copyFileSync('LICENSE', `${dest}/LICENSE`);
+        fs.copyFileSync('CHANGELOG.md', `${dest}/CHANGELOG.md`);
       },
+      // 配置前置任务依赖
+      dependencies: [`${targetName}@ProcessHarArtifacts`],
       // 配置任务的后置任务依赖
       postDependencies: [`${targetName}@PackageHar`]
     });
   });
+}
+
+function jsonStr(obj) {
+  const cache = new WeakSet(); // 存储已访问对象
+  return JSON.stringify(obj, (key, value) => {
+    if (typeof value === 'object' && value !== null) {
+      if (cache.has(value)) return "[Circular]"; // 已访问则标记
+      cache.add(value);
+    }
+    return key === 'parent' ? undefined : value; // 关键：清除parent属性
+  })
 }

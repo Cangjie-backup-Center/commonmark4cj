@@ -1,7 +1,7 @@
 /**
  * Created on 022 25/7/22
  */
-package markdown_hybrid
+package commonmark_hybrid
 
 interface InlineParserIntegration <: InlineContentParser & InlineContentParserFactory {}
 

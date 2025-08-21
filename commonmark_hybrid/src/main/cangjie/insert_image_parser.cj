@@ -1,7 +1,7 @@
 /**
  * Created on 022 25/7/22
  */
-package markdown_hybrid
+package commonmark_hybrid
 
 const TAG = 'InsertImageParser'
 // 解析 <INSERT_IMAGE id="123456" /> 标签

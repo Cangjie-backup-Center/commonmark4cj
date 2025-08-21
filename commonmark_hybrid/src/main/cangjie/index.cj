@@ -1,4 +1,4 @@
-package markdown_hybrid
+package commonmark_hybrid
 
 internal import ohos.ark_interop.*
 
