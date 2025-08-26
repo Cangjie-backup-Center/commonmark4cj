@@ -18,10 +18,13 @@ extend JSObject {
 
 class JsNodeBuilder {
     JsNodeBuilder(let jsNodeConstructor: JSFunction, let context: JSContext) {}
+
     func buildJsNode(instance: MdNode): JSObject {
         let jsNode = jsNodeConstructor.call().asObject()
         jsNode.set('nodeType', instance.getNodeType(), context)
         jsNode.set('toStr', instance.toString(), context)
+        setSourceSpans(instance, jsNode)
+
         match (instance) {
             case v: JsInlineNode => for ((k, v) in v.props) {
                 jsNode.callMethod('putProp', context.string(k).toJSValue(), context.string(v).toJSValue())
@@ -91,12 +94,31 @@ class JsNodeBuilder {
         visitNode(current.getFirstChild(), currentProxy)
         visitNode(next, parentProxy)
     }
+
+    func setSourceSpans(instance: MdNode, jsNode: JSObject): Unit {
+        let sss = instance.getSourceSpans()
+        if (sss.size > 0) {
+            let numbersLen = sss.size * 4
+            let numbersDefault = context.number(-1.0).toJSValue()
+            let numbers = Array<JSValue>(numbersLen) {_ => numbersDefault}
+            for (i in 0..sss.size) {
+                let ss = sss[i]
+                let si = i * 4
+                numbers[si] = context.number(Float64(ss.getLineIndex())).toJSValue()
+                numbers[si + 1] = context.number(Float64(ss.getColumnIndex())).toJSValue()
+                numbers[si + 2] = context.number(Float64(ss.getInputIndex())).toJSValue()
+                numbers[si + 3] = context.number(Float64(ss.getLength())).toJSValue()
+            }
+            jsNode.callMethod('addSourceSpans', numbers)
+        }
+    }
 }
 
 public func parseIntoJsNode(context: JSContext, callInfo: JSCallInfo): JSValue {
     let md = callInfo[0].toString(context)
     let jsNodeConstructor = callInfo[1].asFunction()
     let builder = JsNodeBuilder(jsNodeConstructor, context)
+    let includeSourceSpans: Int = Int64(callInfo[2].asNumber().toFloat64())
     let promise = context.promiseCapability()
     spawn {
         let markdownBuilder: MarkdownBuilder = Markdown
@@ -116,6 +138,7 @@ public func parseIntoJsNode(context: JSContext, callInfo: JSCallInfo): JSValue {
             // TOC列表插件
             .usePlugin(TocPlugin.create())
             .usePlugin(Plugin4InlineParserIntegration([InsertImageParser(), MoonLoadingParser()]))
+            .includeSourceSpans(includeSourceSpans)
 
         let parser = markdownBuilder.build()
         let doc: MdNode = parser.parse(md)

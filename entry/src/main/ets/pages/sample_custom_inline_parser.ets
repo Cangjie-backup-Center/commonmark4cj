@@ -17,7 +17,7 @@ export async function sample_custom_inline_parser(): Promise<string> {
   let md = '😀我0123a56a89'
   const myParser: InlineContentParser = new MyParser()
   let t0 = systemDateTime.getTime()
-  let node = await parseIntoJsNode(md, myParser)
+  let node = await parseIntoJsNode(md, 0, myParser)
   let t1 = systemDateTime.getTime() - t0
   let nodeTreeStr = printNode(node)
   hilog.error(0, '', nodeTreeStr)

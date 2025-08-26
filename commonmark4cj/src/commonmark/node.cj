@@ -461,16 +461,17 @@ public abstract class Context {
     /**
      * @return the source spans of this node if included by the parser, an empty list otherwise
      */
-    public func getSourceSpans(): ArrayList<SourceSpan> {
-        return sourceSpans ?? ArrayList()
+    public func getSourceSpans(): ReadOnlyList<SourceSpan> {
+        return sourceSpans ?? EMPTY_SourceSpans
     }
+    private static let EMPTY_SourceSpans: ReadOnlyList<SourceSpan> = ArrayList(1)
 
     /**
      * Replace the current source spans with the provided list.
      *
      * @param sourceSpans the new source spans to set
      */
-    public func setSourceSpans(sourceSpans: ArrayList<SourceSpan>): Unit {
+    public func setSourceSpans(sourceSpans: ReadOnlyList<SourceSpan>): Unit {
         if (sourceSpans.isEmpty()) {
             this.sourceSpans = None
         } else {

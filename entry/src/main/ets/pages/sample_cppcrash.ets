@@ -17,7 +17,7 @@ import { taskpool } from '@kit.ArkTS';
 
 @Concurrent
 async function parseToJsNodeImpl(text: string): Promise<JsNode> {
-  return await parseIntoJsNode(text, new InsertImageParser(), new MoonLoadingParser())
+  return await parseIntoJsNode(text, 0, new InsertImageParser(), new MoonLoadingParser())
 }
 
 export async function parseToJsNode(text: string): Promise<JsNode> {

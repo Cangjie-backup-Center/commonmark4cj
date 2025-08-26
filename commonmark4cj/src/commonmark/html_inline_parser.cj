@@ -41,7 +41,7 @@ public class HtmlInlineParser <: InlineContentParser {
 
     // @Override
     public func tryParse(inlineParserState: InlineParserState): ParsedInline {
-        let scanner: Scanner = inlineParserState.scanner()
+        let scanner: Scanner = inlineParserState.getScanner()
         let start: SourcePosition = scanner.position()
         // Skip over `<`
         scanner.next()

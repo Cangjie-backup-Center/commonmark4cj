@@ -2,6 +2,7 @@ import { JsNode } from "./md"
 import { cjLib} from "./md"
 import { hilog } from "@kit.PerformanceAnalysisKit"
 import { JsNodeSendableImpl } from "./md"
+import { JsNodeImpl } from "@cangjie-tpc/commonmark_hybrid"
 
 /**
  * 解析markdown 支持JsNode复用
@@ -13,7 +14,7 @@ import { JsNodeSendableImpl } from "./md"
  *  let doc = await parseIntoJsNodeCached(str, nodepool)
  */
 export async function parseIntoJsNodeCached(fullMdStr: string, nodepool: JsNodePool): Promise<JsNode> {
-  let doc: JsNode = await cjLib.parseIntoJsNode(fullMdStr, () => nodepool.getJsNode()) as JsNode
+  let doc: JsNode = await cjLib.parseIntoJsNode(fullMdStr, () => nodepool.getJsNode(), 0) as JsNode
   return doc
 }
 
@@ -52,45 +53,9 @@ function traverseTree(node: JsNode | undefined, arr: Array<JsNode>) {
   if (node) {
     let child = node.getFirstChild()
     let next = node.getNext()
-    cleanNode(node)
+    node.reset()
     arr.push(node)
     traverseTree(child, arr)
     traverseTree(next, arr)
   }
-}
-
-/**
- * 清除node关联关系 清理node数据
- * @param n
- */
-function cleanNode(n: JsNode) {
-  n.unlink()
-  n['parent'] = undefined
-  n['firstChild'] = undefined
-  n['lastChild'] = undefined
-  n['prev'] = undefined
-  n['next'] = undefined
-  /* node attr */
-  n['literal'] = undefined
-  n['destination'] = undefined
-  n['title'] = undefined
-  n['label'] = undefined
-  n['delimiter'] = undefined
-  n['fenceChar'] = undefined
-  n['fenceLength'] = undefined
-  n['fenceIndent'] = undefined
-  n['level'] = undefined
-  n['bulletMarker'] = undefined
-  n['startNumber'] = undefined
-  n['info'] = undefined
-  n['tight'] = undefined
-  n['header'] = undefined
-  n['alignment'] = undefined
-  n['props'] = undefined
-  n['isdone'] = undefined
-  n['latex'] = undefined
-  n['isClosed'] = undefined
-  n['noteid'] = undefined
-  n['blockIndex'] = undefined
-  n['headIndex'] = undefined
 }

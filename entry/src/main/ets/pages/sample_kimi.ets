@@ -12,7 +12,7 @@ import { systemDateTime } from "@kit.BasicServicesKit";
 export async function kimi(page: object) {
   let md: string = page['cppcrash'] as string
   let pool = new JsNodePoolImpl(new JsNodeSendableImpl())
-  let parser = new cjLib.HybridParser(() => pool.getJsNode())
+  let parser = new cjLib.HybridParser(() => pool.getJsNode(),2)
 
   let i = 5
   let tid = setInterval(async () => {
@@ -36,7 +36,7 @@ export async function kimi(page: object) {
 export async function kimi_bench1(page: object) {
   let md: string = page['cppcrash'] as string
   let pool = new JsNodePoolImpl(new JsNodeSendableImpl())
-  let parser = new cjLib.HybridParser(() => pool.getJsNode())
+  let parser = new cjLib.HybridParser(() => pool.getJsNode(),2)
   let t0 = systemDateTime.getTime()
   let i = 5
   while (i < md.length) {
@@ -64,7 +64,7 @@ export async function kimi_bench0(page: object) {
   while (i < md.length) {
     try {
       let str = md.slice(0, i)
-      let doc = await cjLib.parseIntoJsNode(str,() => pool.getJsNode()) as JsNode
+      let doc = await cjLib.parseIntoJsNode(str,() => pool.getJsNode(),0) as JsNode
       let docstr = printNode(doc)
       pool.put(doc)
       page['message'] = docstr.length

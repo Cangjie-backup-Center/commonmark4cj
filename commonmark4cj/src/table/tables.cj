@@ -103,7 +103,7 @@ public class TableRow <: CustomNode {
     }
 }
 
-public class TablesExtension <: ParserExtension {
+public class TablesExtension <: ParserExtension & HtmlRendererExtension & TextContentRendererExtension {
     private init() {
     }
 
@@ -112,7 +112,160 @@ public class TablesExtension <: ParserExtension {
     }
 
     public func ext(parserBuilder: ParserBuilder): Unit {
-        parserBuilder.customBlockParserFactory(tableBlockFactory())
+        parserBuilder.customBlockParserFactory(TableBlockFactory())
     }
 
+    public func ext(rendererBuilder: HtmlRendererBuilder): Unit {
+        rendererBuilder.nodeRendererFactory({
+            context => TableHtmlNodeRenderer(context)
+        })
+    }
+
+    public func ext(rendererBuilder: TextContentRendererBuilder): Unit {
+        rendererBuilder.nodeRendererFactory({
+            context => TableTextContentNodeRenderer(context)
+        })
+    }
+}
+
+class TableHtmlNodeRenderer <: TableNodeRenderer {
+    private let context: HtmlNodeRendererContext
+    private let htmlWriter: HtmlWriter
+
+    public init(context: HtmlNodeRendererContext) {
+        this.htmlWriter = context.getWriter()
+        this.context = context
+    }
+
+    protected func renderBlock(tableBlock: TableBlock): Unit {
+        htmlWriter.line()
+        htmlWriter.tag("table", getAttributes(tableBlock, "table"))
+        renderChildren(tableBlock)
+        htmlWriter.tag("/table")
+        htmlWriter.line()
+    }
+
+    protected func renderHead(tableHead: TableHead): Unit {
+        htmlWriter.line()
+        htmlWriter.tag("thead", getAttributes(tableHead, "thead"))
+        renderChildren(tableHead)
+        htmlWriter.tag("/thead")
+        htmlWriter.line()
+    }
+
+    protected func renderBody(tableBody: TableBody): Unit {
+        htmlWriter.line()
+        htmlWriter.tag("tbody", getAttributes(tableBody, "tbody"))
+        renderChildren(tableBody)
+        htmlWriter.tag("/tbody")
+        htmlWriter.line()
+    }
+
+    protected func renderRow(tableRow: TableRow): Unit {
+        htmlWriter.line()
+        htmlWriter.tag("tr", getAttributes(tableRow, "tr"))
+        renderChildren(tableRow)
+        htmlWriter.tag("/tr")
+        htmlWriter.line()
+    }
+
+    protected func renderCell(tableCell: TableCell): Unit {
+        var tagName: String = "td"
+        if (tableCell.isHeader()) {
+            tagName = "th"
+        }
+        htmlWriter.line()
+        htmlWriter.tag(tagName, getCellAttributes(tableCell, tagName))
+        renderChildren(tableCell)
+        htmlWriter.tag("/" + tagName)
+        htmlWriter.line()
+    }
+
+    private func getAttributes(node: Node, tagName: String): HashMap<String, String> {
+        return context.extendAttributes(node, tagName, HashMap<String, String>())
+    }
+
+    private func getCellAttributes(tableCell: TableCell, tagName: String): HashMap<String, String> {
+        if (tableCell.getAlignment().isSome()) {
+            let singletonMap: HashMap<String, String> = HashMap<String, String>(
+                [("align", getAlignValue(tableCell.getAlignment()()))])
+            return context.extendAttributes(tableCell, tagName, singletonMap);
+        } else {
+            return context.extendAttributes(tableCell, tagName, HashMap<String, String>())
+        }
+    }
+
+    private static func getAlignValue(alignment: Alignment): String {
+        match (alignment) {
+            case LEFT => return "left"
+            case CENTER => return "center"
+            case RIGHT => return "right"
+        }
+    }
+
+    private func renderChildren(parent: Node): Unit {
+        var node: ?Node = parent.getFirstChild()
+        while (let Some(v) <- node) {
+            var next: ?Node = v.getNext()
+            context.render(node())
+            node = next
+        }
+    }
+}
+
+class TableTextContentNodeRenderer <: TableNodeRenderer {
+    private let context: TextContentNodeRendererContext
+    private let textContentWriter: TextContentWriter
+
+    public init(context: TextContentNodeRendererContext) {
+        this.textContentWriter = context.getWriter()
+        this.context = context
+    }
+
+    protected func renderBlock(tableBlock: TableBlock): Unit {
+        renderChildren(tableBlock)
+        if (tableBlock.getNext().isSome()) {
+            textContentWriter.write("\n")
+        }
+    }
+
+    protected func renderHead(tableHead: TableHead): Unit {
+        renderChildren(tableHead)
+    }
+
+    protected func renderBody(tableBody: TableBody): Unit {
+        renderChildren(tableBody)
+    }
+
+    protected func renderRow(tableRow: TableRow): Unit {
+        textContentWriter.line()
+        renderChildren(tableRow)
+        textContentWriter.line()
+    }
+
+    protected func renderCell(tableCell: TableCell): Unit {
+        renderChildren(tableCell)
+        textContentWriter.write("|")
+        textContentWriter.whitespace()
+    }
+
+    private func renderLastCell(tableCell: TableCell): Unit {
+        renderChildren(tableCell)
+    }
+
+    private func renderChildren(parent: Node): Unit {
+        var node: ?Node = parent.getFirstChild()
+        while (node.isSome()) {
+            var next: ?Node = node().getNext()
+
+            // For last cell in row, we dont render the delimiter.
+            if (node() is TableCell && next.isNone()) {
+                renderLastCell((node() as TableCell).getOrThrow())
+            } else {
+                context.render((node()))
+            }
+
+            node = next
+        }
+    }
 }

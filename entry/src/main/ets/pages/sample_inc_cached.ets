@@ -18,7 +18,7 @@ import { taskpool } from '@kit.ArkTS';
 import { JsNodePoolImpl, parseIntoJsNodeCached } from './ParseIntoJsNodeCached';
 
 export async function inc_cached(mdstr: string, page:object) {
-  let doc0 = await parseIntoJsNode(mdstr)
+  let doc0 = await parseIntoJsNode(mdstr, 0)
   let docstr0 = printNodeStruct(doc0)
 
   let nodepool = new JsNodePoolImpl(new JsNodeSendableImpl())
@@ -34,7 +34,7 @@ export async function inc_cached(mdstr: string, page:object) {
       if(docstr.lastIndexOf('Document')>20){
         clearInterval(tid)
         hilog.error(0,'mdebug',`parseIntoJsNodeCached err txt: \n${str}`)
-        hilog.error(0,'mdebug',`parseIntoJsNodeCached err again1: \n${printNodeStruct(await parseIntoJsNode(str))}`)
+        hilog.error(0,'mdebug',`parseIntoJsNodeCached err again1: \n${printNodeStruct(await parseIntoJsNode(str, 0))}`)
         hilog.error(0,'mdebug',`parseIntoJsNodeCached err again2: \n${printNodeStruct(await parseIntoJsNodeCached(str,new JsNodePoolImpl(doc)))}`)
         hilog.error(0,'mdebug',`parseIntoJsNodeCached error: \n${docstr}`)
         // hilog.error(0,'mdebug',`parseIntoJsNodeCached origin: \n${docstr0}`)

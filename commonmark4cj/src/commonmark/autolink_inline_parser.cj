@@ -10,12 +10,11 @@ public class AutolinkInlineParser <: InlineContentParser {
     private static let URI: Regex = Regex(#"^[a-zA-Z][a-zA-Z0-9.+-]{1,31}:[^<>\x00-\x20]*$"#)
 
     private static let EMAIL: Regex = Regex(
-        #"^([a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*)$"#
-    )
+        #"^([a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*)$"#)
 
     // @Override
     public func tryParse(inlineParserState: InlineParserState): ParsedInline {
-        let scanner: Scanner = inlineParserState.scanner()
+        let scanner: Scanner = inlineParserState.getScanner()
         scanner.next()
         let textStart: SourcePosition = scanner.position()
         if (scanner.find(r'>') > 0) {

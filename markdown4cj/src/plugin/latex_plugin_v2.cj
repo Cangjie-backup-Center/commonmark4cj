@@ -51,7 +51,7 @@ public class LatexMathPluginV2 <: AbstractMarkdownPlugin {
 
 public class LatexInlineParser <: InlineContentParser {
     public func tryParse(inlineParserState: InlineParserState): ParsedInline {
-        let scanner: Scanner = inlineParserState.scanner()
+        let scanner: Scanner = inlineParserState.getScanner()
         let p0: SourcePosition = scanner.position()
 
         if (scanner.next('$')) {

@@ -12,7 +12,7 @@ public class BackslashInlineParser <: InlineContentParser {
 
     // @Override
     public func tryParse(inlineParserState: InlineParserState): ParsedInline {
-        let scanner: Scanner = inlineParserState.scanner()
+        let scanner: Scanner = inlineParserState.getScanner()
         // Backslash
         scanner.next()
 

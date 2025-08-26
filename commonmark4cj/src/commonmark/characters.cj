@@ -137,7 +137,7 @@ public class Characters {
     public static func skipSpaceTab(s: CharSequence, startIndex: Int, endIndex: Int): Int {
         for (i in startIndex..endIndex) {
             match (s[i]) {
-                case b' ' | b'\t' => break
+                case b' ' | b'\t' => ()
                 case _ => return i
             }
         }
@@ -147,7 +147,7 @@ public class Characters {
     public static func skipSpaceTabBackwards(s: CharSequence, startIndex: Int, lastIndex: Int): Int {
         for (i in startIndex..=lastIndex : -1) {
             match (s[i]) {
-                case b' ' | b'\t' => break
+                case b' ' | b'\t' => ()
                 case _ => return i
             }
         }

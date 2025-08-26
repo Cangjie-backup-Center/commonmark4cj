@@ -32,6 +32,7 @@
     {
       "name": "debug",
       "cangjieOptions": {
+        "arguments": ["-V"],
         "abiFilters": [
           "x86_64"
         ]

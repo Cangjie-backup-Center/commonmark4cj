@@ -9,9 +9,9 @@ public class HybridParser <: SharedObject & JSInteropType<HybridParser> {
     static init() {
         JSModule.registerClass("HybridParser") {
             context =>
-            let clazz = context.clazz(jsConstructor)
-            clazz.addMethod("parse", context.function(parse_ArkTS_Interop_Identifier))
-            return clazz
+                let clazz = context.clazz(jsConstructor)
+                clazz.addMethod("parse", context.function(parse_ArkTS_Interop_Identifier))
+                return clazz
         }
     }
 
@@ -21,6 +21,11 @@ public class HybridParser <: SharedObject & JSInteropType<HybridParser> {
         JSCurrentJSContext.set(context)
 
         let jsNodeFactory = callInfo[0].asFunction()
+        let includeSourceSpans = if (callInfo.count > 1) {
+            Int64(callInfo[1].asNumber().toFloat64())
+        } else {
+            0
+        }
         let parser = Markdown
             .builder()
             .usePlugin(TaskListPlugin.create()) // 任务列表插件
@@ -31,6 +36,7 @@ public class HybridParser <: SharedObject & JSInteropType<HybridParser> {
             .usePlugin(LinkifyPlugin.create()) // 自动网址链接
             .usePlugin(TocPlugin.create()) // TOC列表插件
             .usePlugin(Plugin4InlineParserIntegration([InsertImageParser(), MoonLoadingParser()]))
+            .includeSourceSpans(includeSourceSpans)
             .build()
         let clazz = HybridParser(parser, jsNodeFactory)
 
@@ -48,9 +54,7 @@ public class HybridParser <: SharedObject & JSInteropType<HybridParser> {
             let doc: MdNode = parser.parse(md)
             context.postJSTask {
                 let jsNodeTreeBuilder = JsNodeBuilder(jsNodeFactory, context)
-                let RET = jsNodeTreeBuilder
-                    .buildNode(doc)
-                    .toJSValue()
+                let RET = jsNodeTreeBuilder.buildNode(doc).toJSValue()
                 promise.resolve(RET)
             }
         }
@@ -75,9 +79,7 @@ public class HybridParser <: SharedObject & JSInteropType<HybridParser> {
         let ext = context.external(this)
         let obj = context.object()
 
-        obj["parse"] = context
-            .function(parse_ArkTS_Interop_Identifier)
-            .toJSValue()
+        obj["parse"] = context.function(parse_ArkTS_Interop_Identifier).toJSValue()
 
         obj.attachCJObject(ext)
         obj.toJSValue()

@@ -18,7 +18,7 @@ class MoonLoadingParser <: InlineParserIntegration {
         return HashSet([r'<']);
     }
     public func tryParse(inlineParserState: InlineParserState): ParsedInline {
-        let scanner = inlineParserState.scanner()
+        let scanner = inlineParserState.getScanner()
         let start = scanner.index
         let line = scanner.lines[scanner.lineIndex].getContent()
         var str = line[scanner.index..]

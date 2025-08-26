@@ -6,7 +6,7 @@ import { hilog } from '@kit.PerformanceAnalysisKit';
 
 export async function sample_label(): Promise<string> {
   let md = 'this is a <label> 这段应该有一个背景色 ,**加粗** </label>, other words'
-  let node = await parseIntoJsNode(md)
+  let node = await parseIntoJsNode(md, 0)
   visit(node)
   let nodeTreeStr = printNode(node)
   hilog.error(0, '', nodeTreeStr)

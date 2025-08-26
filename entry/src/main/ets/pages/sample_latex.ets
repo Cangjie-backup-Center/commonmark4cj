@@ -10,7 +10,7 @@ export async function sample_latex(page: object) {
     '   计算 \\(\\frac{7}{7}\\) 得 1，所以剩下：\n' +
     '   \\[7 - 1 = 6\\]\n'
   md = page['latex'] as string
-  let node = await parseIntoJsNode(md)
+  let node = await parseIntoJsNode(md, 0)
   let nodeTreeStr = printNode(node)
   page['message'] = nodeTreeStr
 }

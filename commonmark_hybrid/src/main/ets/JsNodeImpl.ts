@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
  */
-import { JsNode } from "./JsNode"
+import { JsNode, SourceSpan } from "./JsNode"
 
 export class JsNodeImpl implements JsNode {
   constructor() {
@@ -218,5 +218,85 @@ export class JsNodeImpl implements JsNode {
     let m = this.props ?? new Map<string, string>()
     m.set(k, v)
     this.props = m
+  }
+
+  sourceSpans: SourceSpanImpl[] = []
+
+  getSourceSpans(): SourceSpanImpl[] {
+    return this.sourceSpans
+  }
+
+  addSourceSpans(...numbers: Array<number>): void {
+    for (let i = 3; i < numbers.length; i += 4) {
+      let line: number = numbers[i-3]
+      let column: number = numbers[i-2]
+      let index: number = numbers[i-1]
+      let length: number = numbers[i]
+      this.sourceSpans.push(new SourceSpanImpl(line, column, index, length))
+    }
+  }
+
+  reset():void{
+    this.unlink()
+    this.nodeType = ""
+    this.toStr = ""
+    this.parent = undefined
+    this.firstChild = undefined
+    this.lastChild = undefined
+    this.prev = undefined
+    this.next = undefined
+    this.literal = undefined
+    this.destination = undefined
+    this.title = undefined
+    this.label = undefined
+    this.delimiter = undefined
+    this.fenceChar = undefined
+    this.fenceLength = undefined
+    this.fenceIndent = undefined
+    this.level = undefined
+    this.bulletMarker = undefined
+    this.startNumber = undefined
+    this.info = undefined
+    this.tight = undefined
+    this.header = undefined
+    this.alignment = undefined
+    this.props = undefined
+    this.isdone = undefined
+    this.latex = undefined
+    this.isClosed = undefined
+    this.noteid = undefined
+    this.blockIndex = undefined
+    this.headIndex = undefined
+    this.sourceSpans = []
+  }
+}
+
+export class SourceSpanImpl implements SourceSpan {
+  line: number
+  column: number
+  index: number
+  length: number
+
+  constructor(line: number, column: number, index: number, length: number) {
+    this.line = line
+    this.column = column
+    this.index = index
+    this.length = length
+  }
+
+  getLineIndex(): number {
+    return this.line
+  }
+
+  getColumnIndex(): number {
+    return this.column
+  }
+
+  getInputIndex(): number {
+    return this.index
+  }
+
+  getLength(): number {
+    return this.length
   }
 }

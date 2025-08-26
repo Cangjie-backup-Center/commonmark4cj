@@ -50,7 +50,7 @@ public class FootnoteBlock <: CustomBlock {
 }
 
 class FootnoteBlockParser <: AbstractBlockParser {
-    FootnoteBlockParser(let title: String, let line: String) {
+    FootnoteBlockParser(let title: String, let line: SourceLine) {
         block = FootnoteBlock(title)
         block.appendChild(paragraph)
     }
@@ -73,7 +73,7 @@ class FootnoteBlockParser <: AbstractBlockParser {
     }
     public func parseInlines(inlineParser: InlineParser): Unit {
         //        println("FootnoteBlockParser parseInlines ")
-        inlineParser.parse(line, paragraph)
+        inlineParser.parse(SourceLines.of(line), paragraph)
     }
 
     public func closeBlock(): Unit {
@@ -84,11 +84,12 @@ class FootnoteBlockParser <: AbstractBlockParser {
 class FootnoteBlockParserFactory <: AbstractBlockParserFactory {
     static let FOOTNOTE_BLOCK = Regex(#"^\[\^.+?\]:"#)
     public func tryStart(state: ParserState, _: MatchedBlockParser): ?BlockStart {
-        let line: String = state.getLine()
+        let line: String = state.getLine().getContent()
         if (line.size >= 4 && line[0] == b'[' && line[1] == b'^') {
             if (let Some(end) <- line.indexOf("]:", 2)) {
+                let ss = state.getLine().substring(end + 2, line.size)
                 return BlockStart
-                    .of4Cj(FootnoteBlockParser(line[2..end], line[end + 2..]))
+                    .of(FootnoteBlockParser(line[2..end], ss))
                     .atIndex(state.getIndex() + end + 2)
             }
         }

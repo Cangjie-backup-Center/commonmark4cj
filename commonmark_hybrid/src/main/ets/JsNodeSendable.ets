@@ -1,8 +1,9 @@
 /*
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
  */
-import { JsNode } from './JsNode';
+import { JsNode, SourceSpan } from './JsNode';
 import collections from '@arkts.collections';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 @Sendable
 export class JsNodeSendableImpl implements JsNode {
@@ -220,5 +221,89 @@ export class JsNodeSendableImpl implements JsNode {
     let m = this.props ?? new collections.Map()
     m.set(k, v)
     this.props = m
+  }
+
+  sourceSpans: collections.Array<SourceSpanSendableImpl> = new collections.Array()
+
+  getSourceSpans(): Array<SourceSpanSendableImpl> {
+    return Array.from(this.sourceSpans)
+  }
+
+  addSourceSpans(...numbers: Array<number>): void {
+    if(this.sourceSpans.length>0){
+      hilog.error(0,'',`1.1 ${this.sourceSpans.length}`)
+    }
+    for (let i = 3; i < numbers.length; i += 4) {
+      let line: number = numbers[i-3]
+      let column: number = numbers[i-2]
+      let index: number = numbers[i-1]
+      let length: number = numbers[i]
+      this.sourceSpans.push(new SourceSpanSendableImpl(line, column, index, length))
+    }
+  }
+
+  reset():void{
+    this.unlink()
+    this.nodeType = ""
+    this.toStr = ""
+    this.parent = undefined
+    this.firstChild = undefined
+    this.lastChild = undefined
+    this.prev = undefined
+    this.next = undefined
+    this.literal = undefined
+    this.destination = undefined
+    this.title = undefined
+    this.label = undefined
+    this.delimiter = undefined
+    this.fenceChar = undefined
+    this.fenceLength = undefined
+    this.fenceIndent = undefined
+    this.level = undefined
+    this.bulletMarker = undefined
+    this.startNumber = undefined
+    this.info = undefined
+    this.tight = undefined
+    this.header = undefined
+    this.alignment = undefined
+    this.props = undefined
+    this.isdone = undefined
+    this.latex = undefined
+    this.isClosed = undefined
+    this.noteid = undefined
+    this.blockIndex = undefined
+    this.headIndex = undefined
+    this.sourceSpans = new collections.Array()
+  }
+}
+
+@Sendable
+export class SourceSpanSendableImpl implements SourceSpan {
+  line: number
+  column: number
+  index: number
+  length: number
+
+  constructor(line: number, column: number, index: number, length: number) {
+    this.line = line
+    this.column = column
+    this.index = index
+    this.length = length
+  }
+
+  getLineIndex(): number {
+    return this.line
+  }
+
+  getColumnIndex(): number {
+    return this.column
+  }
+
+  getInputIndex(): number {
+    return this.index
+  }
+
+  getLength(): number {
+    return this.length
   }
 }

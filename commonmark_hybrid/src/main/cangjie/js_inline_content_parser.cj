@@ -8,7 +8,7 @@ class JsInlineContentParser <: InlineContentParser {
 
     @OverflowWrapping
     public func tryParse(inlineParserState: InlineParserState): ParsedInline {
-        let scanner = inlineParserState.scanner()
+        let scanner = inlineParserState.getScanner()
         let position = scanner.position()
         let jsScanner = context.object()
         jsScanner.set<Int>('lineIndex', scanner.lineIndex, context)

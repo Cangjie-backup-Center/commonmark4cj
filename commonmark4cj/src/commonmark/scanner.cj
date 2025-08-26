@@ -61,6 +61,17 @@ public class Scanner {
             }
         }
     }
+    public func peekByte(): Byte {
+        if (index < lineLength) {
+            line.getContent()[index]
+        } else {
+            if (lineIndex < lines.size - 1) {
+                b'\n'
+            } else {
+                b'\0'
+            }
+        }
+    }
 
     public func peekCodePoint(): Rune {
         peek()
@@ -94,8 +105,7 @@ public class Scanner {
                 // 行内
                 peek()
                 index = index_next[1]
-            case v where v == lineLength =>
-                index++ // 行末
+            case v where v == lineLength => index++ // 行末
             case v where v > lineLength =>
                 // 跨行
                 lineIndex++
@@ -106,6 +116,30 @@ public class Scanner {
                 }
                 index = 0
             case _ => ()
+        }
+    }
+    public func nextByte(): Unit {
+        match (index + 1) {
+            case v where v < lineLength => index++ // 行内
+            case v where v == lineLength => index++ // 行末
+            case v where v > lineLength =>
+                // 跨行
+                lineIndex++
+                if (lineIndex < lines.size) {
+                    setLine(lines[lineIndex])
+                } else {
+                    setLine(SourceLine.of("", None))
+                }
+                index = 0
+            case _ => ()
+        }
+    }
+    public func nextByte(b: Byte): Bool {
+        if (peekByte() == b) {
+            nextByte()
+            true
+        } else {
+            false
         }
     }
 
@@ -151,6 +185,14 @@ public class Scanner {
         while (peek() == c) {
             count++
             next()
+        }
+        return count
+    }
+    public func matchMultipleByte(b: Byte): Int {
+        var count: Int = 0
+        while (hasNext() && peekByte() == b) {
+            count++
+            nextByte()
         }
         return count
     }

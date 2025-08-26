@@ -19,20 +19,30 @@ export declare interface CustomLib {
    * parseIntoJsNode
    * @param md
    * @param jsNodeFactory: () => JsNode
+   * @param includeSourceSpans: 是否包含SourceSpan信息 0:不包含(默认) 1:仅Block节点 2:全部节点
    * @param customParsers: Array<InlineContentParser>
    * @returns Promise<JsNode>
    */
-  parseIntoJsNode(md: string, jsNodeFactory: () => JsNode,
-    ...customParsers: Array<InlineContentParser>): Promise<JsNode>
+  parseIntoJsNode(
+    md: string,
+    jsNodeFactory: () => JsNode,
+    includeSourceSpans: number,
+    ...customParsers: Array<InlineContentParser>
+  ): Promise<JsNode>
 
   HybridParser: {
     /**
      * HybridParser constructor
      * @param jsNodeFactory: () => JsNode
+     * @param includeSourceSpans: 是否包含SourceSpan信息 0:不包含(默认) 1:仅Block节点 2:全部节点
      * @param customParsers: Array<InlineContentParser>
      * @returns HybridParser
      */
-    new(jsNodeFactory: () => JsNode, ...customParsers: Array<InlineContentParser>): HybridParser
+    new(
+      jsNodeFactory: () => JsNode,
+      includeSourceSpans: number,
+      ...customParsers: Array<InlineContentParser>
+    ): HybridParser
   }
 }
 

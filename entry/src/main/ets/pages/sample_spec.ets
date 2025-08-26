@@ -8,7 +8,7 @@ import { hilog } from '@kit.PerformanceAnalysisKit';
 export async function sample_spec(spec: string): Promise<string> {
   try {
     let t0 = systemDateTime.getTime()
-    let node = await parseIntoJsNode(spec)
+    let node = await parseIntoJsNode(spec, 0)
     let t1 = systemDateTime.getTime() - t0
     return `${t1} \n${printNode(node)}`
   } catch (e) {

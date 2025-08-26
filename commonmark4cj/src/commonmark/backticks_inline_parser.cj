@@ -10,7 +10,7 @@ public class BackticksInlineParser <: InlineContentParser {
 
     // @Override
     public func tryParse(inlineParserState: InlineParserState): ParsedInline {
-        let scanner: Scanner = inlineParserState.scanner()
+        let scanner: Scanner = inlineParserState.getScanner()
         let start: SourcePosition = scanner.position()
         let openingTicks: Int = scanner.matchMultiple(r'`')
         let afterOpening: SourcePosition = scanner.position()

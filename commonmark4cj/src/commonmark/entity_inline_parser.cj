@@ -19,7 +19,7 @@ public class EntityInlineParser <: InlineContentParser {
 
     // @Override
     public func tryParse(inlineParserState: InlineParserState): ParsedInline {
-        let scanner: Scanner = inlineParserState.scanner()
+        let scanner: Scanner = inlineParserState.getScanner()
         let start: SourcePosition = scanner.position()
         // Skip `&`
         scanner.next()

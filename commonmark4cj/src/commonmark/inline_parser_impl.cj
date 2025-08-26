@@ -3,34 +3,7 @@
  */
 package commonmark4cj.commonmark
 
-class DelimiterDataV2 {
-    let characters: ArrayList<Text>
-    let delimiterNodeOld: Text
-    let canClose: Bool
-    let canOpen: Bool
-
-    init(delimiterNodeOld: Text, characters: ArrayList<Text>, canOpen: Bool, canClose: Bool) {
-        this.delimiterNodeOld = delimiterNodeOld
-        this.characters = characters
-        this.canOpen = canOpen
-        this.canClose = canClose
-    }
-}
-
-/**
- * A destination and optional title for a link or image.
- */
-class DestinationTitle {
-    let destination: String
-    let title: ?String
-
-    public DestinationTitle(destination: String, title: ?String) {
-        this.destination = destination
-        this.title = title
-    }
-}
-
-class InlineParserImplV2 <: InlineParser & InlineParserState {
+class InlineParserImpl <: InlineParser & InlineParserState {
     private var specialCharacters: BitSet
     private var delimiterProcessors: HashMap<Rune, DelimiterProcessor>
     private var context: InlineParserContext
@@ -39,7 +12,7 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
     private let linkMarkers: BitSet
 
     private let inlineParsers: HashMap<Rune, ArrayList<(InlineContentParserFactory, InlineContentParser)>> = HashMap()
-    private var _scanner: Scanner = unsafe { zeroValue() }
+    private var scanner: Scanner = unsafe { zeroValue() }
     private var includeSourceSpans: Bool = false
     private var trailingSpaces: Int = 0
 
@@ -52,7 +25,7 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
     /**
      * Top opening bracket (<code>[</code> or <code>![)</code>).
      */
-    private var lastBracket: ?BracketV2 = None
+    private var lastBracket: ?Bracket = None
 
     public init(context: InlineParserContext) {
         let ctx = (context as InlineParserContextImpl).getOrThrow()
@@ -64,102 +37,6 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
         this.linkProcessors = calc.linkProcessors
         this.linkMarkers = calc.linkMarkers
         this.specialCharacters = calc.specialCharacters
-    }
-
-    private static func calculateInlineContentParserFactories(customFactories: ArrayList<InlineContentParserFactory>): ArrayList<InlineContentParserFactory> {
-        // Custom parsers can override built-in parsers if they want, so make sure they are tried first
-        var list = ArrayList(customFactories)
-        list.add(BackslashInlineParserFactory())
-        list.add(BackticksInlineParserFactory())
-        list.add(EntityInlineParserFactory())
-        list.add(AutolinkInlineParserFactory())
-        list.add(HtmlInlineParserFactory())
-        return list
-    }
-
-    private static func calculateLinkProcessors(linkProcessors: ArrayList<LinkProcessor>): ArrayList<LinkProcessor> {
-        // Custom link processors can override the built-in behavior, so make sure they are tried first
-        var list = ArrayList(linkProcessors)
-        list.add(CoreLinkProcessor())
-        return list
-    }
-
-    private static func calculateDelimiterProcessors(delimiterProcessors: ArrayList<DelimiterProcessor>): HashMap<Rune,
-        DelimiterProcessor> {
-        var map: HashMap<Rune, DelimiterProcessor> = HashMap<Rune, DelimiterProcessor>()
-        addDelimiterProcessors([AsteriskDelimiterProcessor(), UnderscoreDelimiterProcessor()], map)
-        addDelimiterProcessors(delimiterProcessors, map)
-        return map
-    }
-
-    private static func addDelimiterProcessors(
-        delimiterProcessors: Collection<DelimiterProcessor>,
-        hashMap: HashMap<Rune, DelimiterProcessor>
-    ): Unit {
-        for (delimiterProcessor in delimiterProcessors) {
-            let opening: Rune = delimiterProcessor.getOpeningCharacter()
-            let closing: Rune = delimiterProcessor.getClosingCharacter()
-            if (opening == closing) {
-                let old: Option<DelimiterProcessor> = hashMap.get(opening)
-                if (old.isSome() && old().getOpeningCharacter() == old().getClosingCharacter()) {
-                    var s: StaggeredDelimiterProcessor
-                    if (let Some(v: StaggeredDelimiterProcessor) <- old) {
-                        s = v
-                    } else {
-                        s = StaggeredDelimiterProcessor(opening)
-                        s.add(old())
-                    }
-                    s.add(delimiterProcessor)
-                    hashMap.add(opening, s)
-                } else {
-                    addDelimiterProcessorForChar(opening, delimiterProcessor, hashMap)
-                }
-            } else {
-                addDelimiterProcessorForChar(opening, delimiterProcessor, hashMap)
-                addDelimiterProcessorForChar(closing, delimiterProcessor, hashMap)
-            }
-        }
-    }
-
-    private static func addDelimiterProcessorForChar(
-        delimiterChar: Rune,
-        toAdd: DelimiterProcessor,
-        delimiterProcessors: HashMap<Rune, DelimiterProcessor>
-    ): Unit {
-        let existing: ?DelimiterProcessor = delimiterProcessors.add(delimiterChar, toAdd)
-        if (existing.isSome()) {
-            throw IllegalArgumentException("Delimiter processor conflict with delimiter char '${delimiterChar}'")
-        }
-    }
-
-    private static func calculateLinkMarkers(linkMarkers: Set<Rune>): BitSet {
-        var bitSet = BitSet(8)
-        for (c in linkMarkers) {
-            bitSet.set(Int64(UInt32(c)))
-        }
-        bitSet.set(Int64(b'!'))
-        return bitSet
-    }
-
-    private static func calculateSpecialCharacters(
-        linkMarkers: BitSet,
-        delimiterCharacters: Collection<Rune>,
-        inlineContentParserFactories: ArrayList<InlineContentParserFactory>
-    ): BitSet {
-        var bitSet: BitSet = linkMarkers.clone()
-        for (c in delimiterCharacters) {
-            bitSet.set(Int64(UInt32(c)))
-        }
-        for (factory in inlineContentParserFactories) {
-            for (c in factory.getTriggerCharacters()) {
-                bitSet.set(Int64(UInt32(c)))
-            }
-        }
-        bitSet.set(Int64(b'['))
-        bitSet.set(Int64(b']'))
-        bitSet.set(Int64(b'!'))
-        bitSet.set(Int64(b'\n'))
-        return bitSet
     }
 
     @Frozen
@@ -181,27 +58,15 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
         } else {
             for ((_, arr) in inlineParsers) {
                 for (i in 0..arr.size) {
-                    let (f, p) = arr[i]
+                    let (f, _) = arr[i]
                     arr[i] = (f, f.create())
                 }
             }
         }
     }
 
-    public func scanner(): Scanner {
-        return _scanner
-    }
-
-    /**
-     * Parse content in block into inline children, appending them to the block node.
-     */
-    @Frozen
-    public override func parse(lines: String, node: Node): Unit {
-        let sls = SourceLines.empty()
-        for (l in lines.trimAscii().lines()) {
-            sls.addLine(SourceLine.of(l, None))
-        }
-        parse(sls, node)
+    public func getScanner(): Scanner {
+        return scanner
     }
 
     @Frozen
@@ -222,7 +87,7 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
     }
 
     func reset(lines: SourceLines): Unit {
-        this._scanner = Scanner.of(lines)
+        this.scanner = Scanner.of(lines)
         this.includeSourceSpans = !lines.getSourceSpans().isEmpty()
         this.trailingSpaces = 0
         this.lastDelimiter = None
@@ -243,7 +108,7 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
      */
     @Frozen
     private func parseInline(): Array<Node> {
-        let c: Rune = _scanner.peek()
+        let c: Rune = scanner.peek()
 
         match (c) {
             case '[' => return [parseOpenBracket()]
@@ -254,13 +119,13 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
         }
 
         if (linkMarkers.get(Int64(UInt32(c)))) {
-            var markerPosition = _scanner.position()
+            var markerPosition = scanner.position()
             var nodes = parseLinkMarker()
             if (nodes.size > 0) {
                 return nodes
             }
             // Reset and try other things (e.g. inline parsers below)
-            _scanner.setPosition(markerPosition)
+            scanner.setPosition(markerPosition)
         }
 
         // No inline parser, delimiter or other special handling.
@@ -269,19 +134,19 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
         }
         let inlineParsers = this.inlineParsers.get(c)
         if (let Some(inlineParsers) <- inlineParsers) {
-            let position: SourcePosition = _scanner.position()
+            let position: SourcePosition = scanner.position()
             for ((_, inlineParser) in inlineParsers) {
                 let parsedInline = inlineParser.tryParse(this)
                 if (let Some(parsedInlineImpl) <- (parsedInline as ParsedInlineImpl)) {
                     let node = parsedInlineImpl.getNode()
-                    _scanner.setPosition(parsedInlineImpl.getPosition())
+                    scanner.setPosition(parsedInlineImpl.getPosition())
                     if (includeSourceSpans && node.getSourceSpans().isEmpty()) {
-                        node.setSourceSpans(_scanner.getSource(position, _scanner.position()).getSourceSpans())
+                        node.setSourceSpans(scanner.getSource(position, scanner.position()).getSourceSpans())
                     }
                     return [node]
                 } else {
                     // Reset position
-                    _scanner.setPosition(position)
+                    scanner.setPosition(position)
                 }
             }
         }
@@ -303,33 +168,32 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
      */
     @Frozen
     private func parseDelimiters(delimiterProcessor: DelimiterProcessor, delimiterChar: Rune): Array<Node> {
-        let res: DelimiterDataV2 = scanDelimiters(delimiterProcessor, delimiterChar) ?? return []
+        let res: DelimiterData = scanDelimiters(delimiterProcessor, delimiterChar) ?? return []
+
+        let characters = res.characters
 
         // Add entry to stack for this opener
-        let delimiter = Delimiter(res.delimiterNodeOld, delimiterChar, res.canOpen, res.canClose, lastDelimiter)
-        delimiter.length = res.characters.size
-        delimiter.originalLength = res.characters.size
+        let delimiter = Delimiter(characters, delimiterChar, res.canOpen, res.canClose, lastDelimiter)
         lastDelimiter = delimiter
         if (let Some(prev) <- delimiter.previous) {
             prev.next = lastDelimiter
         }
 
-        // return res.characters
-        return [res.delimiterNodeOld] // 使用旧版delemitorNode
+        return characters |> map<Text, Node> {t => t} |> collectArray
     }
 
     /**
      * Add open bracket to delimiter stack and add a text node to block's children.
      */
     private func parseOpenBracket(): Node {
-        let start = _scanner.position()
-        _scanner.next()
-        let contentPosition = _scanner.position()
+        let start = scanner.position()
+        scanner.next()
+        let contentPosition = scanner.position()
 
-        let node: Text = text(_scanner.getSource(start, contentPosition))
+        let node: Text = text(scanner.getSource(start, contentPosition))
 
         // Add entry to stack for this opener
-        addBracket(BracketV2.link(node, start, contentPosition, lastBracket, lastDelimiter))
+        addBracket(Bracket.link(node, start, contentPosition, lastBracket, lastDelimiter))
 
         return node
     }
@@ -340,18 +204,18 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
      */
     @Frozen
     private func parseLinkMarker(): Array<Node> {
-        var markerPosition = _scanner.position()
-        _scanner.next()
-        var bracketPosition = _scanner.position()
-        if (_scanner.next('[')) {
-            var contentPosition = _scanner.position()
-            var bangNode = text(_scanner.getSource(markerPosition, bracketPosition))
-            var bracketNode = text(_scanner.getSource(bracketPosition, contentPosition))
+        var markerPosition = scanner.position()
+        scanner.next()
+        var bracketPosition = scanner.position()
+        if (scanner.next('[')) {
+            var contentPosition = scanner.position()
+            var bangNode = text(scanner.getSource(markerPosition, bracketPosition))
+            var bracketNode = text(scanner.getSource(bracketPosition, contentPosition))
 
             // Add entry to stack for this opener
             addBracket(
-                BracketV2.withMarker(bangNode, markerPosition, bracketNode, bracketPosition, contentPosition,
-                    lastBracket, lastDelimiter))
+                Bracket.withMarker(bangNode, markerPosition, bracketNode, bracketPosition, contentPosition, lastBracket,
+                    lastDelimiter))
             return [bangNode, bracketNode]
         } else {
             return []
@@ -363,40 +227,40 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
      * plain [ character. If there is a matching delimiter, remove it from the delimiter stack.
      */
     private func parseCloseBracket(): Node {
-        let beforeClose = _scanner.position()
-        _scanner.next()
-        let afterClose = _scanner.position()
+        let beforeClose = scanner.position()
+        scanner.next()
+        let afterClose = scanner.position()
 
         // Get previous `[` or `![`
         // No matching opener, just return a literal.
-        let opener: BracketV2 = lastBracket ?? return text(_scanner.getSource(beforeClose, afterClose))
+        let opener: Bracket = lastBracket ?? return text(scanner.getSource(beforeClose, afterClose))
 
         if (!opener.allowed) {
             // Matching opener but it's not allowed, just return a literal.
             removeLastBracket()
-            return text(_scanner.getSource(beforeClose, afterClose))
+            return text(scanner.getSource(beforeClose, afterClose))
         }
         var linkOrImage = parseLinkOrImage(opener, beforeClose)
         if (let Some(linkOrImage) <- linkOrImage) {
             return linkOrImage
         }
-        _scanner.setPosition(afterClose)
+        scanner.setPosition(afterClose)
 
         // Nothing parsed, just parse the bracket as text and continue
         removeLastBracket()
-        return text(_scanner.getSource(beforeClose, afterClose))
+        return text(scanner.getSource(beforeClose, afterClose))
     }
 
-    private func parseLinkOrImage(opener: BracketV2, beforeClose: SourcePosition): ?Node {
+    private func parseLinkOrImage(opener: Bracket, beforeClose: SourcePosition): ?Node {
         var linkInfo = parseLinkInfo(opener, beforeClose) ?? return None
-        var processorStartPosition = _scanner.position()
+        var processorStartPosition = scanner.position()
 
         for (linkProcessor in linkProcessors) {
-            let result: LinkResultImpl = match (linkProcessor.process(linkInfo, _scanner, context)) {
+            let result: LinkResultImpl = match (linkProcessor.process(linkInfo, scanner, context)) {
                 case Some(v: LinkResultImpl) => v
                 case _ =>
                     // Reset position in case the processor used the scanner, and it didn't work out.
-                    _scanner.setPosition(processorStartPosition)
+                    scanner.setPosition(processorStartPosition)
                     continue
             }
 
@@ -406,10 +270,10 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
 
             match (result.getType()) {
                 case WRAP =>
-                    _scanner.setPosition(position)
+                    scanner.setPosition(position)
                     return wrapBracket(opener, node, includeMarker)
                 case REPLACE =>
-                    _scanner.setPosition(position)
+                    scanner.setPosition(position)
                     return replaceBracket(opener, node, includeMarker)
             }
         }
@@ -417,7 +281,7 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
         return None
     }
 
-    private func parseLinkInfo(opener: BracketV2, beforeClose: SourcePosition): ?LinkInfo {
+    private func parseLinkInfo(opener: Bracket, beforeClose: SourcePosition): ?LinkInfo {
         // Check to see if we have a link (or image, with a ! in front). The different types:
         // - Inline:       `[foo](/uri)` or with optional title `[foo](/uri "title")`
         // - Reference links
@@ -425,29 +289,29 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
         //   - Collapsed: `[foo][]`    (foo is both the text and label)
         //   - Shortcut:  `[foo]`      (foo is both the text and label)
 
-        let text = _scanner.getSource(opener.contentPosition, beforeClose).getContent()
+        let text = scanner.getSource(opener.contentPosition, beforeClose).getContent()
 
         // Starting position is after the closing `]`
-        let afterClose = _scanner.position()
+        let afterClose = scanner.position()
 
         // Maybe an inline link/image
-        var destinationTitle = parseInlineDestinationTitle(_scanner)
+        var destinationTitle = parseInlineDestinationTitle(scanner)
         if (let Some(destinationTitle) <- destinationTitle) {
             return LinkInfoImpl(opener.markerNode, opener.bracketNode, text, None, destinationTitle.destination,
                 destinationTitle.title, afterClose)
         }
         // Not an inline link/image, rewind back to after `]`.
-        _scanner.setPosition(afterClose)
+        scanner.setPosition(afterClose)
 
         // Maybe a reference link/image like `[foo][bar]`, `[foo][]` or `[foo]`.
         // Note that even `[foo](` could be a valid link if foo is a reference, which is why we try this even if the `(`
         // failed to be parsed as an inline link/image before.
 
         // See if there's a link label like `[bar]` or `[]`
-        let label = parseLinkLabel(_scanner)
+        let label = parseLinkLabel(scanner)
         if (label.isNone()) {
             // No label, rewind back
-            _scanner.setPosition(afterClose)
+            scanner.setPosition(afterClose)
         }
         var textIsReference = label?.isEmpty() ?? true
         if (opener.bracketAfter && textIsReference && opener.markerNode == None) {
@@ -459,7 +323,7 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
         return LinkInfoImpl(opener.markerNode, opener.bracketNode, text, label, None, None, afterClose)
     }
 
-    private func wrapBracket(opener: BracketV2, wrapperNode: Node, includeMarker: Bool): Node {
+    private func wrapBracket(opener: Bracket, wrapperNode: Node, includeMarker: Bool): Node {
         // Add all nodes between the opening bracket and now (closing bracket) as child nodes of the link
         var n: ?Node = opener.bracketNode.getNext()
         while (let Some(n1) <- n) {
@@ -474,7 +338,7 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
                 opener.bracketPosition
             }
             wrapperNode.setSourceSpans(
-                _scanner.getSource(startPosition.getOrThrow(), _scanner.position()).getSourceSpans())
+                scanner.getSource(startPosition.getOrThrow(), scanner.position()).getSourceSpans())
         }
 
         // Process delimiters such as emphasis inside link/image
@@ -502,7 +366,7 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
         return wrapperNode
     }
 
-    private func replaceBracket(opener: BracketV2, node: Node, includeMarker: Bool): Node {
+    private func replaceBracket(opener: Bracket, node: Node, includeMarker: Bool): Node {
         // Remove delimiters (but keep text nodes)
         while (lastDelimiter.isSome() && lastDelimiter != opener.previousDelimiter) {
             removeDelimiterKeepNode(lastDelimiter.getOrThrow())
@@ -514,7 +378,7 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
             } else {
                 opener.bracketPosition
             }
-            node.setSourceSpans(_scanner.getSource(startPosition.getOrThrow(), _scanner.position()).getSourceSpans())
+            node.setSourceSpans(scanner.getSource(startPosition.getOrThrow(), scanner.position()).getSourceSpans())
         }
 
         removeLastBracket()
@@ -533,7 +397,7 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
         return node
     }
 
-    private func addBracket(bracket: BracketV2): Unit {
+    private func addBracket(bracket: Bracket): Unit {
         if (let Some(lastBracket) <- lastBracket) {
             lastBracket.bracketAfter = true
         }
@@ -576,7 +440,7 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
     private static func parseLinkDestination(scanner: Scanner): ?String {
         let delimiter: Rune = scanner.peek()
         let start: SourcePosition = scanner.position()
-        if (!LinkScannerV2.scanLinkDestination(scanner)) {
+        if (!LinkScanner.scanLinkDestination(scanner)) {
             return None
         }
 
@@ -596,7 +460,7 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
      */
     private static func parseLinkTitle(scanner: Scanner): ?String {
         let start = scanner.position()
-        if (!LinkScannerV2.scanLinkTitle(scanner)) {
+        if (!LinkScanner.scanLinkTitle(scanner)) {
             return None
         }
 
@@ -615,7 +479,7 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
         }
 
         let start = scanner.position()
-        if (!LinkScannerV2.scanLinkLabelContent(scanner)) {
+        if (!LinkScanner.scanLinkLabelContent(scanner)) {
             return None
         }
         let end = scanner.position()
@@ -634,7 +498,7 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
     }
 
     private func parseLineBreak(): Node {
-        _scanner.next()
+        scanner.next()
 
         if (trailingSpaces >= 2) {
             return HardLineBreak()
@@ -647,18 +511,18 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
      * Parse the next character as plain text, and possibly more if the following characters are non-special.
      */
     private func parseText(): Node {
-        let start = _scanner.position()
-        _scanner.next()
+        let start = scanner.position()
+        scanner.next()
         var c: Rune = '\0'
         while (true) {
-            c = _scanner.peek()
+            c = scanner.peek()
             if (c == Scanner.END || specialCharacters.get(Int64(UInt32(c)))) {
                 break
             }
-            _scanner.next()
+            scanner.next()
         }
 
-        let source: SourceLines = _scanner.getSource(start, _scanner.position())
+        let source: SourceLines = scanner.getSource(start, scanner.position())
         var content = source.getContent()
 
         if (c == r'\n') {
@@ -683,28 +547,28 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
      *
      * @return information about delimiter run, or {@code null}
      */
-    private func scanDelimiters(delimiterProcessor: DelimiterProcessor, delimiterChar: Rune): ?DelimiterDataV2 {
-        let before = _scanner.peekPreviousCodePoint()
-        let start = _scanner.position()
+    private func scanDelimiters(delimiterProcessor: DelimiterProcessor, delimiterChar: Rune): ?DelimiterData {
+        let before = scanner.peekPreviousCodePoint()
+        let start = scanner.position()
 
         // Quick check to see if we have enough delimiters.
-        let delimiterCount = _scanner.matchMultiple(delimiterChar)
+        let delimiterCount = scanner.matchMultiple(delimiterChar)
         if (delimiterCount < delimiterProcessor.getMinLength()) {
-            _scanner.setPosition(start)
+            scanner.setPosition(start)
             return None
         }
 
         // We do have enough, extract a text node for each delimiter character.
         let delimiters = ArrayList<Text>()
-        _scanner.setPosition(start)
+        scanner.setPosition(start)
         var positionBefore = start
-        while (_scanner.next(delimiterChar)) {
-            delimiters.add(text(_scanner.getSource(positionBefore, _scanner.position())))
-            positionBefore = _scanner.position()
+        while (scanner.next(delimiterChar)) {
+            delimiters.add(text(scanner.getSource(positionBefore, scanner.position())))
+            positionBefore = scanner.position()
         }
-        let delimiterNodeOld = text(_scanner.getSource(start, positionBefore))
+        // let delimiterNodeOld = text(scanner.getSource(start, positionBefore))
 
-        let after = _scanner.peekCodePoint()
+        let after = scanner.peekCodePoint()
 
         // We could be more lazy here, in most cases we don't need to do every match case.
         let beforeIsPunctuation = before == Scanner.END || Characters.isPunctuationCodePoint(before)
@@ -724,45 +588,45 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
             canClose = rightFlanking && delimiterChar == delimiterProcessor.getClosingCharacter()
         }
 
-        return DelimiterDataV2(delimiterNodeOld, delimiters, canOpen, canClose)
+        return DelimiterData(delimiters, canOpen, canClose)
     }
 
     private func processDelimiters(stackBottom: ?Delimiter): Unit {
         var openersBottom: HashMap<Rune, ?Delimiter> = HashMap<Rune, ?Delimiter>()
 
         // find first closer above stackBottom:
-        var closer: ?Delimiter = lastDelimiter
-        while (closer.isSome() && closer().previous != stackBottom) {
-            closer = closer().previous
+        var closerOption: ?Delimiter = lastDelimiter
+        while (let Some(v) <- closerOption && v.previous != stackBottom) {
+            closerOption = v.previous
         }
         // move forward, looking for closers, and handling each
-        while (let Some(_closer) <- closer) {
-            let delimiterChar: Rune = _closer.delimiterChar
+        while (let Some(closer) <- closerOption) {
+            let delimiterChar: Rune = closer.delimiterChar
 
             var delimiterProcessor: ?DelimiterProcessor = delimiterProcessors.get(delimiterChar)
-            if (!(_closer.canClose()) || delimiterProcessor.isNone()) {
-                closer = _closer.next
+            if (!closer.canClose() || delimiterProcessor.isNone()) {
+                closerOption = closer.next
                 continue
             }
 
             let openingDelimiterChar: Rune = delimiterProcessor().getOpeningCharacter()
 
             // Found delimiter closer. Now look back for first matching opener.
-            var useDelims: Int64 = 0
+            var usedDelims: Int64 = 0
             var openerFound: Bool = false
             var potentialOpenerFound: Bool = false
-            var opener: ?Delimiter = _closer.previous
-            while (opener.isSome() && opener != stackBottom && opener != (openersBottom.get(delimiterChar) ?? None)) {
-                if (opener().canOpen() && (opener().delimiterChar == openingDelimiterChar)) {
+            var openerOption: ?Delimiter = closer.previous
+            while (let Some(opener) <- openerOption && stackBottom != opener && openersBottom.get(delimiterChar) !=
+                    opener) {
+                if (opener.canOpen() && opener.delimiterChar == openingDelimiterChar) {
                     potentialOpenerFound = true
-                    // 使用旧版delimiterProcessor处理
-                    useDelims = delimiterProcessor().getDelimiterUse(opener(), _closer)
-                    if (useDelims > 0) {
+                    usedDelims = delimiterProcessor().process(opener, closer)
+                    if (usedDelims > 0) {
                         openerFound = true
                         break
                     }
                 }
-                opener = opener().previous
+                openerOption = opener.previous
             }
 
             if (!openerFound) {
@@ -776,42 +640,40 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
                      we want to consider it next time because the number
                      of delimiters can change as we continue processing.
                      */
-                    openersBottom.add(delimiterChar, _closer.previous)
-                    if (closer.isSome() && !_closer.canOpen()) {
+                    openersBottom.add(delimiterChar, closer.previous)
+                    if (let Some(v) <- closerOption && !v.canOpen()) {
                         // We can remove a closer that can't be an opener,
                         // once we've seen there's no matching opener:
-                        removeDelimiterKeepNode(_closer)
+                        removeDelimiterKeepNode(v)
                     }
                 }
-                closer = _closer.next
+                closerOption = closer.next
                 continue
             }
 
-            var openerNode: Text = opener().node
-            var closerNode: Text = closer().node
+            let opener = openerOption.getOrThrow()
 
-            // Remove number of used delimiters from stack and inline nodes.
-            opener().length -= useDelims
-            closer().length -= useDelims
-            let openerNodeGetLiteralArr: String = openerNode.getLiteral()
-            let closerNodeGetLiteralArr: String = closerNode.getLiteral()
-            openerNode.setLiteral((openerNodeGetLiteralArr[0..(openerNodeGetLiteralArr.size - useDelims)]))
-            closerNode.setLiteral(closerNodeGetLiteralArr[0..(closerNodeGetLiteralArr.size - useDelims)])
-
-            removeDelimitersBetween(opener(), closer())
-            // The delimiter processor can re-parent the nodes between opener and closer,
-            // so make sure they're contiguous already. Exclusive because we want to keep opener/closer themselves.
-            mergeTextNodesBetweenExclusive(openerNode, closerNode)
-            delimiterProcessor().process(openerNode, closerNode, useDelims)
-
-            // No delimiter characters left to process, so we can remove delimiter and the now empty node.
-            if (opener?.length == 0) {
-                removeDelimiterAndNode(opener())
+            // Remove number of used delimiters nodes.
+            for (_ in 0..usedDelims) {
+                let delimiter = opener.characters.remove(at: opener.characters.size - 1)
+                delimiter.unlink()
+            }
+            for (_ in 0..usedDelims) {
+                let delimiter = closer.characters.remove(at: 0)
+                delimiter.unlink()
             }
 
-            if (let Some(v) <- closer && v.length == 0) {
-                closer = v.next
-                removeDelimiterAndNode(v)
+            removeDelimitersBetween(opener, closer)
+
+            // No delimiter characters left to process, so we can remove delimiter and the now empty node.
+            if (opener.getLength() == 0) {
+                removeDelimiterAndNodes(opener)
+            }
+
+            if (closer.getLength() == 0) {
+                let next = closer.next
+                removeDelimiterAndNodes(closer)
+                closerOption = next
             }
         }
 
@@ -832,9 +694,7 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
     /**
      * Remove the delimiter and the corresponding text node. For used delimiters, e.g. `*` in `*foo*`.
      */
-    private func removeDelimiterAndNode(delim: Delimiter): Unit {
-        var node: Text = delim.node
-        node.unlink()
+    private func removeDelimiterAndNodes(delim: Delimiter): Unit {
         removeDelimiter(delim)
     }
 
@@ -857,15 +717,6 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
         }
     }
 
-    private func mergeTextNodesBetweenExclusive(fromNode: Node, toNode: Node): Unit {
-        // No nodes between them
-        if (fromNode == toNode || fromNode.getNext() == toNode) {
-            return
-        }
-
-        mergeTextNodesInclusive(fromNode.getNext(), toNode.getPrevious())
-    }
-
     private func mergeChildTextNodes(node: Node): Unit {
         // No children or just one child node, no need for merging
         if (node.getFirstChild().isNone()) {
@@ -880,9 +731,9 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
         var last: ?Text = None
         var length: Int64 = 0
 
-        var node: ?Node = fromNode
-        while (node.isSome()) {
-            if (let Some(text: Text) <- node) {
+        var nodeOption: ?Node = fromNode
+        while (let Some(node) <- nodeOption) {
+            if (let Some(text: Text) <- nodeOption) {
                 if (first.isNone()) {
                     first = text
                 }
@@ -893,27 +744,28 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
                 first = Option<Text>.None
                 last = Option<Text>.None
                 length = 0
+                mergeChildTextNodes(node)
             }
-            if (node == toNode) {
+            if (toNode == node) {
                 break
             }
-            node = node().getNext()
+            nodeOption = node.getNext()
         }
 
         mergeIfNeeded(first, last, length)
     }
 
     private func mergeIfNeeded(first: ?Text, last: ?Text, textLength: Int64): Unit {
-        if (first.isSome() && last.isSome() && first != last) {
+        if (let Some(first) <- first && let Some(last) <- last && first != last) {
             var sb: StringBuilder = StringBuilder(textLength)
-            sb.append(first().getLiteral())
+            sb.append(first.getLiteral())
             var sourceSpans: ?SourceSpans = None
             if (includeSourceSpans) {
                 sourceSpans = SourceSpans()
-                sourceSpans?.addAll(first().getSourceSpans())
+                sourceSpans?.addAll(first.getSourceSpans())
             }
-            var node: ?Node = first().getNext()
-            let stop: ?Node = last().getNext()
+            var node: ?Node = first.getNext()
+            let stop: ?Node = last.getNext()
             while (node != stop) {
                 if (let Some(v: Text) <- node) {
                     sb.append(v.getLiteral())
@@ -924,16 +776,35 @@ class InlineParserImplV2 <: InlineParser & InlineParserState {
                 }
             }
             let literal: String = sb.toString()
-            first?.setLiteral(literal)
+            first.setLiteral(literal)
             if (let Some(sourceSpans) <- sourceSpans) {
-                first?.setSourceSpans(sourceSpans.getSourceSpans())
+                first.setSourceSpans(sourceSpans.getSourceSpans())
             }
         }
     }
 }
 
-public class InlineParserV2Factory <: InlineParserFactory {
-    public override func create(inlineParserContext: InlineParserContext): InlineParser {
-        return InlineParserImplV2(inlineParserContext)
+class DelimiterData {
+    let characters: ArrayList<Text>
+    let canClose: Bool
+    let canOpen: Bool
+
+    init(characters: ArrayList<Text>, canOpen: Bool, canClose: Bool) {
+        this.characters = characters
+        this.canOpen = canOpen
+        this.canClose = canClose
+    }
+}
+
+/**
+ * A destination and optional title for a link or image.
+ */
+class DestinationTitle {
+    let destination: String
+    let title: ?String
+
+    public DestinationTitle(destination: String, title: ?String) {
+        this.destination = destination
+        this.title = title
     }
 }

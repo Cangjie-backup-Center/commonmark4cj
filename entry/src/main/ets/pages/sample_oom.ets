@@ -25,7 +25,7 @@ export async function OutOfMemoryError(page: object): Promise<void> {
     // if (i % 100 == 0) {
       page['message'] = `i:${i}`
     // }
-    let tree = await cjLib.parseIntoJsNode(md, pool.getJsNode) as JsNode
+    let tree = await cjLib.parseIntoJsNode(md, pool.getJsNode, 0) as JsNode
     pool.put(tree)
     i += 1
     if (i >= md.length) {
@@ -41,7 +41,7 @@ export async function SharedHeap_OOM(page: object): Promise<void> {
     // if (i % 100 == 0) {
       page['message'] = `i:${i}`
     // }
-    let tree = await cjLib.parseIntoJsNode(md, pool.getJsNode) as JsNode
+    let tree = await cjLib.parseIntoJsNode(md, pool.getJsNode, 0) as JsNode
     pool.put(tree)
   }
 }

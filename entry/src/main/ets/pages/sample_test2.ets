@@ -10,7 +10,7 @@ export async function sample_test2(page: object) {
   let total2 = 0
   for (let i = 0; i < md.length; i++) {
     let mdstr = md.slice(0, i)
-    let node = await parseIntoJsNode(mdstr)
+    let node = await parseIntoJsNode(mdstr, 0)
     let nodeTreeStr = printNode(node)
     page['message'] = nodeTreeStr
     total1 += i

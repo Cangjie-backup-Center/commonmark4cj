@@ -16,14 +16,16 @@ public abstract class StrikethroughNodeRenderer <: NodeRenderer {
  * A strikethrough node containing text and other inline nodes nodes as children.
  */
 public class Strikethrough <: CustomNode & Delimited {
-    private static let DELIMITER: String = "~~"
+    // private static let DELIMITER: String = "~~"
+
+    public Strikethrough(let delimiter: String) {}
 
     public override func getOpeningDelimiter(): ?String {
-        return DELIMITER
+        return delimiter
     }
 
     public override func getClosingDelimiter(): ?String {
-        return DELIMITER
+        return delimiter
     }
 
     public override func getNodeType(): NodeType {
@@ -32,6 +34,14 @@ public class Strikethrough <: CustomNode & Delimited {
 }
 
 class StrikethroughDelimiterProcessor <: DelimiterProcessor {
+    let requireTwoTildes: Bool
+    public init() {
+        this(true)
+    }
+    public init(requireTwoTildes: Bool) {
+        this.requireTwoTildes = requireTwoTildes
+    }
+
     public override func getOpeningCharacter(): Rune {
         return r'~'
     }
@@ -41,33 +51,48 @@ class StrikethroughDelimiterProcessor <: DelimiterProcessor {
     }
 
     public override func getMinLength(): Int64 {
-        return 2
+        return if (requireTwoTildes) {
+            2
+        } else {
+            1
+        }
     }
 
-    public override func getDelimiterUse(opener: DelimiterRun, closer: DelimiterRun): Int64 {
-        if (opener.getLength() >= 2 && closer.getLength() >= 2) {
-            // Use exactly two delimiters even if we have more, and don't care about internal openers/closers.
-            return 2
+    public override func process(openingRun: DelimiterRun, closingRun: DelimiterRun): Int {
+        if (openingRun.getLength() == closingRun.getLength() && openingRun.getLength() <= 2) {
+            // GitHub only accepts either one or two delimiters, but not a mix or more than that.
+
+            let opener = openingRun.getOpener()
+
+            // Wrap nodes between delimiters in strikethrough.
+            let delimiter = if (openingRun.getLength() == 1) {
+                opener.getLiteral()
+            } else {
+                opener.getLiteral() + opener.getLiteral()
+            }
+            let strikethrough = Strikethrough(delimiter)
+
+            let sourceSpans = SourceSpans()
+            sourceSpans.addAllFromTexts(openingRun.getOpeners(openingRun.getLength()))
+
+            for (node in Nodes.between(opener, closingRun.getCloser())) {
+                strikethrough.appendChild(node)
+                sourceSpans.addAll(node.getSourceSpans())
+            }
+
+            sourceSpans.addAllFromTexts(closingRun.getClosers(closingRun.getLength()))
+            strikethrough.setSourceSpans(sourceSpans.getSourceSpans())
+
+            opener.insertAfter(strikethrough)
+
+            return openingRun.getLength()
         } else {
             return 0
         }
     }
-
-    public override func process(opener: Text, closer: Text, _: Int64): Unit {
-        // Wrap nodes between delimiters in strikethrough.
-        var strikethrough: Node = Strikethrough()
-
-        var tmp: ?Node = opener.getNext()
-        while (let Some(v) <- tmp && v != closer) {
-            tmp = v.getNext()
-            strikethrough.appendChild(v)
-        }
-
-        opener.insertAfter(strikethrough)
-    }
 }
 
-public class StrikethroughExtension <: ParserExtension {
+public class StrikethroughExtension <: ParserExtension & HtmlRendererExtension & TextContentRendererExtension {
     private init() {}
 
     public static func create(): Extension {
@@ -78,4 +103,15 @@ public class StrikethroughExtension <: ParserExtension {
         parserBuilder.customDelimiterProcessor(StrikethroughDelimiterProcessor())
     }
 
+    public override func ext(rendererBuilder: HtmlRendererBuilder): Unit {
+        rendererBuilder.nodeRendererFactory({
+            context => StrikethroughHtmlNodeRenderer(context)
+        })
+    }
+
+    public override func ext(rendererBuilder: TextContentRendererBuilder): Unit {
+        rendererBuilder.nodeRendererFactory({
+            context => StrikethroughTextContentNodeRenderer(context)
+        })
+    }
 }

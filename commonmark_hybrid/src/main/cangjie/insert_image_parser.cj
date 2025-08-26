@@ -19,7 +19,7 @@ class InsertImageParser <: InlineParserIntegration {
     }
 
     public func tryParse(inlineParserState: InlineParserState): ParsedInline {
-        let scanner = inlineParserState.scanner()
+        let scanner = inlineParserState.getScanner()
         let start = scanner.index
         let line = scanner.lines[scanner.lineIndex].getContent()
         var str = line[scanner.index..]
