@@ -7,25 +7,8 @@ internal import markdown.core.*
 internal import commonmark4cj.commonmark.*
 internal import commonmark4cj.strikethrough.*
 internal import commonmark4cj.table.*
-internal import std.collection.ArrayList
-internal import std.collection.LinkedList
-internal import std.collection.LinkedListNode
-internal import std.collection.HashMap
-internal import std.collection.HashSet
-internal import std.collection.Map
-internal import std.collection.collectArray
-internal import std.collection.collectArrayList
-internal import std.collection.collectString
-internal import std.collection.map
-internal import std.collection.forEach
-internal import std.collection.Set
-internal import std.regex.Matcher
-internal import std.regex.Regex
-internal import std.regex.RegexOption
-internal import std.collection.contains
-internal import std.io.IOException
-internal import std.convert.Parsable
-internal import std.convert.*
+internal import std.collection.*
+internal import std.regex.*
 
 /**
  * 扩展Option，getOrThrow()方法直接用()

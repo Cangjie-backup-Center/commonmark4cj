@@ -4,17 +4,8 @@
 package markdown.core
 
 internal import commonmark4cj.commonmark.*
-internal import std.collection.ArrayList
-internal import std.collection.HashMap
-internal import std.collection.HashSet
-internal import std.collection.Map
-internal import std.collection.collectArrayList
-internal import std.collection.collectString
-internal import std.collection.map
-internal import std.collection.forEach
+internal import std.collection.*
 internal import std.time.DateTime
-internal import std.regex.Matcher
-internal import std.regex.Regex
 
 /**
  * 扩展Option，getOrThrow()方法直接用()
