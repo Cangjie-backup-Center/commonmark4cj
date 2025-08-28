@@ -132,6 +132,12 @@ class FootnoteVisitor <: AbstractVisitor {
     }
     public func visit(n: Text): Unit {
         let line = n.getLiteral()
+        let sss = n.getSourceSpans()
+        if(sss.isEmpty()){
+            return
+        }
+        let lineSource = sss[0]
+
         var i = 0
 
         while (i <= line.size - 3) {
@@ -140,9 +146,13 @@ class FootnoteVisitor <: AbstractVisitor {
                 if (let Some(f1) <- line.indexOf("]", f0 + 2)) {
                     if (i < f0) {
                         let text = Text(line[i..f0])
+                        let ss = lineSource.subSpan(i, f0)
+                        text.addSourceSpan(ss)
                         n.insertBefore(text)
                     }
                     let footnote = Footnote(line[f0 + 2..f1])
+                    let ss = lineSource.subSpan(f0 + 2, f1)
+                    footnote.addSourceSpan(ss)
                     n.insertBefore(footnote)
                     notes.add(footnote)
                     i = f1 + 1
@@ -160,6 +170,8 @@ class FootnoteVisitor <: AbstractVisitor {
             n.unlink()
         } else {
             n.setLiteral(newLine)
+            let ss = lineSource.subSpan(i)
+            n.setSourceSpans([ss])
         }
     }
 }

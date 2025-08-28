@@ -461,6 +461,7 @@ public abstract class Context {
     /**
      * @return the source spans of this node if included by the parser, an empty list otherwise
      */
+    @Frozen
     public func getSourceSpans(): ReadOnlyList<SourceSpan> {
         return sourceSpans ?? EMPTY_SourceSpans
     }
@@ -471,7 +472,8 @@ public abstract class Context {
      *
      * @param sourceSpans the new source spans to set
      */
-    public func setSourceSpans(sourceSpans: ReadOnlyList<SourceSpan>): Unit {
+    @Frozen
+    public func setSourceSpans(sourceSpans: Collection<SourceSpan>): Unit {
         if (sourceSpans.isEmpty()) {
             this.sourceSpans = None
         } else {
