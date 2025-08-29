@@ -14,7 +14,7 @@ class InsertImageParser <: InlineParserIntegration {
     public func create(): InlineContentParser {
         this
     }
-    public func getTriggerCharacters(): Set<Rune> {
+    public func getTriggerCharacters(): HashSet<Rune> {
         return HashSet([r"<"]);
     }
 

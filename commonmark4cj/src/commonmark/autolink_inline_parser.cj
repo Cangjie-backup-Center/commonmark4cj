@@ -17,7 +17,7 @@ public class AutolinkInlineParser <: InlineContentParser {
         let scanner: Scanner = inlineParserState.getScanner()
         scanner.next()
         let textStart: SourcePosition = scanner.position()
-        if (scanner.find(r'>') > 0) {
+        if (scanner.find(b'>') > 0) {
             let textSource: SourceLines = scanner.getSource(textStart, scanner.position())
             let content: String = textSource.getContent()
             scanner.next()
@@ -43,11 +43,13 @@ public class AutolinkInlineParser <: InlineContentParser {
 
 public class AutolinkInlineParserFactory <: InlineContentParserFactory {
     // @Override
+    @Frozen
     public func getTriggerCharacters(): HashSet<Rune> {
         return HashSet(r'<')
     }
 
     // @Override
+    @Frozen
     public func create(): InlineContentParser {
         return AutolinkInlineParser()
     }

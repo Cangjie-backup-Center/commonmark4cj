@@ -56,7 +56,7 @@ public class LatexInlineParser <: InlineContentParser {
 
         if (scanner.next('$')) {
             let p1 = scanner.position()
-            if (scanner.find(r'$') > 0) {
+            if (scanner.find(b'$') > 0) {
                 let p2 = scanner.position()
                 let content = scanner.getSource(p1, p2).getContent()
                 scanner.next()

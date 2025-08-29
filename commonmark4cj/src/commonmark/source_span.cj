@@ -233,4 +233,12 @@ public enum IncludeSourceSpans <: Equatable<IncludeSourceSpans> {
             case _ => false
         }
     }
+    public prop need: Bool {
+        get() {
+            match (this) {
+                case NONE => false
+                case _ => true
+            }
+        }
+    }
 }

@@ -12,7 +12,7 @@ package commonmark4cj.commonmark
 public class DefinitionMap {
     private let typ: String
     // TreeMap for determinism and to preserve document order
-    private let definitions = TreeMap<String, LinkReferenceDefinition>()
+    private let definitions = HashMap<String, LinkReferenceDefinition>()
 
     public DefinitionMap(typ: String) {
         this.typ = typ
@@ -57,11 +57,11 @@ public class DefinitionMap {
         return definitions.get(normalizedLabel)
     }
 
-    public func keySet(): Collection<String> {
-        return definitions.keys()
-    }
+    // public func keySet(): Collection<String> {
+    //     return definitions.keys()
+    // }
 
-    public func values(): Collection<LinkReferenceDefinition> {
-        return definitions.values()
-    }
+    // public func values(): Collection<LinkReferenceDefinition> {
+    //     return definitions.values()
+    // }
 }

@@ -46,6 +46,7 @@ public interface DelimiterRun {
      * For example, for a delimiter run {@code ***}, calling this with 1 would return the last {@code *}.
      * Calling it with 2 would return the second last {@code *} and the last {@code *}.
      */
+    @Frozen
     func getOpeners(length: Int): ReadOnlyList<Text>
 
     /**
@@ -55,6 +56,7 @@ public interface DelimiterRun {
      * For example, for a delimiter run {@code ***}, calling this with 1 would return the first {@code *}.
      * Calling it with 2 would return the first {@code *} and the second {@code *}.
      */
+    @Frozen
     func getClosers(length: Int): ReadOnlyList<Text>
 }
 
@@ -79,6 +81,7 @@ public class Delimiter <: DelimiterRun & Equatable<Delimiter> {
     public var previous: ?Delimiter = None
     public var next: ?Delimiter = None
 
+    @Frozen
     public init(characters: ArrayList<Text>, delimiterChar: Rune, canOpen: Bool, canClose: Bool, previous: ?Delimiter) {
         this.characters = characters
         this.delimiterChar = delimiterChar
@@ -119,6 +122,7 @@ public class Delimiter <: DelimiterRun & Equatable<Delimiter> {
         return characters[0]
     }
 
+    @Frozen
     public func getOpeners(length: Int): ReadOnlyList<Text> {
         if (!(length >= 1 && length <= getLength())) {
             throw IllegalArgumentException("length must be between 1 and ${getLength()}, was ${length}")
@@ -126,6 +130,7 @@ public class Delimiter <: DelimiterRun & Equatable<Delimiter> {
         return characters[characters.size - length..characters.size]
     }
 
+    @Frozen
     public func getClosers(length: Int): ReadOnlyList<Text> {
         if (!(length >= 1 && length <= getLength())) {
             throw IllegalArgumentException("length must be between 1 and ${getLength()}, was ${length}")

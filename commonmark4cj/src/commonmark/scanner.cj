@@ -11,7 +11,8 @@ public class Scanner {
      * Note that we can use NULL to represent this because CommonMark does not allow those in the input (we replace them
      * in the beginning of parsing).
      */
-    public static let END: Rune = r'\0'
+    public static let END: Byte = b'\0'
+    public static let END_RUNE: Rune = r'\0'
 
     // Lines without newlines at the end. The scanner will yield `\n` between lines because they're significant for
     // parsing and the let output. There is no `\n` after the last line.
@@ -21,7 +22,7 @@ public class Scanner {
     // The index within the line. let index : If == length(), we pretend that there's a `\n` and only advance after we yield
     // that.
     public var index: Int
-    private var index_rune: Rune = END // 当前index的Rune
+    private var index_rune: Rune = END_RUNE // 当前index的Rune
     private var index_next = (-1, -1) // (lineIndex, index) 下一个index的坐标(计算了Rune长度) 用于判断是否已进行peek
 
     // Current line or "" if at the end of the lines (using "" instead of None saves a None check)
@@ -42,7 +43,7 @@ public class Scanner {
         return Scanner(lines.getLines(), 0, 0)
     }
 
-    public func peek(): Rune {
+    public func peekRune(): Rune {
         if (index < lineLength) {
             if (index_next[0] > lineIndex || (index_next[0] == lineIndex && index_next[1] > index)) {
                 return index_rune
@@ -57,11 +58,22 @@ public class Scanner {
                 return r'\n'
             } else {
                 // Don't return newline for end of last line
-                return END
+                return END_RUNE
             }
         }
     }
-    public func peekByte(): Byte {
+    public func peekLine(): String {
+        if (index < lineLength) {
+            return line.getContent()[index..]
+        } else {
+            if (lineIndex < lines.size - 1) {
+                return '\n'
+            } else {
+                return ''
+            }
+        }
+    }
+    public func peek(): Byte {
         if (index < lineLength) {
             line.getContent()[index]
         } else {
@@ -74,7 +86,7 @@ public class Scanner {
     }
 
     public func peekCodePoint(): Rune {
-        peek()
+        peekRune()
     }
 
     public func peekPreviousCodePoint(): Rune {
@@ -85,7 +97,7 @@ public class Scanner {
             if (lineIndex > 0) {
                 return r'\n'
             } else {
-                return END
+                return END_RUNE
             }
         }
     }
@@ -100,12 +112,19 @@ public class Scanner {
     }
 
     public func next(): Unit {
-        match (index + 1) {
-            case v where v < lineLength =>
-                // 行内
-                peek()
-                index = index_next[1]
-            case v where v == lineLength => index++ // 行末
+        let b = peek()
+        match {
+            case b < HIGH_1_UInt8 => skipByte(1)
+            case b < HIGH_3_UInt8 => skipByte(2)
+            case b < HIGH_4_UInt8 => skipByte(3)
+            case b < HIGH_5_UInt8 => skipByte(4)
+            case _ => throw IllegalStateException()
+        }
+    }
+    private func skipByte(len:Int): Unit {
+        match (index + len) {
+            case v where v < lineLength => index+=len // 行内
+            case v where v == lineLength => index+=len // 行末
             case v where v > lineLength =>
                 // 跨行
                 lineIndex++
@@ -118,25 +137,9 @@ public class Scanner {
             case _ => ()
         }
     }
-    public func nextByte(): Unit {
-        match (index + 1) {
-            case v where v < lineLength => index++ // 行内
-            case v where v == lineLength => index++ // 行末
-            case v where v > lineLength =>
-                // 跨行
-                lineIndex++
-                if (lineIndex < lines.size) {
-                    setLine(lines[lineIndex])
-                } else {
-                    setLine(SourceLine.of("", None))
-                }
-                index = 0
-            case _ => ()
-        }
-    }
-    public func nextByte(b: Byte): Bool {
-        if (peekByte() == b) {
-            nextByte()
+    public func next(b: Byte): Bool {
+        if (peek() == b) {
+            next()
             true
         } else {
             false
@@ -149,8 +152,8 @@ public class Scanner {
      * @param c the Rune to check (including newline characters)
      * @return true if matched and position was advanced, false otherwise
      */
-    public func next(c: Rune): Bool {
-        if (peek() == c) {
+    public func nextRune(c: Rune): Bool {
+        if (peekRune() == c) {
             next()
             return true
         } else {
@@ -180,19 +183,20 @@ public class Scanner {
         }
     }
 
-    public func matchMultiple(c: Rune): Int {
+    public func matchMultipleRune(c: Rune): Int {
+        let size = c.toString().size
         var count: Int = 0
-        while (peek() == c) {
-            count++
+        while (peekRune() == c) {
+            count += size
             next()
         }
         return count
     }
-    public func matchMultipleByte(b: Byte): Int {
+    public func matchMultiple(b: Byte): Int {
         var count: Int = 0
-        while (hasNext() && peekByte() == b) {
+        while (hasNext() && peek() == b) {
             count++
-            nextByte()
+            next()
         }
         return count
     }
@@ -219,7 +223,7 @@ public class Scanner {
         return count
     }
 
-    public func find(c: Rune): Int {
+    public func find(c: Byte): Int {
         var count: Int = 0
         while (true) {
             let cur = peek()
@@ -269,7 +273,7 @@ public class Scanner {
         if (begin.lineIndex == end.lineIndex) {
             // Shortcut for common case of text from a single line
             let line: SourceLine = lines[begin.lineIndex]
-            let newContent: CharSequence = line.getContent()[begin.index..end.index]
+            let newContent: String = line.getContent()[begin.index..end.index]
             let sourceSpan = line.getSourceSpan()
             let newSourceSpan: ?SourceSpan = sourceSpan?.subSpan(begin.index, end.index)
             return SourceLines.of(SourceLine.of(newContent, newSourceSpan))

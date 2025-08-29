@@ -4,6 +4,7 @@
 package commonmark4cj.commonmark
 
 public class Nodes {
+    @Frozen
     public static func between(first: Node, end: Node): Iterator<Node> {
         NodesIterator(first.getNext(), end)
     }

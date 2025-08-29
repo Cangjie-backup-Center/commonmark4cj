@@ -34,7 +34,7 @@ class JsInlineContentParser <: InlineContentParser {
 }
 
 class JsInlineContentParserFactory <: InlineContentParserFactory {
-    let triggerChars: Set<Rune>
+    let triggerChars: HashSet<Rune>
     let parser: JSObject
     let context: JSContext
     JsInlineContentParserFactory(parser: JSObject, context: JSContext) {
@@ -43,7 +43,7 @@ class JsInlineContentParserFactory <: InlineContentParserFactory {
         this.parser = parser
         this.context = context
     }
-    public func getTriggerCharacters(): Set<Rune> {
+    public func getTriggerCharacters(): HashSet<Rune> {
         triggerChars
     }
     public func create(): InlineContentParser {

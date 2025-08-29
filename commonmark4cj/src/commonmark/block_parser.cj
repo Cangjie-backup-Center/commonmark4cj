@@ -15,6 +15,7 @@ public abstract class AbstractBlockParser <: BlockParser {
         return false
     }
 
+    @Frozen
     public open func canContain(_: Block): Bool {
         return false
     }
@@ -25,10 +26,11 @@ public abstract class AbstractBlockParser <: BlockParser {
         getBlock().addSourceSpan(sourceSpan)
     }
 
-    public open func getDefinitions(): ReadOnlyList<DefinitionMap> {
+    @Frozen
+    public open func getDefinitions(): ArrayList<LinkReferenceDefinition> {
         return EMPTY_DefinitionMap_LIST
     }
-    private static let EMPTY_DefinitionMap_LIST = ArrayList<DefinitionMap>()
+    private static let EMPTY_DefinitionMap_LIST = ArrayList<LinkReferenceDefinition>(1)
 
     public open func closeBlock(): Unit {}
 
@@ -41,6 +43,7 @@ public abstract class AbstractBlockParserFactory <: BlockParserFactory {}
 public open class BlockContinue {
     protected init() {}
 
+    @Frozen
     public static func none(): Option<BlockContinue> {
         return None
     }
@@ -82,8 +85,10 @@ public interface BlockParser {
 
     func canContain(childBlock: Block): Bool
 
+    @Frozen
     func getBlock(): Block
 
+    @Frozen
     func tryContinue(parserState: ParserState): Option<BlockContinue>
 
     func addLine(line: SourceLine): Unit
@@ -99,7 +104,8 @@ public interface BlockParser {
      * Return definitions parsed by this parser. The definitions returned here can later be accessed during inline
      * parsing via {@link org.commonmark.parser.InlineParserContext#getDefinition}.
      */
-    func getDefinitions(): ReadOnlyList<DefinitionMap>
+    @Frozen
+    func getDefinitions(): ArrayList<LinkReferenceDefinition>
 
     func closeBlock(): Unit
 
@@ -112,6 +118,7 @@ public interface BlockParser {
  * Implementations should subclass {@link BlockParserFactory} instead of implementing this directly.
  */
 public interface BlockParserFactory {
+    @Frozen
     func tryStart(state: ParserState, matchedBlockParser: MatchedBlockParser): Option<BlockStart>
 }
 
@@ -122,10 +129,12 @@ public abstract class BlockStart {
     protected init() {
     }
 
+    @Frozen
     public static func none(): Option<BlockStart> {
         return None
     }
 
+    @Frozen
     public static func of(blockParsers: Array<AbstractBlockParser>): BlockStart {
         return BlockStartImpl(blockParsers)
     }
@@ -260,10 +269,12 @@ class BlockQuoteParser <: AbstractBlockParser {
         return true
     }
 
+    @Frozen
     public func getBlock(): BlockQuote {
         return block
     }
 
+    @Frozen
     public func tryContinue(state: ParserState): Option<BlockContinue> {
         var nextNonSpace: Int64 = state.getNextNonSpaceIndex()
         if (isMarker(state, nextNonSpace)) {
@@ -285,6 +296,7 @@ class BlockQuoteParser <: AbstractBlockParser {
 }
 
 public class BlockQuoteParserFactory <: BlockParserFactory {
+    @Frozen
     public func tryStart(state: ParserState, _: MatchedBlockParser): Option<BlockStart> {
         var nextNonSpace: Int64 = state.getNextNonSpaceIndex()
         if (BlockQuoteParser.isMarker(state, nextNonSpace)) {
@@ -354,10 +366,12 @@ class DocumentBlockParser <: AbstractBlockParser {
         return true
     }
 
+    @Frozen
     public func getBlock(): Document {
         return document
     }
 
+    @Frozen
     public func tryContinue(state: ParserState): Option<BlockContinue> {
         return BlockContinue.atIndex(state.getIndex())
     }
@@ -377,10 +391,12 @@ class FencedCodeBlockParser <: AbstractBlockParser {
         block.setFenceIndent(fenceIndent)
     }
 
+    @Frozen
     public func getBlock(): Block {
         return block
     }
 
+    @Frozen
     public func tryContinue(state: ParserState): Option<BlockContinue> {
         var nextNonSpace: Int64 = state.getNextNonSpaceIndex()
         var newIndex = state.getIndex()
@@ -417,6 +433,7 @@ class FencedCodeBlockParser <: AbstractBlockParser {
 
     // spec: A code fence is a sequence of at least three consecutive backtick characters (`) or tildes (~). (Tildes and
     // backticks cannot be mixed.)
+    @Frozen
     public static func checkOpener(line: String, index: Int64, indent: Int64): Option<FencedCodeBlockParser> {
         var backticks: Int64 = 0
         var tildes: Int64 = 0
@@ -462,6 +479,7 @@ class FencedCodeBlockParser <: AbstractBlockParser {
 }
 
 public class FencedCodeBlockParserFactory <: BlockParserFactory {
+    @Frozen
     public func tryStart(state: ParserState, _: MatchedBlockParser): Option<BlockStart> {
         var indent: Int64 = state.getIndent()
         if (indent >= Parsing.CODE_BLOCK_INDENT) {
@@ -486,10 +504,12 @@ class HeadingParser <: AbstractBlockParser {
         this.content = content
     }
 
+    @Frozen
     public func getBlock(): Block {
         return block
     }
 
+    @Frozen
     public func tryContinue(_: ParserState): Option<BlockContinue> {
         // In both ATX and Setext headings, once we have the heading markup, there's nothing more to parse.
         return BlockContinue.none()
@@ -503,9 +523,10 @@ class HeadingParser <: AbstractBlockParser {
     // 1–6 unescaped # characters and an optional closing sequence of any number of unescaped # characters. The opening
     // sequence of # characters must be followed by a space or by the end of line. The optional closing sequence of #s
     // must be preceded by a space and may be followed by spaces only.
+    @Frozen
     public static func getAtxHeading(line: SourceLine): Option<HeadingParser> {
         let scanner = Scanner.of(SourceLines.of(line))
-        var level: Int64 = scanner.matchMultipleByte(b'#')
+        var level: Int64 = scanner.matchMultiple(b'#')
 
         if (level == 0 || level > 6) {
             return None
@@ -516,7 +537,7 @@ class HeadingParser <: AbstractBlockParser {
             return HeadingParser(level, SourceLines.empty())
         }
 
-        var next = scanner.peekByte()
+        var next = scanner.peek()
         if (!(next == b' ' || next == b'\t')) {
             return None
         }
@@ -527,11 +548,11 @@ class HeadingParser <: AbstractBlockParser {
         var hashCanEnd = true
 
         while (scanner.hasNext()) {
-            let c = scanner.peekByte()
+            let c = scanner.peek()
             match (c) {
                 case b'#' =>
                     if (hashCanEnd) {
-                        scanner.matchMultipleByte(b'#')
+                        scanner.matchMultiple(b'#')
                         let whitespace = scanner.whitespace()
                         // If there's other characters, the hashes and spaces were part of the heading
                         if (scanner.hasNext()) {
@@ -539,15 +560,15 @@ class HeadingParser <: AbstractBlockParser {
                         }
                         hashCanEnd = whitespace > 0
                     } else {
-                        scanner.nextByte()
+                        scanner.next()
                         end = scanner.position()
                     }
                 case b' ' | '\t' =>
                     hashCanEnd = true
-                    scanner.nextByte()
+                    scanner.next()
                 case _ =>
                     hashCanEnd = false
-                    scanner.nextByte()
+                    scanner.next()
                     end = scanner.position()
             }
         }
@@ -584,6 +605,7 @@ class HeadingParser <: AbstractBlockParser {
 }
 
 public class HeadingParserFactory <: BlockParserFactory {
+    @Frozen
     public func tryStart(state: ParserState, matchedBlockParser: MatchedBlockParser): Option<BlockStart> {
         if (state.getIndent() >= Parsing.CODE_BLOCK_INDENT) {
             return BlockStart.none()
@@ -680,10 +702,12 @@ class HtmlBlockParser <: AbstractBlockParser {
         }
     }
 
+    @Frozen
     public func getBlock(): Block {
         return block
     }
 
+    @Frozen
     public func tryContinue(state: ParserState): Option<BlockContinue> {
         if (finished) {
             return BlockContinue.none()
@@ -739,10 +763,12 @@ class IndentedCodeBlockParser <: AbstractBlockParser {
     private var block: IndentedCodeBlock = IndentedCodeBlock()
     private var lines: ArrayList<String> = ArrayList<String>()
 
+    @Frozen
     public func getBlock(): Block {
         return block
     }
 
+    @Frozen
     public func tryContinue(state: ParserState): Option<BlockContinue> {
         if (state.getIndent() >= Parsing.CODE_BLOCK_INDENT) {
             return BlockContinue.atColumn(state.getColumn() + Parsing.CODE_BLOCK_INDENT)
@@ -778,6 +804,7 @@ class IndentedCodeBlockParser <: AbstractBlockParser {
 }
 
 public class IndentedCodeBlockParserFactory <: BlockParserFactory {
+    @Frozen
     public func tryStart(state: ParserState, _: MatchedBlockParser): Option<BlockStart> {
         // An indented code block cannot interrupt a paragraph.
         if (state.getIndent() >= Parsing.CODE_BLOCK_INDENT && !state.isBlank() &&
@@ -874,6 +901,7 @@ public class LinkReferenceDefinitionParser {
     func getParagraphLines(): SourceLines {
         return SourceLines.of(paragraphLines)
     }
+    @Frozen
     func getParagraphSourceSpans(): ArrayList<SourceSpan> {
         return sourceSpans
     }
@@ -981,7 +1009,7 @@ public class LinkReferenceDefinitionParser {
         }
 
         titleDelimiter = 0
-        let c: Byte = scanner.peekByte()
+        let c: Byte = scanner.peek()
         match (c) {
             case b'"' | b'\'' => titleDelimiter = c
             case b'(' => titleDelimiter = b')'
@@ -991,7 +1019,7 @@ public class LinkReferenceDefinitionParser {
         if (titleDelimiter != 0) {
             state = State.TITLE
             title = StringBuilder()
-            scanner.nextByte()
+            scanner.next()
             if (!scanner.hasNext()) {
                 title?.append('\n')
             }
@@ -1089,10 +1117,12 @@ class ListBlockParser <: AbstractBlockParser {
         }
     }
 
+    @Frozen
     public func getBlock(): Block {
         return block
     }
 
+    @Frozen
     public func tryContinue(state: ParserState): Option<BlockContinue> {
         if (state.isBlank()) {
             hadBlankLine = true
@@ -1245,6 +1275,7 @@ class ListBlockParser <: AbstractBlockParser {
 }
 
 public class ListBlockParserFactory <: BlockParserFactory {
+    @Frozen
     public func tryStart(state: ParserState, matchedBlockParser: MatchedBlockParser): Option<BlockStart> {
         var matched: AbstractBlockParser = matchedBlockParser.getMatchedBlockParser()
 
@@ -1333,10 +1364,12 @@ class ListItemParser <: AbstractBlockParser {
         return true
     }
 
+    @Frozen
     public func getBlock(): Block {
         return block
     }
 
+    @Frozen
     public func tryContinue(state: ParserState): Option<BlockContinue> {
         if (state.isBlank()) {
             if (block.getFirstChild().isNone()) {
@@ -1366,10 +1399,12 @@ class ParagraphParser <: AbstractBlockParser {
         return true
     }
 
+    @Frozen
     public func getBlock(): Block {
         return block
     }
 
+    @Frozen
     public func tryContinue(state: ParserState): Option<BlockContinue> {
         if (!state.isBlank()) {
             return BlockContinue.atIndex(state.getIndex())
@@ -1388,12 +1423,9 @@ class ParagraphParser <: AbstractBlockParser {
         linkReferenceDefinitionParser.addSourceSpan(sourceSpan)
     }
 
-    public func getDefinitions(): ReadOnlyList<DefinitionMap> {
-        var map = DefinitionMap("LinkReferenceDefinition")
-        for (def in linkReferenceDefinitionParser.getDefinitions()) {
-            map.putIfAbsent(def.getLabel().getOrThrow(), def)
-        }
-        return ArrayList([map])
+    @Frozen
+    public func getDefinitions(): ArrayList<LinkReferenceDefinition> {
+        linkReferenceDefinitionParser.getDefinitions()
     }
 
     public func closeBlock(): Unit {
@@ -1423,10 +1455,12 @@ class ParagraphParser <: AbstractBlockParser {
 class ThematicBreakParser <: AbstractBlockParser {
     private var block: ThematicBreak = ThematicBreak()
 
+    @Frozen
     public func getBlock(): Block {
         return block
     }
 
+    @Frozen
     public func tryContinue(_: ParserState): Option<BlockContinue> {
         // a horizontal rule can never container > 1 line, so fail to match
         return BlockContinue.none()
@@ -1457,6 +1491,7 @@ class ThematicBreakParser <: AbstractBlockParser {
 }
 
 public class ThematicBreakParserFactory <: BlockParserFactory {
+    @Frozen
     public func tryStart(state: ParserState, _: MatchedBlockParser): Option<BlockStart> {
         if (state.getIndent() >= 4) {
             return BlockStart.none()

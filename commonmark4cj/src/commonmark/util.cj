@@ -200,6 +200,7 @@ public class Html5Entities {
         }
     }
 
+    @Frozen
     public static func readEntities(): HashMap<String, String> {
         return entities_dict
     }
@@ -213,3 +214,10 @@ public class Parsing {
         return 4 - (column % 4)
     }
 }
+    
+const HIGH_1_UInt8: UInt8 = 0b10000000 // 0x80
+const HIGH_2_UInt8: UInt8 = 0b11000000 // 0xc0
+const HIGH_3_UInt8: UInt8 = 0b11100000 // 0xe0
+const HIGH_4_UInt8: UInt8 = 0b11110000 // 0xf0
+const HIGH_5_UInt8: UInt8 = 0b11111000 // 0xf8
+const HIGH_6_UInt8: UInt8 = 0b11111100 // 0xfc

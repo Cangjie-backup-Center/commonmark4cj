@@ -14,7 +14,7 @@ class MoonLoadingParser <: InlineParserIntegration {
     public func create(): InlineContentParser {
         this
     }
-    public func getTriggerCharacters(): Set<Rune> {
+    public func getTriggerCharacters(): HashSet<Rune> {
         return HashSet([r'<']);
     }
     public func tryParse(inlineParserState: InlineParserState): ParsedInline {

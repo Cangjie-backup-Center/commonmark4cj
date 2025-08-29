@@ -108,9 +108,9 @@ class InlineParserImpl <: InlineParser & InlineParserState {
      */
     @Frozen
     private func parseInline(): Array<Node> {
-        let c: Rune = scanner.peek()
+        let b: Byte = scanner.peek()
 
-        match (c) {
+        match (b) {
             case '[' => return [parseOpenBracket()]
             case ']' => return [parseCloseBracket()]
             case '\n' => return [parseLineBreak()]
@@ -118,7 +118,7 @@ class InlineParserImpl <: InlineParser & InlineParserState {
             case _ => ()
         }
 
-        if (linkMarkers.get(Int64(UInt32(c)))) {
+        if (linkMarkers.get(scanner)) {
             var markerPosition = scanner.position()
             var nodes = parseLinkMarker()
             if (nodes.size > 0) {
@@ -129,9 +129,11 @@ class InlineParserImpl <: InlineParser & InlineParserState {
         }
 
         // No inline parser, delimiter or other special handling.
-        if (!specialCharacters.get(Int64(UInt32(c)))) {
+        if (!specialCharacters.get(scanner)) {
             return [parseText()]
         }
+        let c: Rune = scanner.peekRune()
+
         let inlineParsers = this.inlineParsers.get(c)
         if (let Some(inlineParsers) <- inlineParsers) {
             let position: SourcePosition = scanner.position()
@@ -438,13 +440,13 @@ class InlineParserImpl <: InlineParser & InlineParserState {
      * Attempt to parse link destination, returning the string or null if no match.
      */
     private static func parseLinkDestination(scanner: Scanner): ?String {
-        let delimiter: Rune = scanner.peek()
+        let delimiter: Byte = scanner.peek()
         let start: SourcePosition = scanner.position()
         if (!LinkScanner.scanLinkDestination(scanner)) {
             return None
         }
 
-        var dest: String = if (delimiter == r'<') {
+        var dest: String = if (delimiter == b'<') {
             // chop off surrounding <..>:
             let rawDestination = scanner.getSource(start, scanner.position()).getContent()
             rawDestination[1..rawDestination.size - 1]
@@ -513,10 +515,10 @@ class InlineParserImpl <: InlineParser & InlineParserState {
     private func parseText(): Node {
         let start = scanner.position()
         scanner.next()
-        var c: Rune = '\0'
+        var c: Byte = '\0'
         while (true) {
             c = scanner.peek()
-            if (c == Scanner.END || specialCharacters.get(Int64(UInt32(c)))) {
+            if (c == Scanner.END || specialCharacters.get(scanner)) {
                 break
             }
             scanner.next()
@@ -525,7 +527,7 @@ class InlineParserImpl <: InlineParser & InlineParserState {
         let source: SourceLines = scanner.getSource(start, scanner.position())
         var content = source.getContent()
 
-        if (c == r'\n') {
+        if (c == b'\n') {
             // We parsed until the end of the line. Trim any trailing spaces and remember them (for hard line breaks).
             let end = Characters.skipBackwards(b' ', content, content.size - 1, 0) + 1
             trailingSpaces = content.size - end
@@ -552,7 +554,7 @@ class InlineParserImpl <: InlineParser & InlineParserState {
         let start = scanner.position()
 
         // Quick check to see if we have enough delimiters.
-        let delimiterCount = scanner.matchMultiple(delimiterChar)
+        let delimiterCount = scanner.matchMultipleRune(delimiterChar)
         if (delimiterCount < delimiterProcessor.getMinLength()) {
             scanner.setPosition(start)
             return None
@@ -562,7 +564,7 @@ class InlineParserImpl <: InlineParser & InlineParserState {
         let delimiters = ArrayList<Text>()
         scanner.setPosition(start)
         var positionBefore = start
-        while (scanner.next(delimiterChar)) {
+        while (scanner.nextRune(delimiterChar)) {
             delimiters.add(text(scanner.getSource(positionBefore, scanner.position())))
             positionBefore = scanner.position()
         }
@@ -571,10 +573,10 @@ class InlineParserImpl <: InlineParser & InlineParserState {
         let after = scanner.peekCodePoint()
 
         // We could be more lazy here, in most cases we don't need to do every match case.
-        let beforeIsPunctuation = before == Scanner.END || Characters.isPunctuationCodePoint(before)
-        let beforeIsWhitespace = before == Scanner.END || Characters.isWhitespaceCodePoint(before)
-        let afterIsPunctuation = after == Scanner.END || Characters.isPunctuationCodePoint(after)
-        let afterIsWhitespace = after == Scanner.END || Characters.isWhitespaceCodePoint(after)
+        let beforeIsPunctuation = before == Scanner.END_RUNE || Characters.isPunctuationCodePoint(before)
+        let beforeIsWhitespace = before == Scanner.END_RUNE || Characters.isWhitespaceCodePoint(before)
+        let afterIsPunctuation = after == Scanner.END_RUNE || Characters.isPunctuationCodePoint(after)
+        let afterIsWhitespace = after == Scanner.END_RUNE || Characters.isWhitespaceCodePoint(after)
 
         let leftFlanking = !afterIsWhitespace && (!afterIsPunctuation || beforeIsWhitespace || beforeIsPunctuation)
         let rightFlanking = !beforeIsWhitespace && (!beforeIsPunctuation || afterIsWhitespace || afterIsPunctuation)

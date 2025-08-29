@@ -87,6 +87,7 @@ class DocumentParser <: ParserState {
         activateBlockParser(OpenBlockParser(this.documentBlockParser, 0))
     }
 
+    @Frozen
     public static func getDefaultBlockParserTypes(): HashSet<NodeType> {
         return CORE_FACTORY_TYPES
     }
@@ -134,6 +135,7 @@ class DocumentParser <: ParserState {
         return finalizeAndProcess()
     }
 
+    @Frozen
     public func parse(input: StringReader<InputStream>): Document { // throws IOException
         var bufferedReader: StringReader<InputStream> = input
         var inputIndex = 0
@@ -181,6 +183,7 @@ class DocumentParser <: ParserState {
         return blank
     }
 
+    @Frozen
     public func getActiveBlockParser(): AbstractBlockParser {
         return openBlockParsers[openBlockParsers.size - 1].blockParser
     }
@@ -193,7 +196,7 @@ class DocumentParser <: ParserState {
 
         let lineContent = prepareLine(ln)
         var sourceSpan: ?SourceSpan = None
-        if (includeSourceSpans != IncludeSourceSpans.NONE) {
+        if (includeSourceSpans.need) {
             sourceSpan = SourceSpan.of(lineIndex, 0, inputIndex, lineContent.size)
         }
         this.line = SourceLine.of(lineContent, sourceSpan)
@@ -203,6 +206,7 @@ class DocumentParser <: ParserState {
      * Analyze a line of text and update the document appropriately. We parse markdown text by calling this on each
      * line of input, then finalizing the document.
      */
+    @Frozen
     private func parseLine(ln: String, inputIndex: Int): Unit {
         setLine(ln, inputIndex)
 
@@ -273,7 +277,7 @@ class DocumentParser <: ParserState {
                 setNewColumn(blockStart.getNewColumn())
             }
 
-            var replacedSourceSpans: ?ReadOnlyList<SourceSpan> = None
+            var replacedSourceSpans: ?ArrayList<SourceSpan> = None
             if (blockStart.isReplaceActiveBlockParser()) {
                 let replacedBlock: Block = prepareActiveBlockParserForReplacement()
                 replacedSourceSpans = replacedBlock.getSourceSpans()
@@ -411,7 +415,7 @@ class DocumentParser <: ParserState {
     }
 
     private func addSourceSpans(): Unit {
-        if (includeSourceSpans != IncludeSourceSpans.NONE) {
+        if (includeSourceSpans.need) {
             // Don't add source spans for Document itself (it would get the whole source text), so start at 1, not 0
             for (i in 1..openBlockParsers.size) {
                 var openBlockParser = openBlockParsers[i]
@@ -436,7 +440,7 @@ class DocumentParser <: ParserState {
             column++
         }
     }
-
+    @Frozen
     private func findBlockStart(blockParser: AbstractBlockParser): Option<BlockStartImpl> {
         var matchedBlockParser: MatchedBlockParser = MatchedBlockParserImpl(blockParser)
         for (blockParserFactory in blockParserFactories) {
@@ -459,8 +463,8 @@ class DocumentParser <: ParserState {
     }
 
     private func addDefinitionsFrom(blockParser: BlockParser): Unit {
-        for (definitionMap in blockParser.getDefinitions()) {
-            definitions.addDefinitions(definitionMap)
+        for (ref in blockParser.getDefinitions()) {
+            definitions.addDefinition(ref)
         }
     }
 
@@ -468,7 +472,8 @@ class DocumentParser <: ParserState {
      * Prepares the input line replacing {@code \0}
      */
     private static func prepareLine(line: String): String {
-        line.replace("\0", "\u{FFFD}")
+        // line.replace("\0", "\u{FFFD}")
+        line
     }
 
     /**
@@ -506,6 +511,7 @@ class DocumentParser <: ParserState {
         activateBlockParser(openBlockParser)
     }
 
+    @Frozen
     private func activateBlockParser(openBlockParser: OpenBlockParser): Unit {
         openBlockParsers.add(openBlockParser)
     }
@@ -537,6 +543,7 @@ class DocumentParser <: ParserState {
         return documentBlockParser.getBlock()
     }
 
+    @Frozen
     private func closeBlockParsers(count: Int): Unit {
         for (_ in 0..count) {
             let blockParser = deactivateBlockParser().blockParser

@@ -86,22 +86,27 @@ class InlineParserContextImpl <: InlineParserContext {
         this.linkMarkers = linkMarkers
     }
 
+    @Frozen
     public override func getCustomDelimiterProcessors(): ArrayList<DelimiterProcessor> {
         return delimiterProcessors
     }
 
+    @Frozen
     public func getCustomInlineContentParserFactories(): ArrayList<InlineContentParserFactory> {
         return inlineContentParserFactories
     }
 
+    @Frozen
     public func getCustomLinkProcessors(): ArrayList<LinkProcessor> {
         return linkProcessors
     }
 
+    @Frozen
     public func getCustomLinkMarkers(): HashSet<Rune> {
         return linkMarkers
     }
 
+    @Frozen
     public override func getLinkReferenceDefinition(label: String): ?LinkReferenceDefinition {
         return definitions.getDefinition("LinkReferenceDefinition", label)
     }

@@ -171,7 +171,7 @@ class FootnoteVisitor <: AbstractVisitor {
         } else {
             n.setLiteral(newLine)
             let ss = lineSource.subSpan(i)
-            n.setSourceSpans([ss])
+            n.setSourceSpans(ArrayList([ss]))
         }
     }
 }

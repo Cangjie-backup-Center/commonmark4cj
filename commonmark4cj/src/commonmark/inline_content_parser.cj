@@ -35,7 +35,8 @@ public interface InlineContentParserFactory {
      * encountered during inline parsing, {@link InlineContentParser#tryParse} is called with the current parser state.
      * It can also register for more than one trigger character.
      */
-    func getTriggerCharacters(): Set<Rune>
+    @Frozen
+    func getTriggerCharacters(): HashSet<Rune>
 
     /**
      * Create an {@link InlineContentParser} that will do the parsing. Create is called once per text snippet of inline
