@@ -20,6 +20,7 @@ import { inc_cached } from "./sample_inc_cached";
 import { sample_latex } from "./sample_latex";
 import { sample_test2 } from "./sample_test2";
 import { kimi, kimi_bench0, kimi_bench1 } from "./sample_kimi";
+import { err829 } from "./sample_err829";
 
 let textDecoder = new util.TextDecoder();
 
@@ -34,6 +35,9 @@ struct Index {
   cppcrash: string = textDecoder.decodeToString(this.manager.getRawFileContentSync('cppcrash.md'))
   parseerr: string = textDecoder.decodeToString(this.manager.getRawFileContentSync('parseerr.md'))
   latex: string = textDecoder.decodeToString(this.manager.getRawFileContentSync('latex.md'))
+  errjson1: string = textDecoder.decodeToString(this.manager.getRawFileContentSync('errjson1.md'))
+  errmd1: string = textDecoder.decodeToString(this.manager.getRawFileContentSync('errmd1.md'))
+  errmd2: string = textDecoder.decodeToString(this.manager.getRawFileContentSync('errmd2.md'))
 
   msg(msg: string) {
     this.message = msg
@@ -102,6 +106,9 @@ struct Index {
         })
         Button('bench HybridParser').fontSize($r('app.float.page_text_font_size')).onClick(() => {
           kimi_bench1(this)
+        })
+        Button('err2').fontSize($r('app.float.page_text_font_size')).onClick(() => {
+          err829(this)
         })
         Text(this.message)
       }

@@ -96,20 +96,22 @@ class JsNodeBuilder {
     }
 
     func setSourceSpans(instance: MdNode, jsNode: JSObject): Unit {
-        let sss = instance.getSourceSpans()
-        if (sss.size > 0) {
-            let numbersLen = sss.size * 4
-            let numbersDefault = context.number(-1.0).toJSValue()
-            let numbers = Array<JSValue>(numbersLen) {_ => numbersDefault}
-            for (i in 0..sss.size) {
-                let ss = sss[i]
-                let si = i * 4
-                numbers[si] = context.number(Float64(ss.getLineIndex())).toJSValue()
-                numbers[si + 1] = context.number(Float64(ss.getColumnIndex())).toJSValue()
-                numbers[si + 2] = context.number(Float64(ss.getInputIndex())).toJSValue()
-                numbers[si + 3] = context.number(Float64(ss.getLength())).toJSValue()
+        let sourceSpans = instance.getSourceSpans()
+        // 50个一组 批量添加SourceSpan
+        for (start in 0..sourceSpans.size : 50) {
+            let end = min(start + 50, sourceSpans.size)
+            let sourceSpansFlatten = Array<JSValue>((end - start) * 4) {
+                i =>
+                    let spanIndex = start + i / 4
+                    let span = sourceSpans[spanIndex]
+                    match (i % 4) {
+                        case 0 => context.number(Float64(span.getLineIndex())).toJSValue()
+                        case 1 => context.number(Float64(span.getColumnIndex())).toJSValue()
+                        case 2 => context.number(Float64(span.getInputIndex())).toJSValue()
+                        case _ => context.number(Float64(span.getLength())).toJSValue()
+                    }
             }
-            jsNode.callMethod('addSourceSpans', numbers)
+            jsNode.callMethod('addSourceSpans', sourceSpansFlatten)
         }
     }
 }
