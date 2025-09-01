@@ -12,12 +12,28 @@ export async function err829(page: object) {
     let node2 = await parseIntoJsNode(page['errmd1'] as string, 2)
     let node3 = await parseIntoJsNode(page['errmd2'] as string, 2)
     let t1 = systemDateTime.getTime() - t0
+    let md1 = printNode(node1)
     let md2 = printNode(node2)
+    hilog.error(0, 'mdebug', md1)
     page['message'] = `${t1}
-    errjson1:${printNode(node1).length}
+    errjson1:${md1.length}
     errmd1:${md2.length}
     errmd2:${printNode(node3).length}
-${md2}`
+${md1}`
+  } catch (e) {
+    hilog.error(0, 'mdebug', `${e}`)
+  }
+}
+
+export async function errLatexBlock(page: object) {
+  try {
+    let md = `\[
+asd
+\]`
+    let node1 = await parseIntoJsNode(md, 2)
+    let md1 = printNode(node1)
+    hilog.error(0, 'mdebug', md1)
+    page['message'] = `${md1}`
   } catch (e) {
     hilog.error(0, 'mdebug', `${e}`)
   }

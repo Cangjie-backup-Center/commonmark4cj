@@ -20,7 +20,7 @@ import { inc_cached } from "./sample_inc_cached";
 import { sample_latex } from "./sample_latex";
 import { sample_test2 } from "./sample_test2";
 import { kimi, kimi_bench0, kimi_bench1 } from "./sample_kimi";
-import { err829 } from "./sample_err829";
+import { err829, errLatexBlock } from "./sample_err829";
 
 let textDecoder = new util.TextDecoder();
 
@@ -109,6 +109,9 @@ struct Index {
         })
         Button('err2').fontSize($r('app.float.page_text_font_size')).onClick(() => {
           err829(this)
+        })
+        Button('err2').fontSize($r('app.float.page_text_font_size')).onClick(() => {
+          errLatexBlock(this)
         })
         Text(this.message)
       }

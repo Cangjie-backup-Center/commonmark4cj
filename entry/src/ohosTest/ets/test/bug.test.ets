@@ -7,7 +7,8 @@ import {
   utf16Index2utf8Index,
   Scanner,
   utf8Index2utf16Index,
-  printNode
+  printNode,
+  JsNode
 } from '@cangjie-tpc/commonmark_hybrid';
 import { errjson } from './md1';
 import { err2 } from './md2';
@@ -42,6 +43,29 @@ export default function bugTest() {
       let doc = await parseIntoJsNode(err2, 2)
       let str = printNode(doc)
       console.error(str)
+    })
+    it('bugLatex1', 0, async () => {
+      let md = `\\[
+asd
+\\]`
+      let doc = await parseIntoJsNode(md, 2)
+      let str = printNode(doc)
+      console.error(md)
+      console.error(str)
+      let latex: JsNode = doc.getFirstChild()!
+      expect(latex.getNodeType()).assertEqual("LatexMathBlock")
+      expect(latex['latex']).assertEqual("asd")
+    })
+    it('bugLatex2', 0, async () => {
+      let md = `$$
+asd
+$$`
+      let doc = await parseIntoJsNode(md, 2)
+      let str = printNode(doc)
+      console.error(str)
+      let latex: JsNode = doc.getFirstChild()!
+      expect(latex.getNodeType()).assertEqual("LatexMathBlock")
+      expect(latex['latex']).assertEqual("asd")
     })
   })
 }

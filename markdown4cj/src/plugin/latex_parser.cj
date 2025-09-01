@@ -33,7 +33,7 @@ class LatexBlockParser <: AbstractBlockParser {
         }
     }
 
-    public func addLine(line: String): Unit {
+    public func addLine(line: SourceLine): Unit {
         if (isSingleLineLatex) {
             return
         }
@@ -41,10 +41,10 @@ class LatexBlockParser <: AbstractBlockParser {
             builder.append('\n')
         }
         if (block.isClosed) {
-            let str = line.trimAsciiEnd()
+            let str = line.getContent().trimAsciiEnd()
             builder.append(str[..str.size - 2])
         } else {
-            builder.append(line)
+            builder.append(line.getContent())
         }
     }
 

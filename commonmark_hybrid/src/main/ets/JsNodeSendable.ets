@@ -230,9 +230,6 @@ export class JsNodeSendableImpl implements JsNode {
   }
 
   addSourceSpans(...numbers: Array<number>): void {
-    if(this.sourceSpans.length>0){
-      hilog.error(0,'',`1.1 ${this.sourceSpans.length}`)
-    }
     for (let i = 3; i < numbers.length; i += 4) {
       let line: number = numbers[i-3]
       let column: number = numbers[i-2]

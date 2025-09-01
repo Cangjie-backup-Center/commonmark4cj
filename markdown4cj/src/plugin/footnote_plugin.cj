@@ -68,8 +68,8 @@ class FootnoteBlockParser <: AbstractBlockParser {
         None
     }
 
-    public func addLine(line: String): Unit {
-        //        println("FootnoteBlockParser addLine ${line}")
+    public func addLine(line: SourceLine): Unit {
+        //        println("FootnoteBlockParser addLine ${line.getContent()}")
     }
     public func parseInlines(inlineParser: InlineParser): Unit {
         //        println("FootnoteBlockParser parseInlines ")
