@@ -32,32 +32,21 @@ export class JsNodeImpl implements JsNode {
   tight: boolean | undefined = undefined
   header: boolean | undefined = undefined
   alignment: string | undefined = undefined
-  props: Map<string, string> | undefined = undefined // 用于存放Js行内自定义解析插件所产生的数据
   isdone: boolean | undefined = undefined
   latex: string | undefined = undefined
   isClosed: boolean | undefined = undefined
   noteid: string | undefined = undefined
   blockIndex: number | undefined = undefined
   headIndex: number | undefined = undefined
+  props: Map<string, string> | undefined = undefined // 用于存放Js行内自定义解析插件所产生的数据
+  sourceSpans: SourceSpanImpl[] = []
 
-  getNext(): JsNodeImpl | undefined {
-    return this.next
+  getNodeType(): string {
+    return this.nodeType
   }
 
-  getPrevious(): JsNodeImpl | undefined {
-    return this.prev
-  }
-
-  getFirstChild(): JsNodeImpl | undefined {
-    return this.firstChild
-  }
-
-  getLastChild(): JsNodeImpl | undefined {
-    return this.lastChild
-  }
-
-  getParent(): JsNodeImpl | undefined {
-    return this.parent
+  toString(): string {
+    return this.toStr
   }
 
   setParent(parent: JsNodeImpl | undefined) {
@@ -150,12 +139,24 @@ export class JsNodeImpl implements JsNode {
     }
   }
 
-  toString(): string {
-    return this.toStr
+  getNext(): JsNodeImpl | undefined {
+    return this.next
   }
 
-  getNodeType(): string {
-    return this.nodeType
+  getPrevious(): JsNodeImpl | undefined {
+    return this.prev
+  }
+
+  getFirstChild(): JsNodeImpl | undefined {
+    return this.firstChild
+  }
+
+  getLastChild(): JsNodeImpl | undefined {
+    return this.lastChild
+  }
+
+  getParent(): JsNodeImpl | undefined {
+    return this.parent
   }
 
   getLiteral(): string | undefined {
@@ -172,6 +173,10 @@ export class JsNodeImpl implements JsNode {
 
   getLabel(): string | undefined {
     return this.label
+  }
+
+  getDelimiter(): string | undefined {
+    return this.delimiter
   }
 
   getOpeningDelimiter(): string | undefined {
@@ -194,12 +199,8 @@ export class JsNodeImpl implements JsNode {
     return this.fenceIndent
   }
 
-  getInfo(): string | undefined {
-    return this.info
-  }
-
-  isTight(): boolean | undefined {
-    return this.tight
+  getLevel(): number | undefined {
+    return this.level
   }
 
   getBulletMarker(): string | undefined {
@@ -210,8 +211,44 @@ export class JsNodeImpl implements JsNode {
     return this.startNumber
   }
 
-  getDelimiter(): string | undefined {
-    return this.delimiter
+  getInfo(): string | undefined {
+    return this.info
+  }
+
+  isTight(): boolean | undefined {
+    return this.tight
+  }
+
+  isHeader(): boolean | undefined {
+    return this.header
+  }
+
+  getAlignment(): string | undefined {
+    return this.alignment
+  }
+
+  isDone(): boolean | undefined {
+    return this.isdone
+  }
+
+  getLatex(): string | undefined {
+    return this.latex
+  }
+
+  getNoteid(): string | undefined {
+    return this.noteid
+  }
+
+  getBlockIndex(): number | undefined {
+    return this.blockIndex
+  }
+
+  getHeadIndex(): number | undefined {
+    return this.headIndex
+  }
+
+  getProps(): Map<string, string> | undefined {
+    return this.props
   }
 
   putProp(k: string, v: string): void {
@@ -219,8 +256,6 @@ export class JsNodeImpl implements JsNode {
     m.set(k, v)
     this.props = m
   }
-
-  sourceSpans: SourceSpanImpl[] = []
 
   getSourceSpans(): SourceSpanImpl[] {
     return this.sourceSpans
@@ -236,7 +271,7 @@ export class JsNodeImpl implements JsNode {
     }
   }
 
-  reset():void{
+  reset(): void {
     this.unlink()
     this.nodeType = ""
     this.toStr = ""
