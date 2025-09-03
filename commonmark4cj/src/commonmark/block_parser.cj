@@ -143,7 +143,12 @@ public abstract class BlockStart {
 
     public func atColumn(newColumn: Int64): BlockStart
 
+    /*
+     * @Deprecated
+     */
     public func replaceActiveBlockParser(): BlockStart
+
+    public func replaceParagraphLines(lines: Int): BlockStart
 }
 
 /**
@@ -317,6 +322,7 @@ class BlockStartImpl <: BlockStart {
     private var newIndex: Int64 = -1
     private var newColumn: Int64 = -1
     private var replaceActiveBlockParserFlg: Bool = false
+    private var replaceParagraphLines_ = 0
 
     public init(blockParsers: Array<AbstractBlockParser>) {
         this.blockParsers = blockParsers
@@ -352,6 +358,17 @@ class BlockStartImpl <: BlockStart {
     public func replaceActiveBlockParser(): BlockStart {
         this.replaceActiveBlockParserFlg = true
         return this
+    }
+
+    public func replaceParagraphLines(lines: Int): BlockStart {
+        if (!(lines >= 1)) {
+            throw IllegalArgumentException("Lines must be >= 1")
+        }
+        this.replaceParagraphLines_ = lines
+        return this
+    }
+    func getReplaceParagraphLines(): Int {
+        return replaceParagraphLines_
     }
 }
 
@@ -627,7 +644,7 @@ public class HeadingParserFactory <: BlockParserFactory {
                 return BlockStart
                     .of(HeadingParser(setextHeadingLevel, paragraph))
                     .atIndex(line.getContent().size)
-                    .replaceActiveBlockParser()
+                    .replaceParagraphLines(paragraph.getLines().size)
             }
         }
 
@@ -901,6 +918,7 @@ public class LinkReferenceDefinitionParser {
     func getParagraphLines(): SourceLines {
         return SourceLines.of(paragraphLines)
     }
+
     @Frozen
     func getParagraphSourceSpans(): ArrayList<SourceSpan> {
         return sourceSpans
@@ -914,6 +932,13 @@ public class LinkReferenceDefinitionParser {
 
     public func getState(): State {
         return state
+    }
+
+    func removeLines(lines: Int): ArrayList<SourceSpan> {
+        var removedSpans = sourceSpans[max(sourceSpans.size - lines, 0)..sourceSpans.size]
+        removeLast(lines, paragraphLines)
+        removeLast(lines, sourceSpans)
+        return removedSpans
     }
 
     private func startDefinition(scanner: Scanner): Bool {
@@ -1084,6 +1109,14 @@ public class LinkReferenceDefinitionParser {
         normalizedLabel = ""
         destination = ""
         title = None
+    }
+
+    private static func removeLast<T>(n: Int, list: ArrayList<T>): Unit {
+        if (n >= list.size) {
+            list.clear()
+        } else {
+            list.remove(list.size - n..list.size)
+        }
     }
 }
 
@@ -1292,8 +1325,7 @@ public class ListBlockParserFactory <: BlockParserFactory {
         var listItemParser: ListItemParser = ListItemParser(newColumn - state.getColumn())
 
         // prepend the list block if needed
-        if (!(matched is ListBlockParser) ||
-            !(ListBlockParser.listsMatch(
+        if (!(matched is ListBlockParser) || !(ListBlockParser.listsMatch(
             (matched.getBlock() as ListBlock).getOrThrow(),
             listData.listBlock
         ))) {
@@ -1449,6 +1481,9 @@ class ParagraphParser <: AbstractBlockParser {
 
     public func getParagraphLines(): SourceLines {
         return linkReferenceDefinitionParser.getParagraphLines()
+    }
+    func removeLines(lines: Int): ArrayList<SourceSpan> {
+        return linkReferenceDefinitionParser.removeLines(lines)
     }
 }
 

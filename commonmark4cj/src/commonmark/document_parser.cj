@@ -278,9 +278,18 @@ class DocumentParser <: ParserState {
             }
 
             var replacedSourceSpans: ?ArrayList<SourceSpan> = None
-            if (blockStart.isReplaceActiveBlockParser()) {
-                let replacedBlock: Block = prepareActiveBlockParserForReplacement()
-                replacedSourceSpans = replacedBlock.getSourceSpans()
+            if (blockStart.getReplaceParagraphLines() >= 1 || blockStart.isReplaceActiveBlockParser()) {
+                var activeBlockParser = getActiveBlockParser()
+                if (let Some(paragraphParser: ParagraphParser) <- (activeBlockParser as ParagraphParser)) {
+                    var lines = if (blockStart.isReplaceActiveBlockParser()) {
+                        Int64.Max
+                    } else {
+                        blockStart.getReplaceParagraphLines()
+                    }
+                    replacedSourceSpans = replaceParagraphLines(lines, paragraphParser)
+                } else if (blockStart.isReplaceActiveBlockParser()) {
+                    replacedSourceSpans = prepareActiveBlockParserForReplacement(activeBlockParser)
+                }
             }
 
             for (newBlockParser in blockStart.getBlockParsers()) {
@@ -440,6 +449,7 @@ class DocumentParser <: ParserState {
             column++
         }
     }
+
     @Frozen
     private func findBlockStart(blockParser: AbstractBlockParser): Option<BlockStartImpl> {
         var matchedBlockParser: MatchedBlockParser = MatchedBlockParserImpl(blockParser)
@@ -520,21 +530,22 @@ class DocumentParser <: ParserState {
         openBlockParsers.remove(at: openBlockParsers.size - 1)
     }
 
-    private func prepareActiveBlockParserForReplacement(): Block {
-        let old = deactivateBlockParser().blockParser
-        if (let Some(paragraphParser) <- (old as ParagraphParser)) {
-            // Collect any link reference definitions. Note that replacing the active block parser is done after a
-            // block parser got the current paragraph content using MatchedBlockParser#getContentString. In case the
-            // paragraph started with link reference definitions, we parse and strip them before the block parser gets
-            // the content. We want to keep them.
-            // If no replacement happens, we collect the definitions as part of finalizing blocks.
-            addDefinitionsFrom(paragraphParser)
-        }
+    private func replaceParagraphLines(lines: Int, paragraphParser: ParagraphParser): ArrayList<SourceSpan> {
+        // Remove lines from paragraph as the new block is using them.
+        // If all lines are used, this also unlinks the Paragraph block.
+        var sourceSpans = paragraphParser.removeLines(lines)
+        // Close the paragraph block parser, which will finalize it.
+        closeBlockParsers(1)
+        return sourceSpans
+    }
+    private func prepareActiveBlockParserForReplacement(blockParser: BlockParser): ArrayList<SourceSpan> {
+        // Note that we don't want to parse inlines here, as it's getting replaced.
+        deactivateBlockParser()
 
         // Do this so that source positions are calculated, which we will carry over to the replacing block.
-        old.closeBlock()
-        old.getBlock().unlink()
-        return old.getBlock()
+        blockParser.closeBlock()
+        blockParser.getBlock().unlink()
+        return blockParser.getBlock().getSourceSpans()
     }
 
     private func finalizeAndProcess(): Document {

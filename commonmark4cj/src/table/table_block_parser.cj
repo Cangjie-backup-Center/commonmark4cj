@@ -6,19 +6,18 @@ package commonmark4cj.table
 
 class TableBlockParser <: AbstractBlockParser {
     private var block: TableBlock = TableBlock()
-    private var bodyLines: ArrayList<SourceLine> = ArrayList()
-    private let columns: ArrayList<?Alignment>
-    private let headerCells: ArrayList<SourceLine>
+    private let columns: ArrayList<TableCellInfo>
+    private let rowLines = ArrayList<SourceLine>()
 
-    var lineState: Int = 0 // 行状态 0:head 0:column 2:body
+    private var canHaveLazyContinuationLines_ = true
 
-    init(columns: ArrayList<?Alignment>, headerCells: ArrayList<SourceLine>) {
+    init(columns: ArrayList<TableCellInfo>, headerLine: SourceLine) {
         this.columns = columns
-        this.headerCells = headerCells
+        this.rowLines.add(headerLine)
     }
 
     public func canHaveLazyContinuationLines(): Bool {
-        return true
+        return canHaveLazyContinuationLines_
     }
 
     public func getBlock(): TableBlock {
@@ -26,7 +25,17 @@ class TableBlockParser <: AbstractBlockParser {
     }
 
     public func tryContinue(state: ParserState): ?BlockContinue {
-        if (state.getLine().getContent().contains("|")) {
+        let content = state.getLine().getContent()
+        let pipe = content.indexOf(b'|', state.getNextNonSpaceIndex()) ?? -1
+        if (pipe != -1) {
+            if (pipe == state.getNextNonSpaceIndex()) {
+                // If we *only* have a pipe character (and whitespace), that is not a valid table row and ends the table.
+                if (Characters.skipSpaceTab(content, pipe + 1, content.size) == content.size) {
+                    // We also don't want the pipe to be added via lazy continuation.
+                    canHaveLazyContinuationLines_ = false
+                    return BlockContinue.none()
+                }
+            }
             return BlockContinue.atIndex(state.getIndex())
         } else {
             return BlockContinue.none()
@@ -34,11 +43,7 @@ class TableBlockParser <: AbstractBlockParser {
     }
 
     public func addLine(line: SourceLine): Unit {
-        if (lineState != 2) {
-            lineState++
-        } else {
-            bodyLines.add(line)
-        }
+        rowLines.add(line)
     }
 
     public func parseInlines(inlineParser: InlineParser): Unit {
@@ -55,6 +60,7 @@ class TableBlockParser <: AbstractBlockParser {
         headerRow.setSourceSpans(head.getSourceSpans())
         head.appendChild(headerRow)
 
+        let headerCells = split(rowLines[0])
         let headerColumns = headerCells.size
         for (i in 0..headerColumns) {
             let cell = headerCells[i]
@@ -64,9 +70,9 @@ class TableBlockParser <: AbstractBlockParser {
         }
 
         var body: ?Node = None
-        for (i in 0..bodyLines.size) {
-            let rowLine = bodyLines[i]
-            let sourceSpan = sourceSpans.get(i + 2)
+        for (rowIndex in 2..rowLines.size) {
+            let rowLine = rowLines[rowIndex]
+            let sourceSpan = sourceSpans.get(rowIndex)
             var cells = split(rowLine)
             var row: TableRow = TableRow()
             if (let Some(v) <- sourceSpan) {
@@ -75,19 +81,16 @@ class TableBlockParser <: AbstractBlockParser {
 
             // Body can not have more columns than head
             for (i in 0..headerColumns) {
-                let cell = if (i < cells.size) {
-                    cells[i]
-                } else {
-                    SourceLine.of("", None)
-                }
+                let cell = cells.get(i) ?? SourceLine.of("", None)
                 var tableCell: TableCell = parseCell(cell, i, inlineParser)
                 row.appendChild(tableCell)
             }
 
             if (body.isNone()) {
                 // It's valid to have a table without body. In that case, don't add an empty TableBody node.
-                body = TableBody()
-                block.appendChild(body())
+                let v = TableBody()
+                body = v
+                block.appendChild(v)
             }
             body?.appendChild(row)
             if (let Some(v) <- sourceSpan) {
@@ -98,12 +101,17 @@ class TableBlockParser <: AbstractBlockParser {
 
     private func parseCell(cell: SourceLine, column: Int64, inlineParser: InlineParser): TableCell {
         var tableCell: TableCell = TableCell()
+        if (let Some(sourceSpan) <- cell.getSourceSpan()) {
+            tableCell.addSourceSpan(sourceSpan)
+        }
 
         if (column < columns.size) {
-            if (let Some(v) <- columns.get(column).flatten()) {
-                tableCell.setAlignment(v)
+            if (let Some(cellInfo) <- columns.get(column)) {
+                tableCell.setAlignment(cellInfo.getAlignment())
+                tableCell.setWidth(cellInfo.getWidth())
             }
         }
+
         let content = cell.getContent()
         let start = Characters.skipSpaceTab(content, 0, content.size)
         let end = Characters.skipSpaceTabBackwards(content, content.size - 1, start)
@@ -165,11 +173,12 @@ class TableBlockParser <: AbstractBlockParser {
     // -|-
     // |-|-|
     // --- | ---
-    public static func parseSeparator(s: String): ?ArrayList<?Alignment> {
-        var columns: ArrayList<?Alignment> = ArrayList<?Alignment>()
+    static func parseSeparator(s: String): ?ArrayList<TableCellInfo> {
+        var columns: ArrayList<TableCellInfo> = ArrayList<TableCellInfo>()
         var pipes: Int64 = 0
         var valid: Bool = false
         var i: Int64 = 0
+        var width: Int64 = 0
         while (i < s.size) {
             let c = s[i]
             match (c) {
@@ -192,10 +201,12 @@ class TableBlockParser <: AbstractBlockParser {
                     if (c == b':') {
                         left = true
                         i++
+                        width++
                     }
                     var haveDash: Bool = false
                     while (i < s.size && s[i] == b'-') {
                         i++
+                        width++
                         haveDash = true
                     }
                     if (!haveDash) {
@@ -205,8 +216,10 @@ class TableBlockParser <: AbstractBlockParser {
                     if (i < s.size && s[i] == b':') {
                         right = true
                         i++
+                        width++
                     }
-                    columns.add(getAlignment(left, right))
+                    columns.add(TableCellInfo(getAlignment(left, right), width))
+                    width = 0
                     // Next, need another pipe
                     pipes = 0
                 case ' ' | '\t' =>
@@ -238,35 +251,20 @@ class TableBlockParser <: AbstractBlockParser {
 
 class TableBlockFactory <: AbstractBlockParserFactory {
     public func tryStart(state: ParserState, matchedBlockParser: MatchedBlockParser): ?BlockStart {
-        let lineSource = state.getLine()
-        let line: String = lineSource.getContent()
-        let nextLine = state.getNextLine()
-        let plines = matchedBlockParser.getParagraphLines().getLines()
-
-        if (line.contains("|")) {
-            if (nextLine.contains("|")) {
-                let headLine = lineSource.substring(state.getIndex(), line.size)
-                let columnLine: String = nextLine[state.getIndex()..] // 考虑到列表中 每行前有固定缩进
-                if (let Some(blockStart) <- col(headLine, columnLine, state, 0)) {
-                    return blockStart
+        let paragraphLines = matchedBlockParser.getParagraphLines().getLines()
+        if (paragraphLines.size >= 1 && paragraphLines.last.getOrThrow().getContent().contains('|')) {
+            let line = state.getLine()
+            let separatorLine = line.substring(state.getIndex(), line.getContent().size)
+            let columns = TableBlockParser.parseSeparator(separatorLine.getContent())
+            if (let Some(columns) <- columns && !columns.isEmpty()) {
+                let paragraph = paragraphLines.last.getOrThrow()
+                let headerCells = TableBlockParser.split(paragraph)
+                if (columns.size >= headerCells.size) {
+                    return BlockStart
+                        .of(TableBlockParser(columns, paragraph))
+                        .atIndex(state.getIndex())
+                        .replaceParagraphLines(1)
                 }
-            }
-            if (plines.size == 1 && plines[0].getContent().contains("|")) {
-                let headLine = plines[0]
-                let columnLine: String = line[state.getIndex()..]
-                return col(headLine, columnLine, state, 1)?.replaceActiveBlockParser()
-            }
-        }
-        return BlockStart.none()
-    }
-    private func col(headLine: SourceLine, columnLine: String, state: ParserState, currentLineState: Int): ?BlockStart {
-        let columns: ArrayList<?Alignment> = TableBlockParser.parseSeparator(columnLine) ?? return BlockStart.none()
-        if (columns.size > 0) {
-            let headerCells: ArrayList<SourceLine> = TableBlockParser.split(headLine)
-            if (columns.size >= headerCells.size) {
-                let parser = TableBlockParser(columns, headerCells)
-                parser.lineState = currentLineState
-                return BlockStart.of(parser).atIndex(state.getIndex())
             }
         }
         return BlockStart.none()

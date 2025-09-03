@@ -55,6 +55,7 @@ public class TableBody <: CustomNode {
 public class TableCell <: CustomNode {
     private var header: Bool = false
     private var alignment: ?Alignment = None
+    private var width: Int = 0
 
     /**
      * @return whether the cell is a header or not
@@ -74,9 +75,13 @@ public class TableCell <: CustomNode {
         return alignment
     }
 
-    public func setAlignment(alignment: Alignment): Unit {
+    public func setAlignment(alignment: ?Alignment): Unit {
         this.alignment = alignment
     }
+    public func setWidth(width: Int): Unit {
+        this.width = width
+    }
+
     public override func getNodeType(): NodeType {
         return TableCellType
     }
@@ -89,6 +94,24 @@ public enum Alignment {
     | LEFT
     | CENTER
     | RIGHT
+}
+
+class TableCellInfo {
+    private let alignment: ?Alignment
+    private let width: Int
+
+    public func getAlignment(): ?Alignment {
+        return alignment
+    }
+
+    public func getWidth(): Int {
+        return width
+    }
+
+    public TableCellInfo(alignment: ?Alignment, width: Int) {
+        this.alignment = alignment
+        this.width = width
+    }
 }
 
 public class TableHead <: CustomNode {

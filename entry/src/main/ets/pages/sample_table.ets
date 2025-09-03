@@ -20,7 +20,6 @@ export async function sample_table(): Promise<string> {
 const md = `留一个占位空文件，后续方便MarkdownDemoPage调试
 
 当然可以，以下是拼音和汉字的对应表格：
-
 | 序号 | 拼音          | 汉字   |
 |------|---------------|--------|
 | 1    | zhī chuán     | 纸船   |
