@@ -76,6 +76,18 @@ export interface JsNode {
   getDelimiter(): string | undefined
 
   /**
+   * 开始定界符
+   * 适用nodeType:Delimited子类系列
+   */
+  getOpeningDelimiter(): string | undefined
+
+  /**
+   * 结束定界符
+   * 适用nodeType:Delimited子类系列
+   */
+  getClosingDelimiter(): string | undefined
+
+  /**
    * 围栏字符
    * 适用nodeType:FencedCodeBlock
    */
