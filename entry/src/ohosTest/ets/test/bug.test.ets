@@ -67,5 +67,40 @@ $$`
       expect(latex.getNodeType()).assertEqual("LatexMathBlock")
       expect(latex['latex']).assertEqual("asd")
     })
+    it('bugLatex3', 0, async () => {
+      let md = `4. $$a$$ 应该渲染成 $b$`
+      let doc = await parseIntoJsNode(md, 2)
+      let str = printNode(doc)
+      console.error(str)
+      let p = doc.getFirstChild()?.getFirstChild()?.getFirstChild()
+      let latexa: JsNode = p?.getFirstChild()!
+      expect(latexa.getNodeType()).assertEqual("LatexMathNode")
+      let latexb: JsNode = p?.getLastChild()!
+      expect(latexb['latex']).assertEqual("b")
+    })
+    it('table1', 0, async () => {
+      let md = `| h1 | h2 | h3 | h4 |
+|:---|---:|:---:|
+| a | b | c | d |`
+      let doc = await parseIntoJsNode(md, 2)
+      let str = printNode(doc)
+      console.error(str)
+      let table: JsNode = doc.getFirstChild()!
+      let head: JsNode = doc.getFirstChild()?.getFirstChild()?.getFirstChild()!
+      let body1: JsNode = doc.getFirstChild()?.getLastChild()?.getFirstChild()!
+      expect(table.getNodeType()).assertEqual("TableBlock")
+      expect(head.getFirstChild()!['alignment']).assertEqual("LEFT")
+      expect(head.getFirstChild()!['width']).assertEqual(4)
+      expect(head.getLastChild()!['alignment']).assertEqual(undefined)
+      expect(head.getLastChild()!['width']).assertEqual(0)
+      expect(head.getLastChild()?.getPrevious()!['alignment']).assertEqual("CENTER")
+      expect(head.getLastChild()?.getPrevious()!['width']).assertEqual(5)
+      expect(body1.getFirstChild()!['alignment']).assertEqual("LEFT")
+      expect(body1.getFirstChild()!['width']).assertEqual(4)
+      expect(body1.getLastChild()!['alignment']).assertEqual(undefined)
+      expect(body1.getLastChild()!['width']).assertEqual(0)
+      expect(body1.getLastChild()?.getPrevious()!['alignment']).assertEqual("CENTER")
+      expect(body1.getLastChild()?.getPrevious()!['width']).assertEqual(5)
+    })
   })
 }

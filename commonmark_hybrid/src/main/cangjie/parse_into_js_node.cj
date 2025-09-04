@@ -75,6 +75,7 @@ class JsNodeBuilder {
             case v: TableCell =>
                 jsNode.set('header', v.isHeader(), context)
                 jsNode.set('alignment', v.getAlignment()?.toString(), context)
+                jsNode.set('width', v.getWidth(), context)
             case _ => ()
         }
         jsNode

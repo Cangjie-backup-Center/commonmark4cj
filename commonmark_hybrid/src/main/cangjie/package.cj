@@ -17,16 +17,6 @@ internal import std.collection.*
 
 let PARSER = Parser.builder().extensions([TablesExtension.create()]).build()
 
-extend Alignment {
-    func toString(): String {
-        match (this) {
-            case LEFT => "LEFT"
-            case CENTER => "CENTER"
-            case RIGHT => "RIGHT"
-        }
-    }
-}
-
 let EXPORT_MODULE = JSModule.registerModule {
     runtime, exports =>
     exports["parseIntoJsNode"] = runtime.function(parseIntoJsNode).toJSValue()

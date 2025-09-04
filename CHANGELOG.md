@@ -2,6 +2,7 @@
 
 - Node支持SourceSpan
 - cangjie support plugin bundled 5.1.1.830
+- TableCell支持width信息(源自样式行列宽信息)
 
 ## 1.3.0
 

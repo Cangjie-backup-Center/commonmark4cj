@@ -252,19 +252,21 @@ class TableBlockParser <: AbstractBlockParser {
 class TableBlockFactory <: AbstractBlockParserFactory {
     public func tryStart(state: ParserState, matchedBlockParser: MatchedBlockParser): ?BlockStart {
         let paragraphLines = matchedBlockParser.getParagraphLines().getLines()
-        if (paragraphLines.size >= 1 && paragraphLines.last.getOrThrow().getContent().contains('|')) {
+        if (paragraphLines.size >= 1 && paragraphLines
+            .last
+            .getOrThrow()
+            .getContent()
+            .contains('|')) {
             let line = state.getLine()
             let separatorLine = line.substring(state.getIndex(), line.getContent().size)
             let columns = TableBlockParser.parseSeparator(separatorLine.getContent())
             if (let Some(columns) <- columns && !columns.isEmpty()) {
                 let paragraph = paragraphLines.last.getOrThrow()
                 let headerCells = TableBlockParser.split(paragraph)
-                if (columns.size >= headerCells.size) {
-                    return BlockStart
-                        .of(TableBlockParser(columns, paragraph))
-                        .atIndex(state.getIndex())
-                        .replaceParagraphLines(1)
-                }
+                return BlockStart
+                    .of(TableBlockParser(columns, paragraph))
+                    .atIndex(state.getIndex())
+                    .replaceParagraphLines(1)
             }
         }
         return BlockStart.none()

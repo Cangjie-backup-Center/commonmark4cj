@@ -148,6 +148,12 @@ export interface JsNode {
   getAlignment(): string | undefined
 
   /**
+   * 表格列宽
+   * 适用nodeType:TableCell
+   */
+  getWidth(): number | undefined
+
+  /**
    * 任务列表选中标志
    * 适用nodeType:TaskListItem
    */

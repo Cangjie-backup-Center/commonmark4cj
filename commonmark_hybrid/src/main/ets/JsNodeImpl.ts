@@ -32,6 +32,7 @@ export class JsNodeImpl implements JsNode {
   tight: boolean | undefined = undefined
   header: boolean | undefined = undefined
   alignment: string | undefined = undefined
+  width: number | undefined = undefined
   isdone: boolean | undefined = undefined
   latex: string | undefined = undefined
   isClosed: boolean | undefined = undefined
@@ -225,6 +226,10 @@ export class JsNodeImpl implements JsNode {
 
   getAlignment(): string | undefined {
     return this.alignment
+  }
+
+  getWidth(): number | undefined {
+    return this.width
   }
 
   isDone(): boolean | undefined {

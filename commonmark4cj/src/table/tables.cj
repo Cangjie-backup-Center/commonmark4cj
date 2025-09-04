@@ -74,14 +74,20 @@ public class TableCell <: CustomNode {
     public func getAlignment(): ?Alignment {
         return alignment
     }
-
     public func setAlignment(alignment: ?Alignment): Unit {
         this.alignment = alignment
+    }
+
+    public func getWidth(): Int {
+        this.width
     }
     public func setWidth(width: Int): Unit {
         this.width = width
     }
 
+    public override func toStringAttributes(): String {
+        return "alignment:${alignment}, width:${width}"
+    }
     public override func getNodeType(): NodeType {
         return TableCellType
     }
@@ -90,10 +96,18 @@ public class TableCell <: CustomNode {
 /**
  * How the cell is aligned horizontally.
  */
-public enum Alignment {
+public enum Alignment <: ToString {
     | LEFT
     | CENTER
     | RIGHT
+
+    public func toString(): String {
+        match (this) {
+            case LEFT => "LEFT"
+            case CENTER => "CENTER"
+            case RIGHT => "RIGHT"
+        }
+    }
 }
 
 class TableCellInfo {
