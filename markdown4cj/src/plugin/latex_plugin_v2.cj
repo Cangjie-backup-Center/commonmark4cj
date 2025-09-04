@@ -3,6 +3,8 @@
  */
 package markdown.plugin
 
+import ohos.hilog.Hilog
+
 /**
  * 使用inline
  */
@@ -12,8 +14,9 @@ public class LatexMathPluginV2 <: AbstractMarkdownPlugin {
     }
 
     public func configureParser(builder: ParserBuilder): Unit {
-        builder.customBlockParserFactory(LatexBlockParserFactory()) // 块解析
-        builder.customInlineContentParserFactory(LatexInlineParserFactory()) // 行内解析
+        builder.customBlockParserFactory(LatexBlockParserFactory()) // 块解析: $$ \[\]
+        builder.customInlineContentParserFactory(LatexInlineParserFactory()) // 行内解析:  \(\) \[\]
+        builder.customDelimiterProcessor(LatexInlineDelimiterProcessor()) // 行内解析: $ $$
     }
 
     public func configureVisitor(builder: MarkdownVisitorBuilder): Unit {
@@ -54,15 +57,6 @@ public class LatexInlineParser <: InlineContentParser {
         let scanner: Scanner = inlineParserState.getScanner()
         let p0: SourcePosition = scanner.position()
 
-        if (scanner.next('$')) {
-            let p1 = scanner.position()
-            if (scanner.find(b'$') > 0) {
-                let p2 = scanner.position()
-                let content = scanner.getSource(p1, p2).getContent()
-                scanner.next()
-                return ParsedInline.of(LatexMathNode(content), scanner.position())
-            }
-        }
         if (scanner.next('\\(') || scanner.next('\\[')) {
             let p1 = scanner.position()
             var p2 = scanner.position()
@@ -85,11 +79,38 @@ public class LatexInlineParser <: InlineContentParser {
 public class LatexInlineParserFactory <: InlineContentParserFactory {
     // @Override
     public func getTriggerCharacters(): HashSet<Rune> {
-        return HashSet([r'$', r'\\'])
+        return HashSet([r'\\'])
     }
 
     // @Override
     public func create(): InlineContentParser {
         return LatexInlineParser()
+    }
+}
+
+class LatexInlineDelimiterProcessor <: DelimiterProcessor {
+    public func getOpeningCharacter(): Rune {
+        return r'$'
+    }
+    public func getClosingCharacter(): Rune {
+        return r'$'
+    }
+    public func getMinLength(): Int {
+        return 1
+    }
+    public override func process(openingRun: DelimiterRun, closingRun: DelimiterRun): Int {
+        let opener = openingRun.getOpener()
+        let closer = closingRun.getCloser()
+        if (let Some(text: Text) <- opener.getNext()) {
+            if (text.getNext() == closer) {
+                text.replaceWith(LatexMathNode(text.getLiteral()))
+                return if (openingRun.getLength() >= 2 && closingRun.getLength() >= 2) {
+                    2
+                } else {
+                    1
+                }
+            }
+        }
+        return 0
     }
 }
