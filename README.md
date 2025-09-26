@@ -26,14 +26,61 @@
 ## 软件架构
 
 ### 架构
+<!-- 
 
+---
+config:
+  flowchart:
+    defaultRenderer: "elk"
+---
+%% basis bumpX bumpY cardinal catmullRom linear monotoneX monotoneY natural step stepAfter stepBefore
+ -->
 ```mermaid
-flowchart LR
-    md[/MarkdownText/] -->parser(Parser解析)
-    parser --> node[Node树]
-    node --> renderer(Renderer渲染)
-    renderer <--> visitor[[Visitor遍历]]
-    renderer --> res[/渲染结果/]
+---
+config:
+  flowchart:
+    curve: basis
+---
+flowchart TB
+
+  md[/MarkdownText/] 
+
+  subgraph Parser [Parser解析]
+    direction TB
+    document(document解析) --> block(段落解析) --> inline(行内解析)
+  end
+
+  node[/Node树/]
+
+  subgraph Render [Render]
+    mdrender(MarkdownRenderer)
+  end
+
+  nodeView[/NodeView/]
+
+
+  subgraph plugin[plugin插件]
+    direction TB
+    pre(前处理)
+    blockext(段落解析扩展)
+    inlineext(行内解析扩展)
+    post(后处理)
+    visitor(render扩展)
+
+    pre~~~blockext~~~inlineext~~~post~~~visitor
+  end
+
+  md e1@==> Parser e2@==> node e3@==> Render e4@==> nodeView
+  e1@{ animate: true }
+  e2@{ animate: true }
+  e3@{ animate: true }
+  e4@{ animate: true }
+    
+  md -.- pre
+  block -.- blockext
+  inline -.- inlineext
+  node -.- post
+  mdrender -.- visitor
 ```
 
 ### 源码目录
