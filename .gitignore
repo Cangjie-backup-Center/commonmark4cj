@@ -19,3 +19,5 @@
 oh-package-lock.json5
 cjpm.lock
 IDL_Custom_Type_Whitelist~
+
+BuildProfile.ets
