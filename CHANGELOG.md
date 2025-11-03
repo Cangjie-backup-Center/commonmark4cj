@@ -1,3 +1,7 @@
+## 1.3.2
+
+- cangjie support plugin bundled 5.1.1.840
+
 ## 1.3.1
 
 - Node支持SourceSpan

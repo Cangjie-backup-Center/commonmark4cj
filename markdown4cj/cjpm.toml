@@ -18,7 +18,7 @@
     path = "../commonmark4cj"
 
 [package]
-  cjc-version = "1.0.1"
+  cjc-version = "1.0.0"
   compile-option = ""
   description = "Markdown"
   link-option = ""
