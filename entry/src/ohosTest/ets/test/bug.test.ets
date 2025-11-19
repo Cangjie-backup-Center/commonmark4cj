@@ -129,8 +129,11 @@ $$`
       let link1: JsNode = text0.getNext()!
       let text2: JsNode = link1.getNext()!
       expect(text0.getNodeType()).assertEqual("Text")
+      expect(text0.getLiteral()).assertEqual("已部署至")
       expect(link1.getNodeType()).assertEqual("Link")
+      expect(link1.getDestination()).assertEqual("https://7sncmf6ezkojw.ok.kimi.link")
       expect(text2.getNodeType()).assertEqual("Text")
+      expect(text2.getLiteral()).assertEqual("，可直接访问查看完")
     })
   })
 }

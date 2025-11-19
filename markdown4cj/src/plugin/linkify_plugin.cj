@@ -31,7 +31,6 @@ class LinkifyVisitor <: AbstractVisitor {
     static let urlreg = Regex(#"https?://[!*'();:@&=+$,/?#[\]a-zA-Z0-9-_.~]+"#)
     public func visit(node: Text): Unit {
         if (let Some(_: Link) <- node.getParent()) {
-            buildView(node, true)
             return
         }
 
@@ -39,29 +38,26 @@ class LinkifyVisitor <: AbstractVisitor {
         let fulltext = originTextNode.getLiteral()
         var i = 0
         for (data in urlreg.lazyFindAll(fulltext)) {
+            // 处理正则前的文本
             if (i < data.matchPosition().start) {
                 let snippet = fulltext[i..data.matchPosition().start]
-                if (snippet.size > 0) {
-                    let text = Text(snippet)
-                    originTextNode.insertBefore(text)
-                }
+                let text = Text(snippet)
+                originTextNode.insertBefore(text)
             }
+
+            // 处理正则区
+            let snippet = data.matchString()
+            let link = Link(snippet, snippet)
+            link.appendChild(Text(snippet))
+            originTextNode.insertBefore(link)
             i = data.matchPosition().end
-            if (i <= fulltext.size) {
-                let snippet = data.matchString()
-                let link = Link(snippet, snippet)
-                link.appendChild(Text(snippet))
-                if (i == fulltext.size) {
-                    originTextNode.replaceWith(link)
-                } else {
-                    originTextNode.insertBefore(link)
-                }
-            } else {
-                let snippet = fulltext[i..]
-                if (snippet.size > 0) {
-                    originTextNode.setLiteral(snippet)
-                }
-            }
+        }
+        // 处理剩余文本
+        if (i < fulltext.size) {
+            let snippet = fulltext[i..]
+            originTextNode.setLiteral(snippet)
+        } else {
+            originTextNode.unlink()
         }
     }
 }
