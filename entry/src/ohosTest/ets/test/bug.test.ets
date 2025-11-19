@@ -119,5 +119,18 @@ $$`
       expect(link3.getNodeType()).assertEqual("Link")
       expect(text4.getNodeType()).assertEqual("Text")
     })
+    it('auto_link2', 0, async () => {
+      let md = `已部署至https://7sncmf6ezkojw.ok.kimi.link，可直接访问查看完`
+      let doc = await parseIntoJsNode(md, 2)
+      let str = printNode(doc)
+      console.error(str)
+      let p: JsNode = doc.getFirstChild()!
+      let text0: JsNode = p.getFirstChild()!
+      let link1: JsNode = text0.getNext()!
+      let text2: JsNode = link1.getNext()!
+      expect(text0.getNodeType()).assertEqual("Text")
+      expect(link1.getNodeType()).assertEqual("Link")
+      expect(text2.getNodeType()).assertEqual("Text")
+    })
   })
 }
