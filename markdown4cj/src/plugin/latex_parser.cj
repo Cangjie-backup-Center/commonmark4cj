@@ -16,15 +16,10 @@ class LatexBlockParser <: AbstractBlockParser {
         let line = parserState.getLine().getContent()[parserState.getIndex()..]
         if (isSingleLineLatex) {
             block.isClosed = true
-            block.isBroken = false
             return BlockContinue.none()
-        }
-        if (isLatexLine(line)) {
-            block.isBroken = true
         }
         if (isLatexEnd(line)) {
             block.isClosed = true
-            block.isBroken = false
         }
         return if (block.isClosed) {
             BlockContinue.finished()

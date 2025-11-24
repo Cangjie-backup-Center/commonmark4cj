@@ -12,6 +12,7 @@ import {
 } from '@cangjie-tpc/commonmark_hybrid';
 import { errjson } from './md1';
 import { err2 } from './md2';
+import { md_latex_1 } from './md3';
 
 export default function bugTest() {
   describe('bugTest', () => {
@@ -134,6 +135,67 @@ $$`
       expect(link1.getDestination()).assertEqual("https://7sncmf6ezkojw.ok.kimi.link")
       expect(text2.getNodeType()).assertEqual("Text")
       expect(text2.getLiteral()).assertEqual("，可直接访问查看完")
+    })
+    it('delimiter1', 0, async () => {
+      let md = `**WARNING：**DON'T TOUCH THE CHILD # NOT WORKING`
+      let doc = await parseIntoJsNode(md, 2)
+      let str = printNode(doc)
+      console.error(str)
+      let p: JsNode = doc.getFirstChild()!
+      let strong0: JsNode = p.getFirstChild()!
+      let text1: JsNode = strong0.getNext()!
+      expect(strong0.getNodeType()).assertEqual("StrongEmphasis")
+      expect(strong0.getFirstChild()!.getLiteral()).assertEqual("WARNING：")
+      expect(text1.getNodeType()).assertEqual("Text")
+      expect(text1.getLiteral()).assertEqual("DON'T TOUCH THE CHILD # NOT WORKING")
+    })
+    it('delimiter2', 0, async () => {
+      let md = `**WARNING,**DON'T TOUCH THE CHILD # NOT WORKING`
+      let doc = await parseIntoJsNode(md, 2)
+      let str = printNode(doc)
+      console.error(str)
+      let p: JsNode = doc.getFirstChild()!
+      let text0: JsNode = p.getFirstChild()!
+      expect(text0.getNodeType()).assertEqual("Text")
+      expect(text0.getLiteral()).assertEqual("**WARNING,**DON'T TOUCH THE CHILD # NOT WORKING")
+    })
+    it('formula1', 0, async () => {
+      let md = `设 $V$ 是`
+      md = md_latex_1
+      md = `设 $V$ 是三维空间中的有界闭区域，其边界 $\partial V$ 是光滑（或分片光滑）的闭合曲面，$\mathbf{F}(x,y,z) = (P, Q, R)$ 是在 $V$ 上连续可微的向量场，则：
+
+$$
+\iint_{\partial V} \mathbf{F} \cdot d\mathbf{S} = \iiint_V (\nabla \cdot \mathbf{F}) \, dV
+$$`
+      let doc = await parseIntoJsNode(md, 2)
+      let str = printNode(doc)
+      console.error(str)
+      let p: JsNode = doc.getFirstChild()!
+      let text0: JsNode = p.getFirstChild()!
+      let latex1: JsNode = text0.getNext()!
+      let text2: JsNode = latex1.getNext()!
+      let latex3: JsNode = text2.getNext()!
+      let text4: JsNode = latex3.getNext()!
+      let latex5: JsNode = text4.getNext()!
+      let text6: JsNode = latex5.getNext()!
+      let latex7: JsNode = text6.getNext()!
+      let text8: JsNode = latex7.getNext()!
+      expect(text0.getNodeType()).assertEqual(`Text`)
+      expect(latex1.getNodeType()).assertEqual(`LatexMathNode`)
+      expect(latex1.getLatex()).assertEqual(`V`)
+      expect(text2.getNodeType()).assertEqual(`Text`)
+      expect(latex3.getNodeType()).assertEqual(`LatexMathNode`)
+      expect(latex3.getLatex()).assertEqual(`\partial V`)
+      expect(text4.getNodeType()).assertEqual(`Text`)
+      expect(latex5.getNodeType()).assertEqual(`LatexMathNode`)
+      expect(latex5.getLatex()).assertEqual(`\mathbf{F}(x,y,z) = (P, Q, R)`)
+      expect(text6.getNodeType()).assertEqual(`Text`)
+      expect(latex7.getNodeType()).assertEqual(`LatexMathNode`)
+      expect(latex7.getLatex()).assertEqual(`V`)
+      expect(text8.getNodeType()).assertEqual(`Text`)
+      let latexBlock: JsNode = doc.getLastChild()!
+      expect(latexBlock.getNodeType()).assertEqual(`LatexMathBlock`)
+      expect(latexBlock.getLatex()).assertEqual(`\iint_{\partial V} \mathbf{F} \cdot d\mathbf{S} = \iiint_V (\nabla \cdot \mathbf{F}) \, dV`)
     })
   })
 }

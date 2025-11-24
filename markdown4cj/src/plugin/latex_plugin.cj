@@ -14,9 +14,8 @@ public class LatexMathBlock <: CustomBlock {
         }
     }
     public var isClosed = false
-    public var isBroken = false
     protected func toStringAttributes(): String {
-        return "latex=${latex},isClosed=${isClosed},isBroken=${isBroken}"
+        return "latex=${latex},isClosed=${isClosed}"
     }
     public func getNodeType(): String {
         "LatexMathBlock"
