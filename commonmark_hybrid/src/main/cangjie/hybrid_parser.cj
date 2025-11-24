@@ -36,6 +36,7 @@ public class HybridParser <: SharedObject & JSInteropType<HybridParser> {
             .usePlugin(LinkifyPlugin.create()) // 自动网址链接
             .usePlugin(TocPlugin.create()) // TOC列表插件
             .usePlugin(Plugin4InlineParserIntegration([InsertImageParser(), MoonLoadingParser()]))
+            .usePlugin(KimiPlugin())
             .includeSourceSpans(includeSourceSpans)
             .build()
         let clazz = HybridParser(parser, jsNodeFactory)

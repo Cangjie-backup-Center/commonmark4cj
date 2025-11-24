@@ -59,49 +59,46 @@ public class Characters {
     /**
      * @see <a href="https://spec.commonmark.org/0.31.2/#unicode-punctuation-character">Unicode punctuation character</a>
      */
-    public static func isPunctuationCodePoint(codePoint: Rune): Bool {
-        // match(Character.getType(codePoint)) {
-        //     case DASH_PUNCTUATION|START_PUNCTUATION|END_PUNCTUATION|CONNECTOR_PUNCTUATION|OTHER_PUNCTUATION|INITIAL_QUOTE_PUNCTUATION|FINAL_QUOTE_PUNCTUATION=>
-        //         // General category "P" (punctuation)
-        //         return true
-        //     case MATH_SYMBOL|CURRENCY_SYMBOL|MODIFIER_SYMBOL|OTHER_SYMBOL=>
-        //         // General category "S" (symbol)
-        //         return true
-        // }
-        // match (codePoint) {
-        //     case '$' | '+' | '<' | '=' | '>' | '^' | '`' | '|' | '~' => return true
-        //     case _ => return false
-        // }
-        if (codePoint.isLetter() || codePoint.isNumber() || codePoint.isWhiteSpace()) {
+    public static var isPunctuationCodePoint: (Rune) -> Bool = {
+        codePoint: Rune =>
+            /*
+             * An ASCII punctuation character is
+             * !, ", #, $, %, &, ', (, ), *, +, ,, -, ., / (U+0021–2F)
+             * :, ;, <, =, >, ?, @ (U+003A–0040)
+             * [, \, ], ^, _, ` (U+005B–0060)
+             * {, |, }, or ~ (U+007B–007E)
+             */
+            match {
+                case r'!' <= codePoint && codePoint <= r'.' => return true
+                case r':' <= codePoint && codePoint <= r'@' => return true
+                case r'[' <= codePoint && codePoint <= r'`' => return true
+                case r'{' <= codePoint && codePoint <= r'~' => return true
+                case _ => ()
+            }
+            let code = UInt32(codePoint)
+            // 补充一些常用中文标点
+            if (0x3000 <= code && code <= 0x303F) {
+                return true
+            }
+            // 补充一些全角标点
+            if (0xFF00 <= code && code <= 0xFFEF) {
+                if (0xFF01 <= code && code <= 0xFF0F) {
+                    return true
+                }
+                if (0xFF1A <= code && code <= 0xFF20) {
+                    return true
+                }
+                if (0xFF3B <= code && code <= 0xFF40) {
+                    return true
+                }
+                if (0xFF5B <= code && code <= 0xFF64) {
+                    return true
+                }
+                if (0xFFE0 <= code && code <= 0xFFEE) {
+                    return true
+                }
+            }
             return false
-        }
-        let code = UInt32(codePoint)
-        if (code < 128) {
-            return true
-        }
-        // 补充一些常用中文标点
-        if (0x3000 <= code && code <= 0x303F) {
-            return true
-        }
-        // 补充一些全角标点
-        if (0xFF00 <= code && code <= 0xFFEF) {
-            if (0xFF01 <= code && code <= 0xFF0F) {
-                return true
-            }
-            if (0xFF1A <= code && code <= 0xFF20) {
-                return true
-            }
-            if (0xFF3B <= code && code <= 0xFF40) {
-                return true
-            }
-            if (0xFF5B <= code && code <= 0xFF64) {
-                return true
-            }
-            if (0xFFE0 <= code && code <= 0xFFEE) {
-                return true
-            }
-        }
-        return false
     }
 
     /**

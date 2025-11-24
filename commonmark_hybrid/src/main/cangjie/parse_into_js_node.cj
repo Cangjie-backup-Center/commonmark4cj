@@ -141,6 +141,7 @@ public func parseIntoJsNode(context: JSContext, callInfo: JSCallInfo): JSValue {
             // TOC列表插件
             .usePlugin(TocPlugin.create())
             .usePlugin(Plugin4InlineParserIntegration([InsertImageParser(), MoonLoadingParser()]))
+            .usePlugin(KimiPlugin())
             .includeSourceSpans(includeSourceSpans)
 
         let parser = markdownBuilder.build()
