@@ -1,3 +1,10 @@
+## 1.3.3
+
+- bugfix: latex
+- bugfix: auto link
+- plugin: ascii punctuation for scanDelimiters
+- cangjie support plugin bundled 5.1.1.851
+
 ## 1.3.2
 
 - cangjie support plugin bundled 5.1.1.840
