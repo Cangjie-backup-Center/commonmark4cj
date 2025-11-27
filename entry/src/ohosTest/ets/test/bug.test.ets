@@ -155,9 +155,25 @@ $$`
       let str = printNode(doc)
       console.error(str)
       let p: JsNode = doc.getFirstChild()!
-      let text0: JsNode = p.getFirstChild()!
-      expect(text0.getNodeType()).assertEqual("Text")
-      expect(text0.getLiteral()).assertEqual("**WARNING,**DON'T TOUCH THE CHILD # NOT WORKING")
+      let strong0: JsNode = p.getFirstChild()!
+      let text00: JsNode = strong0.getFirstChild()!
+      expect(strong0.getNodeType()).assertEqual("StrongEmphasis")
+      expect(text00.getNodeType()).assertEqual("Text")
+      expect(text00.getLiteral()).assertEqual("WARNING,")
+    })
+    it('delimiter3', 0, async () => {
+      let md = `**[阿克西奥斯]**（/ˈæksɪɒs/）`
+      let doc = await parseIntoJsNode(md, 2)
+      let str = printNode(doc)
+      console.error(str)
+      let p: JsNode = doc.getFirstChild()!
+      let strong0: JsNode = p.getFirstChild()!
+      let text1: JsNode = p.getLastChild()!
+      expect(strong0.getNodeType()).assertEqual("StrongEmphasis")
+      expect(strong0.getFirstChild()!.getNodeType()).assertEqual("Text")
+      expect(strong0.getFirstChild()!.getLiteral()).assertEqual("[阿克西奥斯]")
+      expect(text1.getNodeType()).assertEqual("Text")
+      expect(text1.getLiteral()).assertEqual("（/ˈæksɪɒs/）")
     })
     it('formula1', 0, async () => {
       let md = `设 $V$ 是`

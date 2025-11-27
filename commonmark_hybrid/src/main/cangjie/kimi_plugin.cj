@@ -5,16 +5,20 @@ package commonmark_hybrid
 
 class KimiPlugin <: AbstractMarkdownPlugin {
     KimiPlugin() {
-        /* delimiter run 只判断ascii标点 */
+    }
+
+    public func configureParser(_: ParserBuilder): Unit {
         Characters.isPunctuationCodePoint = {
             codePoint: Rune =>
+            /* delimiter 不判断任何标点 */
+            return false
             /*
              * An ASCII punctuation character is
-             * !, ", #, $, %, &, ', (, ), *, +, ,, -, ., / (U+0021–2F)
-             * :, ;, <, =, >, ?, @ (U+003A–0040)
-             * [, \, ], ^, _, ` (U+005B–0060)
-             * {, |, }, or ~ (U+007B–007E)
-             */
+             * ! " # $ % & ' ( ) * + , - . / (U+21–2F)
+             * : ; < = > ? @                 (U+3A–40)
+             * [ \ ] ^ _ `                   (U+5B–60)
+             * { | } ~                       (U+7B–7E)
+             * delimiter 只判断ascii标点
             match {
                 case r'!' <= codePoint && codePoint <= r'.' => return true
                 case r':' <= codePoint && codePoint <= r'@' => return true
@@ -22,8 +26,10 @@ class KimiPlugin <: AbstractMarkdownPlugin {
                 case r'{' <= codePoint && codePoint <= r'~' => return true
                 case _ => return false
             }
+             */
         }
     }
+
     public func getClassType(): String {
         'KimiPlugin'
     }
