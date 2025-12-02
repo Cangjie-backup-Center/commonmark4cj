@@ -79,6 +79,28 @@ $$`
       let latexb: JsNode = p?.getLastChild()!
       expect(latexb['latex']).assertEqual("b")
     })
+    it('bugLatex_isCosed', 0, async () => {
+      let md = `
+- **原理**：矩阵乘法在对角矩阵上是对角线元素对应相乘
+  $$ D D^{-1} = \text{diag}(d_1 \cdot \frac{1}{d_1}, d_2 \cdot \frac{1}{d_2}, \dots, d_n \cdot \frac{1}{d_n}) = \text{diag}(1, 1, \dots, 1) = I_n $$
+- **结论**：逆矩阵确实存在，且为 $D^{-1} = \text{diag}(d_1^{-1}, d_2^{-1}, \dots, d_n^{-1})$
+
+
+- **对角矩阵的乘法特点**：两个对角矩阵相乘，结果仍是对角矩阵，且**对角线元素就是对应位置元素的乘积**
+  $$\begin{pmatrix} a_1 & 0 \\ 0 & a_2 \end{pmatrix} \begin{pmatrix} b_1 & 0 \\ 0 & b_2 \end{pmatrix} = \begin{pmatrix} a_1b_1 & 0 \\ 0 & a_2b_2 \end{pmatrix}$$`
+      let doc = await parseIntoJsNode(md, 2)
+      let str = printNode(doc)
+      console.error(str)
+      let list = doc.getFirstChild()!
+      let latexb1: JsNode = list.getFirstChild()?.getLastChild()!
+      expect(latexb1.getNodeType()).assertEqual("LatexMathBlock")
+      expect(latexb1[`isClosed`]).assertEqual(true)
+      let latex2: JsNode = list.getFirstChild()?.getNext()?.getFirstChild()?.getLastChild()!
+      expect(latex2.getNodeType()).assertEqual("LatexMathNode")
+      let latexb2: JsNode = list.getLastChild()?.getLastChild()!
+      expect(latexb2.getNodeType()).assertEqual("LatexMathBlock")
+      expect(latexb2[`isClosed`]).assertEqual(true)
+    })
     it('table1', 0, async () => {
       let md = `| h1 | h2 | h3 | h4 |
 |:---|---:|:---:|

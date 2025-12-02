@@ -4,7 +4,7 @@
 package markdown.plugin
 
 class LatexBlockParser <: AbstractBlockParser {
-    private let block: LatexMathBlock = LatexMathBlock()
+    let block: LatexMathBlock = LatexMathBlock()
     let builder: StringBuilder = StringBuilder()
     var isSingleLineLatex = false // 处理单行的情况 ^\[latex\]$
 
@@ -60,6 +60,7 @@ class LatexBlockParserFactory <: AbstractBlockParserFactory {
             let parser = LatexBlockParser()
             parser.builder.append(line[2..line.size - 2])
             parser.isSingleLineLatex = true
+            parser.block.isClosed = true
             return BlockStart.of(parser).atIndex(state.getIndex() + 2)
         }
         return BlockStart.none()
