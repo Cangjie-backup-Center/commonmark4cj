@@ -4,6 +4,7 @@
 package commonmark_hybrid
 
 import ohos.ark_interop_macro.Interop
+import ohos.hilog.Hilog
 
 public class HybridParser <: SharedObject & JSInteropType<HybridParser> {
     static init() {
@@ -52,28 +53,43 @@ public class HybridParser <: SharedObject & JSInteropType<HybridParser> {
     public func parse(md: String, context: JSContext): JSValue {
         let promise = context.promiseCapability()
         spawn {
-            let doc: MdNode = parser.parse(md)
-            context.postJSTask {
-                let jsNodeTreeBuilder = JsNodeBuilder(jsNodeFactory, context)
-                let RET = jsNodeTreeBuilder.buildNode(doc).toJSValue()
-                promise.resolve(RET)
+            try {
+                let doc: MdNode = parser.parse(md)
+                context.postJSTask {
+                    try {
+                        let jsNodeTreeBuilder = JsNodeBuilder(jsNodeFactory, context)
+                        let RET = jsNodeTreeBuilder.buildNode(doc).toJSValue()
+                        promise.resolve(RET)
+                    } catch (e: Exception) {
+                        promise.reject(context.string(e.toString()).toJSValue())
+                        Hilog.error(0, 'hybrid Exception 3.1', getStackTrace(e))
+                    }
+                }
+            } catch (e: Exception) {
+                promise.reject(context.string(e.toString()).toJSValue())
+                Hilog.error(0, 'hybrid Exception 2.1', getStackTrace(e))
             }
         }
         return promise.toJSValue()
     }
 
     public static func parse_ArkTS_Interop_Identifier(context: JSContext, callInfo: JSCallInfo): JSValue {
-        let thisArg = callInfo.thisArg
-        let thisObject = thisArg.asObject(context)
-        let jsExternal = thisObject.getAttachInfo() ?? throw Exception("class: get external failed.")
-        let clazz = jsExternal.cast<HybridParser>() ?? throw Exception("class: get clazz failed.")
+        try {
+            let thisArg = callInfo.thisArg
+            let thisObject = thisArg.asObject(context)
+            let jsExternal = thisObject.getAttachInfo() ?? throw Exception("class: get external failed.")
+            let clazz = jsExternal.cast<HybridParser>() ?? throw Exception("class: get clazz failed.")
 
-        let arg1754444626731223400 = String.fromJSValue(context, callInfo[0])
+            let arg1754444626731223400 = String.fromJSValue(context, callInfo[0])
 
-        JSCurrentJSContext.set(context)
-        let RET = clazz.parse(arg1754444626731223400, context)
-        JSCurrentJSContext.unset()
-        RET
+            JSCurrentJSContext.set(context)
+            let RET = clazz.parse(arg1754444626731223400, context)
+            JSCurrentJSContext.unset()
+            return RET
+        } catch (e: Exception) {
+            Hilog.error(0, 'hybrid Exception 1.1', e.toString())
+        }
+        return context.undefined().toJSValue()
     }
 
     public func toJSValue(context: JSContext): JSValue {
