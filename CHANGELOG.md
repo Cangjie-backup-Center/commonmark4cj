@@ -1,3 +1,7 @@
+## 1.4.0
+
+- cangjie support plugin bundled 6.0.0.875
+
 ## 1.3.3
 
 - bugfix: latex
