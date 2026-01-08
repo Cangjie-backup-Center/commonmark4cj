@@ -3,8 +3,6 @@
  */
 package markdown.plugin
 
-import ohos.hilog.Hilog
-
 public class LinkifyPlugin <: AbstractMarkdownPlugin {
     public static func create(): LinkifyPlugin {
         return LinkifyPlugin()
