@@ -118,7 +118,7 @@ class JsNodeBuilder {
 }
 
 public func parseIntoJsNode(context: JSContext, callInfo: JSCallInfo): JSValue {
-    let md = callInfo[0].toString(context)
+    let md = callInfo[0].toString()
     let jsNodeConstructor = callInfo[1].asFunction()
     let builder = JsNodeBuilder(jsNodeConstructor, context)
     let includeSourceSpans: Int = Int64(callInfo[2].asNumber().toFloat64())

@@ -19,8 +19,7 @@ public class HybridParser <: SharedObject & JSInteropType<HybridParser> {
     public HybridParser(let parser: Markdown, let jsNodeFactory: JSFunction) {}
 
     public static func jsConstructor(context: JSContext, callInfo: JSCallInfo): JSValue {
-        JSCurrentJSContext.set(context)
-
+        var a = callInfo[0]
         let jsNodeFactory = callInfo[0].asFunction()
         let includeSourceSpans = if (callInfo.count > 1) {
             Int64(callInfo[1].asNumber().toFloat64())
@@ -42,9 +41,8 @@ public class HybridParser <: SharedObject & JSInteropType<HybridParser> {
             .build()
         let clazz = HybridParser(parser, jsNodeFactory)
 
-        JSCurrentJSContext.unset()
         let thisArg = callInfo.thisArg
-        let thisObject = thisArg.asObject(context)
+        let thisObject = thisArg.asObject()
         let jsExternal = context.external(clazz)
         thisObject.attachCJObject(jsExternal)
         return thisObject.toJSValue()
@@ -76,15 +74,13 @@ public class HybridParser <: SharedObject & JSInteropType<HybridParser> {
     public static func parse_ArkTS_Interop_Identifier(context: JSContext, callInfo: JSCallInfo): JSValue {
         try {
             let thisArg = callInfo.thisArg
-            let thisObject = thisArg.asObject(context)
+            let thisObject = thisArg.asObject()
             let jsExternal = thisObject.getAttachInfo() ?? throw Exception("class: get external failed.")
             let clazz = jsExternal.cast<HybridParser>() ?? throw Exception("class: get clazz failed.")
 
             let arg1754444626731223400 = String.fromJSValue(context, callInfo[0])
 
-            JSCurrentJSContext.set(context)
             let RET = clazz.parse(arg1754444626731223400, context)
-            JSCurrentJSContext.unset()
             return RET
         } catch (e: Exception) {
             Hilog.error(0, 'hybrid Exception 1.1', e.toString())
@@ -103,12 +99,12 @@ public class HybridParser <: SharedObject & JSInteropType<HybridParser> {
     }
 
     public static func fromJSValue(context: JSContext, input: JSValue) {
-        let jsObj = input.asObject(context)
+        let jsObj = input.asObject()
         let jsExt = jsObj.getAttachInfo() ?? throw Exception("class: get external failed.")
         let obj = jsExt.cast<HybridParser>() ?? throw Exception("class: get clazz failed.")
         return obj
     }
-    public static func toArkTsType(): String {
+    public static func toArktsType(): String {
         "class"
     }
 }
