@@ -5,9 +5,9 @@
 /**
  * commonmark extension for GFM strikethrough using ~~ (GitHub Flavored Markdown)
  */
-package commonmark4cj.strikethrough
+package cangjie_tpc::commonmark4cj.strikethrough
 
-internal import commonmark4cj.commonmark.*
+internal import cangjie_tpc::commonmark4cj.commonmark.*
 internal import std.collection.{HashSet, HashMap, Map}
 
 extend<T> Option<T> {

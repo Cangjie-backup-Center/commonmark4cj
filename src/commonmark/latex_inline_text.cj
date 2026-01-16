@@ -2,7 +2,7 @@
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights resvered.
  */
 
-package commonmark4cj.commonmark
+package cangjie_tpc::commonmark4cj.commonmark
 
 /**
  * 为了\(...\)数学公式的解析，自定义一个Text节点
@@ -13,9 +13,9 @@ public open class LatexInlineText <: CustomNode {
     public func getLiteral(): String {
         return literal
     }
-    public func getNodeType() {
+    public func getNodeType() : String{
         "LatexInlineText"
     }
 }
 
-public let needLatexInlineParse = [false]
+public let needLatexInlineParse: Array<Bool> = [false]

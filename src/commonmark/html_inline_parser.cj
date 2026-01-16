@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights resvered.
  */
-package commonmark4cj.commonmark
+package cangjie_tpc::commonmark4cj.commonmark
 
 /**
  * Attempt to parse inline HTML.
@@ -156,7 +156,7 @@ public class HtmlInlineParser <: InlineContentParser {
     private static func tryComment(scanner: Scanner): Bool {
         // spec: An [HTML comment](@) consists of `<!-->`, `<!--->`, or  `<!--`, a string of
         // characters not including the string `-->`, and `-->` (see the
-        // [HTML spec](https://html.spec.whatwg.org/multipage/parsing.html#markup-declaration-open-state)).
+        // [HTML spec](html/spec/whatwg/org/multipage/parsing.html#markup-declaration-open-state)).
 
         // Skip first `-`
         scanner.next()

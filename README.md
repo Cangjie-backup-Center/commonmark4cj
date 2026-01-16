@@ -3,9 +3,9 @@
 </div>
 
 <p align="center">
-<img alt="" src="https://img.shields.io/badge/release-v1.0.3-brightgreen" style="display: inline-block;" />
+<img alt="" src="https://img.shields.io/badge/release-v1.1.0-brightgreen" style="display: inline-block;" />
 <img alt="" src="https://img.shields.io/badge/build-pass-brightgreen" style="display: inline-block;" />
-<img alt="" src="https://img.shields.io/badge/cjc-v1.0.0-brightgreen" style="display: inline-block;" />
+<img alt="" src="https://img.shields.io/badge/cjc-v1.1.0-brightgreen" style="display: inline-block;" />
 <img alt="" src="https://img.shields.io/badge/cjcov-95.6%25-brightgreen" style="display: inline-block;" />
 <img alt="" src="https://img.shields.io/badge/project-open-brightgreen" style="display: inline-block;" />
 </p>
@@ -81,7 +81,7 @@ markdown解析得到的节点树，不同类型节点为不同的Node子类
 示例代码如下：
 
 ```cangjie
-import commonmark4cj.commonmark.*
+import cangjie_tpc::commonmark4cj.commonmark.*
 
 main(): Int64 {
     var tb = Text("bb") // node子类
@@ -136,7 +136,7 @@ bb
 示例代码如下：
 
 ```cangjie
-import commonmark4cj.commonmark.*
+import cangjie_tpc::commonmark4cj.commonmark.*
 
 main(): Int64 {
     let parser: Parser = Parser.builder().customBlockParserFactory(DashBlockParserFactory()).build()
@@ -193,7 +193,7 @@ DashBlock{}
 示例代码如下：
 
 ```cangjie
-import commonmark4cj.commonmark.*
+import cangjie_tpc::commonmark4cj.commonmark.*
 
 main(): Int64 {
     let rendered: String = htmlAllowingRenderer().render(
@@ -221,7 +221,7 @@ func parse(source: String): Node {
 
 在下述版本验证通过：
 
-    Cangjie Version: 1.0.0
+    Cangjie Version: 1.1.0
 
 ## 开源协议
 

@@ -2,7 +2,7 @@
  * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
  */
 
-package commonmark4cj.commonmark
+package cangjie_tpc::commonmark4cj.commonmark
 
 public abstract class Block <: Node {
     public open func getParent(): ?Node {
@@ -201,7 +201,7 @@ public abstract class ListBlock <: Block {
         return tight
     }
 
-    public open func setTight(tight: Bool) {
+    public open func setTight(tight: Bool): Unit {
         this.tight = tight
     }
 }

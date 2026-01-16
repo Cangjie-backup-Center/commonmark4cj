@@ -2,7 +2,7 @@
  * Copyright (c) Huawei Technologies Co., Ltd. 2024-2025. All rights reserved.
  */
 
-package commonmark4cj.commonmark
+package cangjie_tpc::commonmark4cj.commonmark
 
 /**
  * Parser for inline content (text, links, emphasized text, etc).

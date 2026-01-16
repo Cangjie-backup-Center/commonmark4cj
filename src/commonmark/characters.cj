@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights resvered.
  */
-package commonmark4cj.commonmark
+package cangjie_tpc::commonmark4cj.commonmark
 
 /**
  * Functions for finding characters in strings or checking characters.
@@ -29,7 +29,7 @@ public class Characters {
     }
 
     /**
-     * @see <a href="https://spec.commonmark.org/0.31.2/#blank-line">blank line</a>
+     * @see <a href="spec/commonmark/org/0.31.2/#blank-line">blank line</a>
      */
     public static func isBlank(s: CharSequence): Bool {
         return skipSpaceTab(s, 0, s.size) == s.size
@@ -57,7 +57,7 @@ public class Characters {
     }
 
     /**
-     * @see <a href="https://spec.commonmark.org/0.31.2/#unicode-punctuation-character">Unicode punctuation character</a>
+     * @see <a href="spec/commonmark/org/0.31.2/#unicode-punctuation-character">Unicode punctuation character</a>
      */
     public static func isPunctuationCodePoint(codePoint: Rune): Bool {
         // match(Character.getType(codePoint)) {
@@ -107,7 +107,7 @@ public class Characters {
     /**
      * Check whether the provided code point is a Unicode whitespace character as defined in the spec.
      *
-     * @see <a href="https://spec.commonmark.org/0.31.2/#unicode-whitespace-character">Unicode whitespace character</a>
+     * @see <a href="spec/commonmark/org/0.31.2/#unicode-whitespace-character">Unicode whitespace character</a>
      */
     public static func isWhitespaceCodePoint(codePoint: Rune): Bool {
         match (codePoint) {

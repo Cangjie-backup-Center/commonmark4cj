@@ -5,7 +5,7 @@
 /**
  * Core of commonmark (implementation of CommonMark for parsing markdown and rendering to HTML)
  */
-package commonmark4cj.commonmark
+package cangjie_tpc::commonmark4cj.commonmark
 
 internal import std.collection.{ArrayList, HashMap, HashSet, Map, EquatableCollection, Set, LinkedList, map, collectString, collectHashSet}
 internal import std.convert.*

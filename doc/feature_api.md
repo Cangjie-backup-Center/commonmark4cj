@@ -421,7 +421,7 @@ public class Emphasis <: Node & Delimited {
 ##### 1.1.2 示例
 
 ```cangjie
-    import commonmark4cj.commonmark.*
+    import cangjie_tpc::commonmark4cj.commonmark.*
 
     @TestCase
     func linkReferenceDefinitionTest(): Unit {
@@ -701,7 +701,7 @@ public class OrderedList <: ListBlock {
 ##### 1.2.2 示例
 
 ```cangjie
-    import commonmark4cj.commonmark.*
+    import cangjie_tpc::commonmark4cj.commonmark.*
     
     @TestCase
     func documentTest(): Unit {
@@ -911,7 +911,7 @@ public abstract class AbstractVisitor <: Visitor {
 ##### 1.3.2 示例
 
 ```cangjie
-    import commonmark4cj.commonmark.*
+    import cangjie_tpc::commonmark4cj.commonmark.*
 
     @TestCase
     func test_Text_accept():Unit {
@@ -1054,7 +1054,7 @@ public interface PostProcessor {
 ##### 2.1.2 示例
 
 ```cangjie
-    import commonmark4cj.commonmark.*
+    import cangjie_tpc::commonmark4cj.commonmark.*
 
     @TestCase
     func parse_test():Unit {
@@ -1396,7 +1396,7 @@ public class ThematicBreakParserFactory <: BlockParserFactory {
 ##### 2.2.2 示例
 
 ```cangjie
-import commonmark4cj.commonmark.*
+import cangjie_tpc::commonmark4cj.commonmark.*
 
 main(): Int64 {
     let parser: Parser = Parser.builder().customBlockParserFactory(DashBlockParserFactory()).build()
@@ -1580,7 +1580,7 @@ public interface DelimiterRun {
 ##### 2.3.2 示例
 
 ```cangjie
-    import commonmark4cj.commonmark.*
+    import cangjie_tpc::commonmark4cj.commonmark.*
 
     @TestCase
     public func inlineParser(): Unit {
@@ -1660,7 +1660,7 @@ public class StrikethroughExtension <: ParserExtension & HtmlRendererExtension &
 ##### 2.4.2 示例
 
 ```cangjie
-import commonmark4cj.commonmark.*
+import cangjie_tpc::commonmark4cj.commonmark.*
 
 @TestCase
 public class StrikethroughTest {
@@ -1780,7 +1780,7 @@ public class TablesExtension <: ParserExtension & HtmlRendererExtension & TextCo
 
 ```cangjie
 
-import commonmark4cj.commonmark.*
+import cangjie_tpc::commonmark4cj.commonmark.*
 
 @Test
 public class TableTT {
@@ -1962,7 +1962,7 @@ public class TextContentWriter {
 ##### 3.1.2 示例
 
 ```cangjie
-    import commonmark4cj.commonmark.*
+    import cangjie_tpc::commonmark4cj.commonmark.*
 
     @TestCase
     func render_test():Unit {
@@ -2184,7 +2184,7 @@ public type HtmlNodeRendererFactory = (context: HtmlNodeRendererContext) -> Node
 ##### 3.2.2 示例
 
 ```cangjie
-    import commonmark4cj.commonmark.*
+    import cangjie_tpc::commonmark4cj.commonmark.*
 
     @TestCase
     func render_test():Unit {
@@ -2257,7 +2257,7 @@ public class Html5Entities {
 ##### 4.2.2 示例
 
 ```cangjie
-    import commonmark4cj.commonmark.*
+    import cangjie_tpc::commonmark4cj.commonmark.*
 
     @TestCase
     func escaping_test(): Unit {

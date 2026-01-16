@@ -2,7 +2,7 @@
  * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
  */
 
-package commonmark4cj.strikethrough
+package cangjie_tpc::commonmark4cj.strikethrough
 
 let StrikethroughType: NodeType = "Strikethrough"
 

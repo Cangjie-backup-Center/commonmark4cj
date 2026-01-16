@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights resvered.
  */
-package commonmark4cj.commonmark
+package cangjie_tpc::commonmark4cj.commonmark
 
 /**
  * Opening bracket for links ({@code [}), images ({@code ![}), or links with other markers.

@@ -2,7 +2,7 @@
  * Copyright (c) Huawei Technologies Co., Ltd. 2024-2025. All rights reserved.
  */
 
-package commonmark4cj.table
+package cangjie_tpc::commonmark4cj.table
 
 class TableBlockParser <: AbstractBlockParser {
     private var block: TableBlock = TableBlock()
