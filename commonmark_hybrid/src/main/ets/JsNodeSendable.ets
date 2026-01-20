@@ -44,6 +44,7 @@ export class JsNodeSendableImpl implements JsNode {
   headIndex: number | undefined = undefined
   props: collections.Map<string, string> | undefined = undefined // 用于存放Js行内自定义解析插件所产生的数据
   sourceSpans: collections.Array<SourceSpanSendableImpl> = new collections.Array()
+  tagName: string | undefined = undefined
 
   getNodeType(): string {
     return this.nodeType

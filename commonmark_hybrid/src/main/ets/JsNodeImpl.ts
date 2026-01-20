@@ -41,6 +41,7 @@ export class JsNodeImpl implements JsNode {
   headIndex: number | undefined = undefined
   props: Map<string, string> | undefined = undefined // 用于存放Js行内自定义解析插件所产生的数据
   sourceSpans: SourceSpanImpl[] = []
+  tagName: string | undefined = undefined
 
   getNodeType(): string {
     return this.nodeType

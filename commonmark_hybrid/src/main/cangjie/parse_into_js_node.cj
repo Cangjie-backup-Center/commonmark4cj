@@ -76,6 +76,11 @@ class JsNodeBuilder {
                 jsNode.set('header', v.isHeader(), context)
                 jsNode.set('alignment', v.getAlignment()?.toString(), context)
                 jsNode.set('width', v.getWidth(), context)
+            case v: CustomTag =>
+                jsNode.set('tagName', v.tagName, context)
+                for ((key, value) in v.tagAttrs) {
+                    jsNode.callMethod('putProp', context.string(key).toJSValue(), context.string(value).toJSValue())
+                }
             case _ => ()
         }
         jsNode
@@ -142,6 +147,7 @@ public func parseIntoJsNode(context: JSContext, callInfo: JSCallInfo): JSValue {
             .usePlugin(TocPlugin.create())
             .usePlugin(Plugin4InlineParserIntegration([InsertImageParser(), MoonLoadingParser()]))
             .usePlugin(KimiPlugin())
+            .usePlugin(CustomTagPlugin())
             .includeSourceSpans(includeSourceSpans)
 
         let parser = markdownBuilder.build()
