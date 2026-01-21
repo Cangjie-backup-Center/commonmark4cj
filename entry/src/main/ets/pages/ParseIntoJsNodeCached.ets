@@ -1,4 +1,4 @@
-import { JsNode } from "./md"
+import { JsNode, opt } from "./md"
 import { cjLib} from "./md"
 import { hilog } from "@kit.PerformanceAnalysisKit"
 import { JsNodeSendableImpl } from "./md"
@@ -14,7 +14,7 @@ import { JsNodeImpl } from "@cangjie-tpc/commonmark_hybrid"
  *  let doc = await parseIntoJsNodeCached(str, nodepool)
  */
 export async function parseIntoJsNodeCached(fullMdStr: string, nodepool: JsNodePool): Promise<JsNode> {
-  let doc: JsNode = await cjLib.parseIntoJsNode(fullMdStr, () => nodepool.getJsNode(), 0) as JsNode
+  let doc: JsNode = await cjLib.parseIntoJsNode(fullMdStr, opt(() => nodepool.getJsNode(), 0)) as JsNode
   return doc
 }
 

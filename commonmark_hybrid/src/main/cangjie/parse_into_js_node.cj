@@ -124,9 +124,12 @@ class JsNodeBuilder {
 
 public func parseIntoJsNode(context: JSContext, callInfo: JSCallInfo): JSValue {
     let md = callInfo[0].toString(context)
-    let jsNodeConstructor = callInfo[1].asFunction()
-    let builder = JsNodeBuilder(jsNodeConstructor, context)
-    let includeSourceSpans: Int = Int64(callInfo[2].asNumber().toFloat64())
+    let opt = callInfo[1].asObject()
+    let jsNodeFactory = opt['jsNodeFactory'].asFunction()
+    let builder = JsNodeBuilder(jsNodeFactory, context)
+    let includeSourceSpans: Int = Int64.fromJSValue(context, opt['includeSourceSpans'])
+    let cmInlineTags: Array<String> = JSArrayEx<String>.fromJSValue(context, opt['cmInlineTags']).toArray()
+
     let promise = context.promiseCapability()
     spawn {
         let markdownBuilder: MarkdownBuilder = Markdown
@@ -147,7 +150,7 @@ public func parseIntoJsNode(context: JSContext, callInfo: JSCallInfo): JSValue {
             .usePlugin(TocPlugin.create())
             .usePlugin(Plugin4InlineParserIntegration([InsertImageParser(), MoonLoadingParser()]))
             .usePlugin(KimiPlugin())
-            .usePlugin(CustomTagPlugin())
+            .usePlugin(CustomTagPlugin(cmInlineTags))
             .includeSourceSpans(includeSourceSpans)
 
         let parser = markdownBuilder.build()

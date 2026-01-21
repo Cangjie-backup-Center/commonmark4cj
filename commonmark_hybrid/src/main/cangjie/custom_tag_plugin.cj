@@ -3,6 +3,9 @@
  */
 package commonmark_hybrid
 
+import ohos.hilog.Hilog
+import std.reflect.*
+
 /*
  * 自定义标签插件
  *   行内单标签:
@@ -16,10 +19,10 @@ package commonmark_hybrid
  *     a='true'
  */
 class CustomTagPlugin <: AbstractMarkdownPlugin {
-    CustomTagPlugin() {}
+    CustomTagPlugin(let cmInlineTags: Array<String>) {}
 
     public func configureParser(builder: ParserBuilder): Unit {
-        builder.customInlineContentParserFactory(CustomTagParser())
+        builder.customInlineContentParserFactory(CustomTagParser(this))
     }
 
     public func getClassType(): String {
@@ -28,8 +31,7 @@ class CustomTagPlugin <: AbstractMarkdownPlugin {
 }
 
 class CustomTagParser <: InlineParserIntegration {
-    private static let TAG_START = '<cmtag@inline@'
-    private static let TAG_END = '>'
+    CustomTagParser(let ctx: CustomTagPlugin) {}
 
     public func create(): InlineContentParser {
         this
@@ -41,8 +43,10 @@ class CustomTagParser <: InlineParserIntegration {
     public func tryParse(inlineParserState: InlineParserState): ParsedInline {
         let scanner = inlineParserState.getScanner()
         var line = scanner.peekLine()
-        if (line.startsWith('<cmtag.inline.')) {
-            if (let Some(tag) <- TagReader(scanner).read()) {
+        line = line[1..]
+        for (v in ctx.cmInlineTags) {
+            if (line.startsWith(v)) {
+                let tag = TagReader(scanner).read() ?? continue
                 return ParsedInline.of(tag, scanner.position())
             }
         }
@@ -76,9 +80,7 @@ class TagReader {
             }
             let name = readPropName() ?? break
             let value = readPropValue()
-            tag
-                .tagAttrs
-                .add(name, value)
+            tag.tagAttrs.add(name, value)
         }
         readTagEnd() ?? return None
         return tag
@@ -119,6 +121,26 @@ class TagReader {
     }
 }
 
+class CustomTagBlockParser <: AbstractBlockParser & BlockParserFactory {
+    CustomTagBlockParser(let cxt: CustomTagPlugin) {}
+    public func tryStart(state: ParserState, matchedBlockParser: MatchedBlockParser): ?BlockStart {
+        var line: String = state.getLine().getContent()[state.getIndex()..]
+        None
+    }
+    public func getBlock(): Block {
+        throw Exception('1.1')
+    }
+    public func tryContinue(parserState: ParserState): ?BlockContinue {
+        throw Exception('1.2')
+    }
+    public func addLine(line: SourceLine): Unit {
+        throw Exception('1.3')
+    }
+    public func closeBlock(): Unit {
+        throw Exception('1.4')
+    }
+}
+
 extend Scanner {
     func readUtil(bs: Array<Byte>): ?String {
         readUtil(false, bs)
@@ -129,9 +151,7 @@ extend Scanner {
         while (true) {
             match (this.peek()) {
                 case b'\n' | 0 => return None
-                case v where bs
-                    .indexOf(v)
-                    .isSome() => break
+                case v where bs.indexOf(v).isSome() => break
                 case _ =>
                     len++
                     this.next()
@@ -139,9 +159,7 @@ extend Scanner {
             }
         }
         let p1 = this.position()
-        let name = this
-            .getSource(p0, p1)
-            .getContent()
+        let name = this.getSource(p0, p1).getContent()
         if (!name.isEmpty()) {
             if (dropMatcherByteWhenFind) {
                 this.next()

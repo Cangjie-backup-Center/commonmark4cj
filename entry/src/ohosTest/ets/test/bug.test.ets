@@ -3,13 +3,13 @@ import { describe, beforeAll, beforeEach, afterEach, afterAll, it, expect } from
 import {
   InlineContentParser,
   ParsedInline,
-  parseIntoJsNode,
   utf16Index2utf8Index,
   Scanner,
   utf8Index2utf16Index,
   printNode,
   JsNode
 } from '@cangjie-tpc/commonmark_hybrid';
+import { parseIntoJsNode } from '../../../main/ets/pages/md'
 import { errjson } from './md1';
 import { err2 } from './md2';
 import { md_latex_1 } from './md3';

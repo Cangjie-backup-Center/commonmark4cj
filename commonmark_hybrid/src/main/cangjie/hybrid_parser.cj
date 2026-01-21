@@ -20,13 +20,10 @@ public class HybridParser <: SharedObject & JSInteropType<HybridParser> {
 
     public static func jsConstructor(context: JSContext, callInfo: JSCallInfo): JSValue {
         JSCurrentJSContext.set(context)
-
-        let jsNodeFactory = callInfo[0].asFunction()
-        let includeSourceSpans = if (callInfo.count > 1) {
-            Int64(callInfo[1].asNumber().toFloat64())
-        } else {
-            0
-        }
+        let opt = callInfo[0].asObject()
+        let jsNodeFactory = opt['jsNodeFactory'].asFunction()
+        let includeSourceSpans = Int64.fromJSValue(context, opt['includeSourceSpans'])
+        let cmInlineTags: Array<String> = JSArrayEx<String>.fromJSValue(context, opt['cmInlineTags']).toArray()
         let parser = Markdown
             .builder()
             .usePlugin(TaskListPlugin.create()) // 任务列表插件
@@ -38,6 +35,7 @@ public class HybridParser <: SharedObject & JSInteropType<HybridParser> {
             .usePlugin(TocPlugin.create()) // TOC列表插件
             .usePlugin(Plugin4InlineParserIntegration([InsertImageParser(), MoonLoadingParser()]))
             .usePlugin(KimiPlugin())
+            .usePlugin(CustomTagPlugin(cmInlineTags))
             .includeSourceSpans(includeSourceSpans)
             .build()
         let clazz = HybridParser(parser, jsNodeFactory)

@@ -6,6 +6,7 @@ import { JsNodeSendableImpl } from "./src/main/ets/JsNodeSendable";
 import { InlineContentParser } from "./src/main/ets/InlineContentParser"
 import { cjLib } from "./src/main/ets/interop_api"
 import { hilog } from "@kit.PerformanceAnalysisKit";
+import { Options } from "./src/main/ets/Options";
 
 export { JsNode, SourceSpan, printNode } from './src/main/ets/JsNode'
 
@@ -20,23 +21,19 @@ export { InlineContentParser,
   utf8Index2utf16Index,
   utf16Index2utf8Index } from './src/main/ets/InlineContentParser'
 
+export { Options } from './src/main/ets/Options'
+
 export { cjLib, HybridParser } from './src/main/ets/interop_api'
 
 /**
  * parseIntoJsNode
  * @param md: markdown文本
- * @param includeSourceSpans: 是否包含SourceSpan信息 0:不包含(默认) 1:仅Block节点 2:全部节点
- * @param customParsers: 自定义行内解析插件
+ * @param opt: markdown options
  * @returns Promise<JsNode>
  */
-export async function parseIntoJsNode(
-  md: string,
-  includeSourceSpans: number,
-  ...customParsers: Array<InlineContentParser>
-): Promise<JsNode> {
+export async function parseIntoJsNode(md: string, opt: Options): Promise<JsNode> {
   try {
-    let res =
-      cjLib.parseIntoJsNode(md, () => new JsNodeSendableImpl(), includeSourceSpans, ...customParsers) as Promise<JsNode>
+    let res = cjLib.parseIntoJsNode(md, opt) as Promise<JsNode>
     return res
   } catch (e) {
     hilog.error(0, 'mdebug', `cj parseIntoJsNode error: ${e} \n ${e.stack}`)
