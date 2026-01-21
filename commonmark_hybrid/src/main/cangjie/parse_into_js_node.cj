@@ -129,6 +129,7 @@ public func parseIntoJsNode(context: JSContext, callInfo: JSCallInfo): JSValue {
     let builder = JsNodeBuilder(jsNodeFactory, context)
     let includeSourceSpans: Int = Int64.fromJSValue(context, opt['includeSourceSpans'])
     let cmInlineTags: Array<String> = JSArrayEx<String>.fromJSValue(context, opt['cmInlineTags']).toArray()
+    let customParsers = getCustomParsers(opt['customParsers'], context)
 
     let promise = context.promiseCapability()
     spawn {
@@ -152,7 +153,9 @@ public func parseIntoJsNode(context: JSContext, callInfo: JSCallInfo): JSValue {
             .usePlugin(KimiPlugin())
             .usePlugin(CustomTagPlugin(cmInlineTags))
             .includeSourceSpans(includeSourceSpans)
-
+        if (let Some(v) <- customParsers) {
+            markdownBuilder.usePlugin(v)
+        }
         let parser = markdownBuilder.build()
         let doc: MdNode = parser.parse(md)
 
@@ -162,4 +165,27 @@ public func parseIntoJsNode(context: JSContext, callInfo: JSCallInfo): JSValue {
         }
     }
     return promise.toJSValue()
+}
+
+func getCustomParsers(param: JSValue, ctx: JSContext): ?JsPlugin {
+    if (param.isUndefined() || param.isNull()) {
+        return None
+    }
+    let arr = param.asArray()
+    let factories = Array<JsInlineContentParserFactory>(arr.size) {
+        i => JsInlineContentParserFactory(arr[i].asObject(), ctx)
+    }
+    return JsPlugin(factories)
+}
+
+func getCtx(): JSContext {
+    let box: Array<?JSContext> = [None]
+    JSModule.registerModule(
+        {
+            ctx, exports =>
+                box[0] = ctx
+                exports
+        }
+    )
+    return box[0].getOrThrow()
 }

@@ -119,10 +119,12 @@ ohpm install @cangjie-tpc/commonmark_hybrid
 ```typescript
 import {
   JsNode as Node,
+  JsNodeImpl,
   parseIntoJsNode,
   ParsedInline,
   Scanner,
   InlineContentParser,
+  Options,
   printNode,
   utf8Index2utf16Index,
   utf16Index2utf8Index
@@ -160,13 +162,19 @@ class MyParser implements InlineContentParser {
   }
 }
 
-
-let markdownString = "😀我0123a56a89"
-let myParser: InlineContentParser = new MyParser()
-parseIntoJsNode(markdownString, myParser).then(node => {
+export default async function parse(): Promise<void> {
+  let markdownString = "😀我0123a56a89"
+  let myParser: InlineContentParser = new MyParser()
+  let opt: Options = {
+    includeSourceSpans: 0,
+    customParsers: [myParser],
+    jsNodeFactory: () => new JsNodeImpl(),
+    cmInlineTags: []
+  }
+  let node = await parseIntoJsNode(markdownString, opt)
   let nodeTreeStr = printNode(node)
   hilog.info(0, '', nodeTreeStr)
-})
+}
 ```
 
 执行结果如下：

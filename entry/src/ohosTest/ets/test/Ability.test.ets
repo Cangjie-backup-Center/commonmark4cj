@@ -10,6 +10,7 @@ import {
   JsNode
 } from '@cangjie-tpc/commonmark_hybrid';
 import { parseIntoJsNode } from '../../../main/ets/pages/md'
+import readme from './readme'
 
 export default function abilityTest() {
   describe('ActsAbilityTest', () => {
@@ -41,6 +42,7 @@ export default function abilityTest() {
       expect(a).assertContain(b);
       expect(a).assertEqual(a);
     })
+    it('readme', 0, async () => {await readme()})
     it('test_parse0_001', 0, async () => {
       let md = '我0123a56a89'
       let testNode = await parseIntoJsNode(md, 0)
@@ -200,8 +202,8 @@ export default function abilityTest() {
           expect(testNode.getFirstChild()?.getNodeType()).assertEqual(undefined)
           expect(testNode.getLastChild()?.getNodeType()).assertEqual(undefined)
           expect(testNode.getParent()?.getNodeType()).assertEqual("Paragraph")
-          expect(testNode.getNext()?.getNodeType()).assertEqual(undefined)
-          expect(testNode.getLiteral()).assertEqual("我0123a56a89")
+          expect(testNode.getNext()?.getNodeType()).assertEqual("anode")
+          expect(testNode.getLiteral()).assertEqual("我0123")
           expect(testNode.getDestination()).assertEqual(undefined)
           expect(testNode.getTitle()).assertEqual(undefined)
           expect(testNode.getLabel()).assertEqual(undefined)
@@ -244,9 +246,10 @@ export default function abilityTest() {
       expect(testNode.getDelimiter()).assertEqual(undefined)
     })
     it('test_parse1_notEmptyParser_002', 0, async () => {
-      let md = '<a>fsfsfsddfdsfabd</a>'
+      let md = '<a>fsfsfsddfdsfbd</a>'
       let myPaser = new MyParser()
       let node = await parseIntoJsNode(md, 0, myPaser)
+      console.error(printNode(node))
       let testNode = node.getFirstChild()
       if (testNode == undefined) {
         expect().assertFail()

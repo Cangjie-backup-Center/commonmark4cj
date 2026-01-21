@@ -13,6 +13,7 @@ import {
   utf16Index2utf8Index,
   utf8Index2utf16Index,
   JsNodeImpl,
+  JsNodeSendableImpl,
 } from '@cangjie-tpc/commonmark_hybrid';
 
 function opt(includeSourceSpans: number, cmInlineTags: string[]): Options {
@@ -73,7 +74,14 @@ export default function aTest() {
     })
     it('htmltag3', 0, async () => {
       let md = `<INSERT_IMAGE/><^moonLoading^/><KIMI_REF/>`
-      let doc = await parseIntoJsNode(md, opt(0, ['INSERT_IMAGE','^moonLoading^','KIMI_REF']))
+      let options: Options = {
+        jsNodeFactory: () => new JsNodeSendableImpl(),
+        includeSourceSpans: 0,
+        cmInlineTags: ['INSERT_IMAGE', '^moonLoading^', 'KIMI_REF'],
+        customParsers: undefined
+      }
+      let parser = new cjLib.HybridParser(options)
+      let doc = await parser.parse(md)
       let str = printNode(doc)
       console.error(str)
       let p: JsNode = doc.getFirstChild()!
