@@ -1212,7 +1212,7 @@ public abstract class BlockStart {
      * 参数 Array<AbstractBlockParser> - 解析类数组
      * 返回值 BlockStart - BlockStart实现类
      */
-    public static func of4Cj(blockParsers: Array<AbstractBlockParser>): BlockStart
+    public static func of(blockParsers: Array<AbstractBlockParser>): BlockStart
 
 	/*
      * 指定下标
@@ -1253,9 +1253,10 @@ public interface MatchedBlockParser {
 public interface ParserState {
 	/*
      * 获取当前行内容
-     * 返回值 CharSequence - 内容
+     * 返回值 SourceLine - 内容
      */
-    func getLine(): CharSequence
+    func getLine(): SourceLine
+    func getNextLine(): String
     
 	/*
      * 获取下标
@@ -1347,10 +1348,13 @@ public class IndentedCodeBlockParserFactory <: BlockParserFactory {
 public class LinkReferenceDefinitionParser {
 	/*
      * 解析当前的文本行
-     * 参数 CharSequence - 文本
+     * 参数 line - 文本
      */
-    public func parse(line: CharSequence): Unit
-
+    public func parse(line: SourceLine): Unit
+	/*
+     * 添加SourceSpan
+     */
+    public func addSourceSpan(sourceSpan: SourceSpan): Unit
     /*
      * 获取State对象
      * 返回值 State - State对象
@@ -1414,7 +1418,7 @@ class DashBlockParserFactory <: AbstractBlockParserFactory {
 
     public override func tryStart(state: ParserState, matchedBlockParser: MatchedBlockParser): ?BlockStart {
         if (state.getLine() == ("---")) {
-            return BlockStart.of4Cj(DashBlockParser())
+            return BlockStart.of(DashBlockParser())
         }
         return BlockStart.none()
     }
@@ -1460,6 +1464,11 @@ public interface InlineParserContext {
      * 返回值 ArrayList<DelimiterProcessor> - ArrayList<DelimiterProcessor>
      */
     func getCustomDelimiterProcessors(): ArrayList<DelimiterProcessor>
+
+    /**
+     * 获取用户自定义的分割符处理器factory
+     */
+    func getCustomInlineContentParserFactories(): ArrayList<InlineContentParserFactory>
     
 	/*
      * 根据名字获取对应的链接引用
@@ -1467,6 +1476,21 @@ public interface InlineParserContext {
      * 返回值 ?LinkReferenceDefinition - ?LinkReferenceDefinition
      */
     func getLinkReferenceDefinition(label: String): ?LinkReferenceDefinition
+
+    /**
+     * 获取用户自定义的链接处理器
+     */
+    func getCustomLinkProcessors(): ArrayList<LinkProcessor>
+
+    /**
+     * 获取用户自定义的链接标志符
+     */
+    func getCustomLinkMarkers(): HashSet<Rune>
+
+    /**
+     * 根据标签（label）查找类型定义
+     */
+    func getDefinition(typ: String, label: String): ?LinkReferenceDefinition
 }
 
 public interface InlineParserFactory {
@@ -1498,20 +1522,12 @@ public interface DelimiterProcessor {
     func getMinLength(): Int64
 
 	/*
-     * 获取多少分隔符可以被使用
-     * 参数 DelimiterRun - 开始 DelimiterRun(连续分隔符序列)
-     * 参数 DelimiterRun - 结束DelimiterRun(连续分隔符序列)
-     * 返回值 Int64 - 个数
-     */
-    func getDelimiterUse(opener: DelimiterRun, closer: DelimiterRun): Int64
-
-	/*
      * 处理行内元素
-     * 参数 Text - 开始文本
-     * 参数 Text - 结束文本
-     * 参数 Int64 - 可以用的分隔符数量 决定是Emphasis还是StrongEmphasis 的 Node
+     * 参数 openingRun - 包含开始符号的文本节点
+     * 参数 closingRun - 包含结束符号的文本节点
+     * 返回值 使用了多少分隔符
      */
-    func process(opener: Text, closer: Text, delimiterUse: Int64): Unit
+    func process(openingRun: DelimiterRun, closingRun: DelimiterRun): Int
 }
 
 public abstract class EmphasisDelimiterProcessor <: DelimiterProcessor {
@@ -1534,20 +1550,12 @@ public abstract class EmphasisDelimiterProcessor <: DelimiterProcessor {
     public override func getMinLength(): Int64
 
 	/*
-     * 获取多少分隔符可以被使用
-     * 参数 DelimiterRun - 开始 DelimiterRun(连续分隔符序列)
-     * 参数 DelimiterRun - 结束DelimiterRun(连续分隔符序列)
-     * 返回值 Int64 - 个数
-     */
-    public override func getDelimiterUse(opener: DelimiterRun, closer: DelimiterRun): Int64 
-
-	/*
      * 处理行内元素
-     * 参数 Text - 开始文本
-     * 参数 Text - 结束文本
-     * 参数 Int64 - 可以用的分隔符数量 决定是Emphasis还是StrongEmphasis 的 Node 
+     * 参数 openingRun - 包含开始符号的文本节点
+     * 参数 closingRun - 包含结束符号的文本节点
+     * 返回值 用的分隔符数量 决定是Emphasis还是StrongEmphasis 的 Node 
      */
-    public override func process(opener: Text, closer: Text, delimiterUse: Int64): Unit
+    func process(openingRun: DelimiterRun, closingRun: DelimiterRun): Int
 }
 
 public interface DelimiterRun {
@@ -1574,6 +1582,34 @@ public interface DelimiterRun {
      * 返回值 Bool - 是否可以关闭
      */
     func getOriginalLength(): Int64
+
+    /**
+     * @return the innermost opening delimiter, e.g. for {@code ***} this is the last {@code *}
+     */
+    func getOpener(): Text
+
+    /**
+     * @return the innermost closing delimiter, e.g. for {@code ***} this is the first {@code *}
+     */
+    func getCloser(): Text
+
+    /**
+     * Get the opening delimiter nodes for the specified length of delimiters. Length must be between 1 and
+     * {@link #length()}.
+     * <p>
+     * For example, for a delimiter run {@code ***}, calling this with 1 would return the last {@code *}.
+     * Calling it with 2 would return the second last {@code *} and the last {@code *}.
+     */
+    func getOpeners(length: Int): ReadOnlyList<Text>
+
+    /**
+     * Get the closing delimiter nodes for the specified length of delimiters. Length must be between 1 and
+     * {@link #length()}.
+     * <p>
+     * For example, for a delimiter run {@code ***}, calling this with 1 would return the first {@code *}.
+     * Calling it with 2 would return the first {@code *} and the second {@code *}.
+     */
+    func getClosers(length: Int): ReadOnlyList<Text>
 }
 ```
 
@@ -1617,6 +1653,11 @@ public abstract class StrikethroughNodeRenderer <: NodeRenderer {
 }
 
 public class Strikethrough <: CustomNode & Delimited {
+    /*
+     * 构造函数
+     * 参数 delimiter 使用的分隔符
+     */
+    public Strikethrough(let delimiter: String) {}
 	/*
      * 获取起始分隔符
      * 返回值 ?String> - 起始分隔符
@@ -2209,7 +2250,7 @@ public type HtmlNodeRendererFactory = (context: HtmlNodeRendererContext) -> Node
 可靠性：NA
 
 #### 4.1 util
-# asdasd   
+
 ##### 4.1.1 主要接口
 
 ```

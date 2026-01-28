@@ -13,46 +13,57 @@ public abstract class Node <: Context & ToString & Equatable<Node> & Hashable {
 
     public open func accept(visitor: Visitor): Unit
 
+    @Frozen
     public open func getNext(): ?Node {
         return next
     }
 
+    @Frozen
     public open func getPrevious(): ?Node {
         return prev
     }
 
+    @Frozen
     public open func getFirstChild(): ?Node {
         return firstChild
     }
 
+    @Frozen
     public open func getLastChild(): ?Node {
         return lastChild
     }
 
+    @Frozen
     public open func getParent(): ?Node {
         return parent
     }
 
+    @Frozen
     protected open func setParent(parent: ?Node): Unit {
         this.parent = parent
     }
 
+    @Frozen
     protected open func setPrevious(prev: ?Node): Unit {
         this.prev = prev
     }
 
+    @Frozen
     protected open func setNext(next: ?Node): Unit {
         this.next = next
     }
 
+    @Frozen
     protected open func setFirstChild(firstChild: ?Node): Unit {
         this.firstChild = firstChild
     }
 
+    @Frozen
     protected open func setLastChild(lastChild: ?Node): Unit {
         this.lastChild = lastChild
     }
 
+    @Frozen
     public open func appendChild(child: Node): Unit {
         child.unlink()
         child.setParent(this)
@@ -461,15 +472,18 @@ public abstract class Context {
     /**
      * @return the source spans of this node if included by the parser, an empty list otherwise
      */
+    @Frozen
     public func getSourceSpans(): ArrayList<SourceSpan> {
-        return sourceSpans ?? ArrayList()
+        return sourceSpans ?? EMPTY_SourceSpans
     }
+    private static let EMPTY_SourceSpans: ArrayList<SourceSpan> = ArrayList(1)
 
     /**
      * Replace the current source spans with the provided list.
      *
      * @param sourceSpans the new source spans to set
      */
+    @Frozen
     public func setSourceSpans(sourceSpans: ArrayList<SourceSpan>): Unit {
         if (sourceSpans.isEmpty()) {
             this.sourceSpans = None
