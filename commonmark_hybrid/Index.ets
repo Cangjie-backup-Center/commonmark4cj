@@ -46,3 +46,7 @@ export async function parseIntoJsNode(md: string, opt: Options): Promise<JsNode>
 //   let res = await cjLib.parse2Json(md, JsNode, customParsers)
 //   return json2Node(res)
 // }
+
+export  function splitTextToArr(reg: string, text: string): string[] {
+  return cjLib.splitTextToArr(reg, text)
+}

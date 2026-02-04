@@ -30,6 +30,8 @@ export declare interface CustomLib {
      */
     new(options: Options): HybridParser
   }
+
+  splitTextToArr(pattern: string, input: string): string[]
 }
 
 export const cjLib: CustomLib = requireCJLib("libcommonmark_hybrid.so") as CustomLib

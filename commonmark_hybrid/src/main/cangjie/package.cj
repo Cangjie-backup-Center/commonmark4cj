@@ -23,6 +23,7 @@ let EXPORT_MODULE = JSModule.registerModule {
 //    exports["parse2Json"] = runtime.function(parse2Json).toJSValue()
 
     exports["testCJ"] = runtime.function(testCJ).toJSValue()
+    exports["splitTextToArr"] = runtime.function(splitTextToArr).toJSValue()
 }
 
 func getStackTrace(thrown: ?Exception): String {

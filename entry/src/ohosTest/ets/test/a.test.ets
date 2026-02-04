@@ -15,6 +15,7 @@ import {
   JsNodeImpl,
   JsNodeSendableImpl,
 } from '@cangjie-tpc/commonmark_hybrid';
+import { splitTextToArr } from '@cangjie-tpc/commonmark_hybrid';
 
 function opt(includeSourceSpans: number, cmInlineTags: string[]): Options {
   return {
@@ -94,6 +95,17 @@ export default function aTest() {
       expect(node0['tagName']).assertEqual("INSERT_IMAGE")
       expect(node1['tagName']).assertEqual("^moonLoading^")
       expect(node2['tagName']).assertEqual("KIMI_REF")
+    })
+    it('splitTextToArr', 0, async () =>{
+      let message = splitTextToArr('\\p{Han}', '0一1二2三3四4')
+      console.error(message.toString())
+      expect(message.toString()).assertEqual('一,二,三,四')
+    })
+    it('splitTextToArr1', 0, async () =>{
+      // let message = splitTextToArr('[\\p{Han}]|\\p{L}+\\p{N}*|\\p{N}+|[^\\p{L}\\p{N}]', 'AI在彩票领域能做什么？')
+      let message = splitTextToArr('\\p{Han}|\\p{L}\\p{N}*|\\p{N}+|[^\\p{L}\\p{N}]', 'AI在彩票领域能做什么？')
+      console.error(message.toString())
+      expect(message.toString()).assertEqual('A,I,在,彩,票,领,域,能,做,什,么,？')
     })
   })
 }
